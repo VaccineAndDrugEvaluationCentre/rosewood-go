@@ -1,0 +1,19 @@
+---
+Table 8: Definition of Autoimmune diseases
+---
+>= 1 admission (ICD-10 codes as below) OR >= 2 physician claims (ICD-9 codes as below)
+Disease | ICD9 codes                 | ICD10 codes
+                PHysician claims | Hospital data
+---
+Pernicious anemia           | 281 | 281.0 | D51.0
+Autoimmune hemolytic anemia | 283 | 283.0 | D59.1
+Ankylosing spondylitis      | 720 | 720.0 | M45
+---
+1. Some footer note
+2. Some other footer note
+---
+merge row 1
+merge row 2 col 1 : 2
+merge row 2:3 col 1 
+merge row 2:3 col 2:3
+---

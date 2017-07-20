@@ -1,0 +1,105 @@
+
+body {
+	background-color: #999999;
+	text-align: center;
+}
+
+.outer-container {
+	margin-top: 45px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.inner-container {
+	border: 1px solid #d7dee4;
+	padding: 15px;
+	/*padding: 15px;
+	margin-top: 5px;*/
+}
+
+caption {
+	padding-bottom: 5px;
+}
+
+table {
+	border-collapse: collapse;
+	border: 1px;
+	/*margin-top: 25px;*/
+}
+
+table th,td {
+	padding: 5px;
+	border: 1px solid #999999;
+}
+
+td.row-var {
+	font-weight: bold;
+	text-align: left;
+}
+
+td.row-var-item {
+}
+
+td.summary {
+	font-weight: bold;
+}
+
+tfoot {
+	font-weight: bold;
+}
+
+/*tfoot tr {
+	border-top: 1px solid black;
+}*/
+
+td.percent {
+	font-style: italic;
+}
+
+td.percent, td.count {
+	text-align: right;
+}
+
+th, .row-var-item {
+	/*background-color: #d9e2f3;*/
+}
+
+/*tr.row-var td, tr.summary th, tr.summary td {
+	background-color: #bed3fa;
+}*/
+
+tr.summary td, tr.summary th {
+	border-top: 1px solid #5b96cd;
+	border-bottom: 1px solid #5b96cd;
+}
+
+.header-total { 
+	font-weight: normal;
+	font-style: italic;
+}
+
+th .subtitle {
+	font-weight: normal;
+}
+
+/*tr.summary td {
+	border-top: 1px solid black;
+}
+
+td.summary.count {
+	border-left: 1px solid black;
+}*/
+
+thead th {
+	padding: 20px;
+	padding-bottom: 10px;
+	padding-top: 10px;
+}
+
+thead .decorated-header-row th {
+	border-bottom: 1px solid #5b96cd;
+}
+
+tr.row-var td {
+	border-bottom: 1px solid #5b96cd;
+}
