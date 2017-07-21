@@ -3,7 +3,6 @@ package carpenter
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -26,19 +25,6 @@ const (
 	TableFooter
 	TableControl
 )
-
-type rwCoordinate struct {
-	X, Y int
-}
-
-type rwRange struct {
-	TopLeft     rwCoordinate
-	BottomRight rwCoordinate
-}
-
-func (co *rwCoordinate) String() string {
-	return fmt.Sprintf("%d:%d", co.X, co.Y)
-}
 
 type rwSection struct {
 	rawLines []string

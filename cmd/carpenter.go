@@ -1,5 +1,5 @@
 // carpenter
-//  Toy implementation of RoseWood
+//  standrad implementation of RoseWood
 //  Salah Mahmud
 //  21 Aug 2016
 
@@ -10,8 +10,9 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"salah/carpenter"
 	"strings"
+
+	"github.com/drgo/carpenter"
 )
 
 var (
