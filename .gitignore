@@ -1,7 +1,7 @@
 # Salah Mahmud Standard for Go projects
 
 # Binaries for programs and plugins
-*.exe
+# *.exe allow for the moment
 *.dll
 *.so
 *.dylib
