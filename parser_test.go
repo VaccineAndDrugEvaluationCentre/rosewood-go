@@ -126,3 +126,58 @@ func TestCommandParser_ParseMultiLineCommands(t *testing.T) {
 		})
 	}
 }
+
+const script1 = `
+/*following commands should parse without error*/
+merge row 1:2 col 1
+merge row 1:2 col 1
+merge row 1:2 col 1:2   //another comment
+merge row 1 col 1 
+merge row 1 COL 1 
+style row 1 col 1 style1
+style row 1 col 1 style1
+style row 1 style1
+style row 1 style1 style2
+set rangeseparator "-"
+//line comment
+`
+
+//set rangeseparator "-"
+func TestCommandParser_ParseFullScript(t *testing.T) {
+	tests := []struct {
+		name      string
+		source    string
+		length    int
+		wantError bool
+		want      string
+	}{
+		{"Script 1", script1, 10, false, ""},
+	}
+	p := NewCommandParser(nil) //use default settings
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := p.ParseCommands(strings.NewReader(tt.source))
+			// fmt.Println(tt.source)
+			if tt.wantError != (err != nil) {
+				t.Errorf("Error handling failed, wanted %t, got %t \n errors %s:", tt.wantError, err != nil, p.errors.String())
+			}
+			if err != nil {
+				return //if error was correctly reported by the parser do not continue testing
+			}
+			if got == nil {
+				t.Error("ParseCommands() returns nil CommandList")
+				return
+			}
+			if len(got) != tt.length {
+				t.Errorf("Length of commands is incorrect, wanted %d, got %d", tt.length, len(got))
+			}
+			// if len(got) == 0 {
+			// 	return
+			// }
+			// if got[0].String() != tt.want {
+			// 	t.Errorf("Commands parsed incorrectly, wanted %q, got %q", tt.want, got[0].String())
+			// }
+		})
+	}
+}

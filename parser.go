@@ -25,19 +25,18 @@ var keywords = map[string]rwKeyWord{
 	"set":   kwSet,
 }
 
-func lookupKeyword(name string) (kw rwKeyWord, found bool) {
-	kw, found = keywords[name]
+func lookupKeyword(name string) (kw rwKeyWord, isKeyWord bool) {
+	kw, isKeyWord = keywords[name]
 	return
 }
 
 // CommandParser specialized parser for format commands
 type CommandParser struct {
-	errors        *ErrorManager
-	lexer         *scanner.Scanner
-	settings      *Settings
-	debug         bool
-	rangeOperator int32
-	currentToken  rune
+	errors       *ErrorManager
+	lexer        *scanner.Scanner
+	settings     *Settings
+	debug        bool
+	currentToken rune
 }
 
 //NewCommandParser initializes and returns a CommandParser
@@ -54,22 +53,22 @@ func NewCommandParser(settings *Settings) *CommandParser {
 	return &p
 }
 
+//defaultSettings: returns default settings in case no settings were set.
+func (p *CommandParser) defaultSettings() error {
+	p.settings = NewSettings()
+	p.settings.RangeOperator = ':'
+	if p.debug {
+		log.Printf("default settings loaded")
+	}
+	return nil
+}
+
 //Errors returns a \n separated list of errors
 func (p *CommandParser) Errors(index int) string {
 	if index < 0 {
 		return p.errors.String()
 	}
 	return p.errors.Errors[index].Error()
-}
-
-//defaultSettings: returns default settings in case no settings were set.
-func (p *CommandParser) defaultSettings() error {
-	p.settings = NewSettings()
-	p.settings.Set("rangeOperator", ':')
-	if p.debug {
-		log.Printf("default settings loaded")
-	}
-	return nil
 }
 
 //nextToken: advances the lexer and updates currentToken of CommandParser. Do not
@@ -83,6 +82,9 @@ func (p *CommandParser) nextToken() {
 
 //wrongToken adds an error into the parser's error list
 func (p *CommandParser) wrongToken(wantedText string) {
+	if strings.HasPrefix(wantedText, "*") {
+		wantedText = wantedText[1:] //do not print the *
+	}
 	p.errors.Add(NewError(ErrSyntaxError, p.lexer.Pos(), fmt.Sprintf("expected %s, found %s (%s)",
 		wantedText, scanner.TokenString(p.currentToken), p.lexer.TokenText())))
 }
@@ -98,7 +100,7 @@ func (p *CommandParser) accept(wantedTok rune, wantedText string) {
 	if p.currentToken != wantedTok {
 		p.wrongToken(wantedText)
 	}
-	if wantedText == "*" {
+	if strings.HasPrefix(wantedText, "*") {
 		return
 	}
 	if wantedText != strings.ToLower(p.lexer.TokenText()) {
@@ -137,7 +139,7 @@ func (p *CommandParser) acceptCoordinate() uint {
 
 //acceptArgNameAndValue: reads an argument name and its value
 func (p *CommandParser) acceptArg(lexeme rune) string {
-	p.accept(lexeme, "*")
+	p.accept(lexeme, "*any identifier")
 	return strings.ToLower(p.lexer.TokenText())
 }
 
@@ -150,9 +152,6 @@ func (p *CommandParser) init(r io.Reader) error {
 	p.lexer = new(scanner.Scanner).Init(r)
 	p.lexer.Whitespace = 1<<'\t' | 1<<'\r' | 1<<' ' //ignore spaces, tabs and CRs
 
-	//use current settings
-	c, _ := p.settings.Get("rangeOperator") //guaranteed to be an int32
-	p.rangeOperator = c.(int32)
 	return nil
 }
 
@@ -172,7 +171,7 @@ func (p *CommandParser) ParseCommands(r io.Reader) ([]*RwCommand, error) {
 
 	for ; p.currentToken != scanner.EOF; p.nextToken() {
 		if p.currentToken == '\n' { //handle lines with no text, just linefeeds
-			p.accept('\n', "*") //advance beyond it and loop back
+			p.accept('\n', "*end of line") //advance beyond it and loop back
 			continue
 		}
 		cmdName, cmdToken := p.acceptCommandName()
@@ -184,7 +183,7 @@ func (p *CommandParser) ParseCommands(r io.Reader) ([]*RwCommand, error) {
 			p.parseTableFormatCommand(cmd) //all other commands will be parsed as a formatting command
 		}
 		if p.currentToken == '\n' {
-			p.accept('\n', "*")
+			p.accept('\n', "*end of line")
 		}
 		err := cmd.Validate()
 		if err != nil {
@@ -209,10 +208,16 @@ func (p *CommandParser) parseTableFormatCommand(cmd *RwCommand) error {
 	p.nextToken()
 	cmd.cellRange.TopLeft.Row = p.acceptCoordinate()
 	p.nextToken()
+	//	fmt.Printf("in parseTable %q: %d\n", string(p.rangeOperator), p.rangeOperator)
+	colExists := false
 	switch p.currentToken {
-	case '\n':
+	case '\n', scanner.EOF:
+		// fmt.Printf("inside end of line or EOF: mandatory: %t, colexists: %t\n", p.settings.MandatoryCol, colExists)
+		if p.settings.MandatoryCol && !colExists {
+			p.addSyntaxError("col is missing")
+		}
 		return nil
-	case p.rangeOperator:
+	case p.settings.RangeOperator:
 		p.nextToken()
 		cmd.cellRange.BottomRight.Row = p.acceptCoordinate()
 		p.nextToken()
@@ -223,8 +228,10 @@ func (p *CommandParser) parseTableFormatCommand(cmd *RwCommand) error {
 			p.accept(scanner.Ident, "col")
 			p.nextToken()
 			cmd.cellRange.TopLeft.Col = p.acceptCoordinate()
+			colExists = true
 			p.nextToken()
-			if p.currentToken == p.rangeOperator {
+			//fmt.Println(p.rangeOperator, "-->", p.currentToken)
+			if p.currentToken == p.settings.RangeOperator {
 				p.nextToken()
 				cmd.cellRange.BottomRight.Col = p.acceptCoordinate()
 				p.nextToken()

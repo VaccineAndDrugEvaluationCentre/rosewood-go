@@ -1,9 +1,15 @@
 # EXE is binary name
 EXE=carpenter
-VERSION=0.1.0
+VERSION := $(shell git describe --always --long --dirty)
 BUILD==`date +%FT%T%z`
-#to use github commit tag
-#BUILD=`git rev-parse HEAD`  
+
+
+PKG := github.com/drgo/carpenter 
+PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
+GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/)
+
+README=../README.md
+
 LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Build=${BUILD}"
 
 run: 
@@ -21,4 +27,15 @@ clean:
 	rm ${EXE}.exe
 #	if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi 
 
-.PHONY: clean install 
+doc: 
+#awk -F. '{$NF+=1; OFS="."; print $0}'
+	sed -ne 's/[^0-9]*\(\([0-9]\.\)\{0,4\}[0-9][^.]\).*/\1/p' '${README}'
+#	sed -i '' 's/Version /& ${VERSION}/' '${README}'
+#	sed -i '' 's/BUILD/& ${BUILD}/' '${README}'	
+
+aVERSION=`git describe`
+
+bump:
+	dch -v $(aVERSION)
+
+.PHONY: clean install doc

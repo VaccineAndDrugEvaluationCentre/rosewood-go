@@ -1,7 +1,6 @@
 // carpenter
-//  standrad implementation of RoseWood
-//  Salah Mahmud
-//  21 Aug 2016
+//  Reference implementation of RoseWood
+//  Copyright Salah Mahmud, 2017
 
 package main
 
@@ -20,14 +19,6 @@ var (
 	Build   string
 )
 
-// func init() {
-// 	if cpu := runtime.NumCPU(); cpu == 1 {
-// 		runtime.GOMAXPROCS(2)
-// 	} else {
-// 		runtime.GOMAXPROCS(cpu)
-// 	}
-// }
-
 func main() {
 	interactive()
 	// pt := pt.PlatinumSearcher{Out: os.Stdout, Err: os.Stderr}
@@ -38,20 +29,28 @@ func main() {
 func interactive() {
 	usage(true)
 	in := bufio.NewScanner(os.Stdin)
-	out := os.Stdin
+	out := os.Stdout
+	echo := func(s string) { //prints s to out followed by linefeed
+		io.WriteString(out, s)
+		io.WriteString(out, "\n")
+	}
 	p := carpenter.NewCommandParser(nil)
 	for {
-		io.WriteString(out, "\n")
-		fmt.Printf(">>")
+		fmt.Printf("\n>>")
 		if !in.Scan() || strings.ToLower(in.Text()) == "q" {
 			return
 		}
-		got, err := p.ParseCommands(strings.NewReader(in.Text()))
+		cmdList, err := p.ParseCommands(strings.NewReader(in.Text()))
 		if err != nil {
-			io.WriteString(out, p.Errors(0)) //show the first error only
+			echo(p.Errors(0)) //show the first error only
 			continue
 		}
-		io.WriteString(out, got[0].String())
+		echo(cmdList[0].String())
+		p.Run(cmdList)
+		if err != nil {
+			echo(p.Errors(0)) //show the first error only
+			continue
+		}
 	}
 }
 

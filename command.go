@@ -23,6 +23,18 @@ func (args rwArgs) String() string {
 	return strings.Join(args, ",")
 }
 
+//UnquoteString returns argument as unquoted string
+func (args rwArgs) UnquoteString(index int) *string {
+	if index < 0 || index >= len(args) {
+		return nil //TODO: panic?
+	}
+	if s, err := strconv.Unquote(args[index]); err != nil {
+		return nil
+	} else {
+		return &s
+	}
+}
+
 type rwCoordinate struct {
 	Row, Col uint
 }
