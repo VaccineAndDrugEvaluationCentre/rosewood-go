@@ -11,7 +11,7 @@ GO_FILES := $(shell find . -name '*.go' )
 
 README=../README.md
 
-LDFLAGS=-ldflags "-X maign.Version=${VERSION} -X main.Build=${BUILD}"
+LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Build=${BUILD}"
 
 run: 
 	go run carpenter.go
