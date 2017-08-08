@@ -17,12 +17,14 @@ const (
 	kwMerge
 	kwStyle
 	kwSet
+	kwUse
 )
 
 var keywords = map[string]rwKeyWord{
 	"merge": kwMerge,
 	"style": kwStyle,
 	"set":   kwSet,
+	"use":   kwUse,
 }
 
 func lookupKeyword(name string) (kw rwKeyWord, isKeyWord bool) {
@@ -30,13 +32,24 @@ func lookupKeyword(name string) (kw rwKeyWord, isKeyWord bool) {
 	return
 }
 
+// RunMode describes Parser's running mode
+type RunMode int
+
+const (
+	Interactive RunMode = iota
+	ScriptRun
+)
+
 // CommandParser specialized parser for format commands
 type CommandParser struct {
 	errors       *ErrorManager
 	lexer        *scanner.Scanner
 	settings     *Settings
 	debug        bool
+	runMode      RunMode
 	currentToken rune
+	tables       []*Table //list of all loaded tables
+	//	logFile      *os.File
 }
 
 //NewCommandParser initializes and returns a CommandParser
@@ -50,6 +63,7 @@ func NewCommandParser(settings *Settings) *CommandParser {
 	} else {
 		p.settings = settings
 	}
+	p.debug = true
 	return &p
 }
 
@@ -124,17 +138,17 @@ func (p *CommandParser) acceptCommandName() (string, rwKeyWord) {
 }
 
 //acceptCoordinate: reads and validates a row/cell coordinate
-func (p *CommandParser) acceptCoordinate() uint {
+func (p *CommandParser) acceptCoordinate() RwInt {
 	if p.currentToken != scanner.Int {
 		p.wrongToken("integer")
-		return MissingUint
+		return MissingRwInt
 	}
 	coordinate, _ := strconv.Atoi(p.lexer.TokenText()) //no error check as we know it must be an int
 	if coordinate < 1 {
 		p.addSyntaxError(fmt.Sprintf("wanted row/col number > 0; found %s", p.lexer.TokenText()))
-		return MissingUint
+		return MissingRwInt
 	}
-	return uint(coordinate)
+	return RwInt(coordinate)
 }
 
 //acceptArgNameAndValue: reads an argument name and its value
@@ -254,9 +268,6 @@ func (p *CommandParser) parseSetCommand(cmd *RwCommand) error {
 	p.nextToken()
 	settingValue := p.acceptArg(scanner.String)
 	p.nextToken()
-	// if p.currentToken != '\n' {
-	// 	p.addSyntaxError(fmt.Sprintf("expected %s, found %s", "EOL", p.lexer.TokenText()))
-	// }
 	cmd.args = append(cmd.args, settingName, settingValue)
 	return nil
 }

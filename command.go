@@ -7,11 +7,14 @@ import (
 	"text/scanner"
 )
 
-// Constant definitions
+//RwInt used for all table cell coordinates
+type RwInt uint
+
+//Missing, min and max values for RwInt
 const (
-	MissingUint = ^uint(0)        //flip zero to get all 1s to get max uint and use as a sentinel for missing uint
-	MaxUint     = MissingUint - 1 //use this as the MaxUnit
-	MinUint     = 0
+	MissingRwInt = ^RwInt(0)        //flip bits of zero to all 1s to get max uint for use as a sentinel for missing values
+	MaxRwInt     = MissingRwInt - 1 //use this as the MaxUnit
+	MinRwInt     = 0
 )
 
 type rwArgs []string
@@ -23,25 +26,24 @@ func (args rwArgs) String() string {
 	return strings.Join(args, ",")
 }
 
-//UnquoteString returns argument as unquoted string
-func (args rwArgs) UnquoteString(index int) *string {
+//Arg returns the index-th argument as unquoted string
+func (args rwArgs) Arg(index int) string {
 	if index < 0 || index >= len(args) {
-		return nil //TODO: panic?
+		panic("rwArgs.UnquoteString called with invalid index")
 	}
-	if s, err := strconv.Unquote(args[index]); err != nil {
-		return nil
-	} else {
-		return &s
+	if s, err := strconv.Unquote(args[index]); err == nil {
+		return s
 	}
+	return ""
 }
 
 type rwCoordinate struct {
-	Row, Col uint
+	Row, Col RwInt
 }
 
-func formattedUint(value uint) []byte { //return byte array for ease of concatenating with other text
+func formattedRwInt(value RwInt) []byte { //return byte array for ease of concatenating with other text
 	buf := []byte{}
-	if value == MissingUint {
+	if value == MissingRwInt {
 		buf = append(buf, 'N', 'A') //use NA for missing
 	} else {
 		buf = strconv.AppendUint(buf, uint64(value), 10)
@@ -50,9 +52,9 @@ func formattedUint(value uint) []byte { //return byte array for ease of concaten
 }
 
 func (co rwCoordinate) String() string {
-	buf := formattedUint(co.Row)
+	buf := formattedRwInt(co.Row)
 	buf = append(buf, ':')
-	buf = formattedUint(co.Col)
+	buf = formattedRwInt(co.Col)
 	return string(buf)
 }
 
@@ -63,16 +65,16 @@ type rwRange struct {
 
 //NewCommand return an empty RwCommand
 func newRange() rwRange {
-	return rwRange{rwCoordinate{MinUint, MinUint}, rwCoordinate{MissingUint, MissingUint}} //assume topleft =(0,0)
+	return rwRange{rwCoordinate{MinRwInt, MinRwInt}, rwCoordinate{MissingRwInt, MissingRwInt}} //assume topleft =(0,0)
 }
 
 func (r rwRange) String() string {
 	return fmt.Sprintf("row %s col %s", r.TopLeft.String(), r.BottomRight.String())
 
 }
-func (r rwRange) AsEnteredString() string {
-	return fmt.Sprintf("row %s:%s col %s:%s", formattedUint(r.TopLeft.Row), formattedUint(r.BottomRight.Row),
-		formattedUint(r.TopLeft.Col), formattedUint(r.BottomRight.Col))
+func (r rwRange) testString() string {
+	return fmt.Sprintf("row %s:%s col %s:%s", formattedRwInt(r.TopLeft.Row), formattedRwInt(r.BottomRight.Row),
+		formattedRwInt(r.TopLeft.Col), formattedRwInt(r.BottomRight.Col))
 }
 
 func (r rwRange) Validate() error {
@@ -110,7 +112,7 @@ func (c *RwCommand) String() string {
 	case kwSet:
 		return fmt.Sprintf("%s %s", c.name, c.args)
 	default:
-		return fmt.Sprintf("%s %s %s", c.name, c.cellRange.AsEnteredString(), c.args)
+		return fmt.Sprintf("%s %s %s", c.name, c.cellRange.testString(), c.args)
 	}
 }
 
@@ -123,8 +125,7 @@ func (c *RwCommand) Validate() error {
 			return fmt.Errorf("expected 2 arguments, found %d arguments", len(c.args))
 		}
 	case kwMerge:
-		err = c.cellRange.Validate()
-		fallthrough
+		return c.cellRange.Validate()
 	case kwStyle:
 		return err
 	default:

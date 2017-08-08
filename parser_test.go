@@ -23,6 +23,7 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		{"style row 1 col 1 style1 style2\n", 1, false, "style row 1:NA col 1:NA style1,style2"}, //test args x 2
 		{"style row 1 style1\n", 1, false, "style row 1:NA col 0:NA style1"},                     //test args x 1 no col
 		{"style row 1 style1 style2\n", 1, false, "style row 1:NA col 0:NA style1,style2"},       //test args x 2 no col
+		//{"style row 1,7 style1 \n", 1, false, "style row 1:NA col 0:NA style1"},       //test args x 2
 		{`set rangeseparator "-"
 			`, 1, false, "set rangeseparator,\"-\""}, //escaping " using \
 

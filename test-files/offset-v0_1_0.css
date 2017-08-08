@@ -1,6 +1,6 @@
 
 body {
-	background-color: #999999;
+	background-color: #d7dee4;
 	text-align: center;
 }
 
@@ -23,13 +23,14 @@ caption {
 
 table {
 	border-collapse: collapse;
-	border: 1px;
+   /* empty-cells: show;*/
+   /* border: 1px solid #000;*/
 	/*margin-top: 25px;*/
 }
 
 table th,td {
 	padding: 5px;
-	border: 1px solid #999999;
+	border: 1px solid #000;
 }
 
 td.row-var {

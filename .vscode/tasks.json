@@ -14,6 +14,16 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "taskName": "browse",
+            "command": "Chrome",
+             "osx": {
+                "command": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+             },
+            "args": [
+                "${file}"
+            ]
         }
     ]
 }

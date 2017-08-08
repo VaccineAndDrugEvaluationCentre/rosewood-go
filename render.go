@@ -1,6 +1,10 @@
 package carpenter
 
-import "io"
+import (
+	"bytes"
+	"io"
+	"strconv"
+)
 
 const (
 	htmlHeader = `
@@ -15,18 +19,19 @@ const (
 </body>
 </html>
 `
-	htmlOpenTable = `
-<table class="">`
-	htmlCloseTable = `
-</table>`
-	htmlOpenRow = `
-<tr>`
-	htmlCloseRow = `
-</tr>`
+	htmlOpenTable = `<table class="">
+	`
+	htmlCloseTable = `</table>
+	`
+	htmlOpenRow  = `<tr>`
+	htmlCloseRow = `</tr>
+	`
 )
 
 type HtmlRenderer struct {
-	w io.Writer
+	w        io.Writer
+	settings *Settings
+	tables   []*Table
 }
 
 func NewHtmlRenderer() *HtmlRenderer {
@@ -38,12 +43,22 @@ func (hr *HtmlRenderer) SetWriter(w io.Writer) error {
 	return nil
 }
 
-func (hr *HtmlRenderer) StartFile(t *Table) error {
+func (hr *HtmlRenderer) SetSettings(settings *Settings) error {
+	hr.settings = settings
+	return nil
+}
+
+func (hr *HtmlRenderer) SetTables(tables []*Table) error {
+	hr.tables = tables
+	return nil
+}
+
+func (hr *HtmlRenderer) StartFile() error {
 	io.WriteString(hr.w, htmlHeader)
 	return nil
 }
 
-func (hr *HtmlRenderer) EndFile(t *Table) error {
+func (hr *HtmlRenderer) EndFile() error {
 	io.WriteString(hr.w, htmlFooter)
 	return nil
 }
@@ -69,23 +84,41 @@ func (hr *HtmlRenderer) EndRow(r *Row) error {
 }
 
 func (hr *HtmlRenderer) OutputCell(c *Cell) error {
-	io.WriteString(hr.w, "<td>"+c.String()+"</td>")
+	if c.hidden {
+		return nil
+	}
+	var b bytes.Buffer
+	b.WriteString("<td")
+	if c.rowSpan > 0 {
+		b.WriteString(` rowspan="` + strconv.Itoa(int(c.rowSpan)) + `"`)
+	}
+	if c.colSpan > 0 {
+		b.WriteString(` colspan="` + strconv.Itoa(int(c.colSpan)) + `"`)
+	}
+	b.WriteString(">")
+	b.WriteString(c.text)
+	b.WriteString("</td>")
+	io.WriteString(hr.w, b.String())
 	return nil
 }
 
-func Render(w io.Writer, r *HtmlRenderer, t *Table) error {
+func Render(w io.Writer, r *HtmlRenderer, settings *Settings, tables ...*Table) error {
+	//	fmt.Printf("%#v", *t)
 	r.SetWriter(w)
-
-	r.StartFile(t)
-	r.StartTable(t)
-	for i := 0; i < len(t.rows); i++ {
-		r.StartRow(t.rows[i])
-		for j := 0; j < len(t.rows[i].cells); j++ {
-			r.OutputCell(t.rows[i].cells[j])
+	r.SetSettings(settings)
+	r.SetTables(tables)
+	r.StartFile()
+	for _, t := range tables {
+		r.StartTable(t)
+		for _, row := range t.rows {
+			r.StartRow(row)
+			for _, cell := range row.cells {
+				r.OutputCell(cell)
+			}
+			r.EndRow(row)
 		}
-		r.EndRow(t.rows[i])
+		r.EndTable(t)
 	}
-	r.EndTable(t)
-	r.EndFile(t)
+	r.EndFile()
 	return nil
 }

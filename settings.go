@@ -4,6 +4,9 @@ package carpenter
 type Settings struct {
 	RangeOperator int32
 	MandatoryCol  bool
+	StyleSheet    string
+	TableFileName string
+	LogFileName   string
 }
 
 //todo: add support for loadDefaultSettings call back

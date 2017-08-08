@@ -1,7 +1,7 @@
 # Carpenter
 Reference implementation of RoseWood. 
 
-Version 0.2.0
+Version 0.2.1 build dfe70a5-dirty on Mon Jul 24 22:19:58 CDT 2017
 
 ### Features
 - Support for both comments both line // and paragraph /*...*/
@@ -29,7 +29,7 @@ Version 0.2.0
 -- parsing or executing scripts from files not enabled
 
 ### TODO
-- add support for printing warning and info (similar to Errors)
+- redesign error reporting to use a callback function
 - add support for line continuation \\
 -  
 
