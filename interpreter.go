@@ -1,104 +1,140 @@
-package carpenter
+package rosewood
 
 import (
 	"bufio"
 	"bytes"
 	"fmt"
 	"io"
-	"os"
-	"regexp"
+	"runtime"
 	"strings"
 )
 
 //Version of this library
-const Version = "0.2.0"
+const Version = "0.3.0"
+
+var OSEOL string
+
+func init() {
+	OSEOL = "\n"
+	if runtime.GOOS == "windows" {
+		OSEOL = "\r\n"
+	}
+}
 
 const (
-	SectionCapacity  = 100
-	SectionsPerTable = 5
-	SectionSeparator = "+++"
-	ColumnSeparator  = "|"
+	sectionCapacity  = 100
+	sectionsPerTable = 4
+	sectionSeparator = "+++"
+	columnSeparator  = "|"
 )
 
-type SectionDescriptor int
+// var tablePattern = regexp.MustCompile(`\|\S*|\s\|`) //eg "text|", "2131|", "|"
 
-const (
-	TableUnknown SectionDescriptor = iota
-	TableCaption
-	TableHeader
-	TableBody
-	TableFooter
-	TableControl
-)
+// func (s *section) hasTablePattern() bool {
+// 	return s.LineCount() != 0 && tablePattern.MatchString(s.lines[len(s.lines)-1])
+// }
 
-type rwSection struct {
-	scriptIdentifer string
-	offset          int
-	kind            SectionDescriptor
-	lines           []string
-}
-
-//todo: change section to byte.buffer or []bytes
-func newSection(scriptIdentifer string, offset int, kind SectionDescriptor) *rwSection {
-	return &rwSection{scriptIdentifer: scriptIdentifer, offset: offset, kind: kind}
-}
-
-func (s *rwSection) String() string {
-	return strings.Join(s.lines, "\n")
-}
-
-func (s *rwSection) LineCount() int {
-	return len(s.lines)
-}
-
-var tablePattern = regexp.MustCompile(`\|\S*|\s\|`) //eg "|text|", "|2131|", "||"
-
-func (s *rwSection) hasTablePattern() bool {
-	return s.LineCount() == 0 && tablePattern.MatchString(s.lines[0])
-}
-
-type RwInterpreter struct {
+type Interpreter struct {
 	fileName string
-	sections []*rwSection //holds raw lines
-	//	commandList []RwCommand  //holds parsed commands
+	sections []*section //holds raw lines
+	settings *Settings
+	tables   []*table
+	//	logFile      *os.File
+	parser *CommandParser
 }
 
-func NewRwInterpreter() *RwInterpreter {
-	return &RwInterpreter{}
+func NewInterpreter(settings *Settings) *Interpreter {
+	ri := &Interpreter{}
+	//if no custom settings use default ones
+	if settings == nil {
+		ri.settings = DefaultSettings()
+	} else {
+		ri.settings = settings
+	}
+	if ri.settings == nil {
+		panic("Interpreter failed to load settings")
+	}
+	ri.parser = NewCommandParser(ri.settings)
+	return ri
 }
 
-func (ri *RwInterpreter) String() string {
+func (ri *Interpreter) String() string {
 	var b bytes.Buffer
-	for i := 0; i < SectionsPerTable; i++ {
-		b.WriteString(SectionSeparator + "\n")
+	for i := 0; i < sectionsPerTable; i++ {
+		b.WriteString(sectionSeparator + "\n")
 		b.WriteString(ri.sections[i].String())
 		b.WriteString("\n")
 	}
 	return b.String()
 }
 
-func (ri *RwInterpreter) SectionCount() int {
+func (ri *Interpreter) SectionCount() int {
 	return len(ri.sections)
 }
 
-func (ri *RwInterpreter) analyzeSections() error {
-	for _, s := range ri.sections {
-		if s.kind != TableUnknown { //do not change known kinds
-			continue
-		}
+func (ri *Interpreter) OK() bool {
+	return true
+}
 
+func (ri *Interpreter) report(message string, status ReportStatus) {
+	if ri.settings.Report != nil {
+		ri.settings.Report(message, status)
+	}
+}
+
+func (ri *Interpreter) createTables() error {
+	if ri.SectionCount() == 0 || ri.SectionCount()%sectionsPerTable != 0 {
+		return fmt.Errorf("incorrect number of sections %d", ri.SectionCount())
+	}
+	var t *table
+	var err error
+	for i, s := range ri.sections {
+		ii := i + 1 //i is zero-based, section numbers should be one-based
+		s.kind = sectionDescriptor(i%sectionsPerTable + 1)
+		switch s.kind {
+		case sectionCaption:
+			t = newTable()
+			t.caption = s
+		case sectionBody:
+			// if !s.hasTablePattern() {
+			// 	return fmt.Errorf("section # %d must be a table content but is not", ii)
+			// }
+			if t.contents, err = NewTableContents(s.String()); err != nil {
+				return fmt.Errorf("error parsing table in section # %d: %s ", ii, err)
+			}
+		case sectionFootNotes:
+			t.footnotes = s
+		case sectionControl:
+			if t.cmdList, err = ri.parser.ParseCommands(strings.NewReader(s.String())); err != nil {
+				return fmt.Errorf("error parsing commands in section # %d: %s ", ii, err)
+			}
+			ri.tables = append(ri.tables, t)
+		default:
+			panic(fmt.Sprintf("invalid switch case [%v] in Interpreter.CreateTables()", s.kind))
+		}
+	}
+	if len(ri.tables) == 0 {
+		return fmt.Errorf("unknown error in Interpreter.CreateTables()")
 	}
 	return nil
 }
 
 //Parse takes an io.Reader containing RoseWood script and an optional script identifier and return an error
-func (ri *RwInterpreter) Parse(r io.Reader, scriptIdentifer string) error {
+func (ri *Interpreter) Parse(r io.Reader, scriptIdentifer string) error {
+	err := ri.parse(r, scriptIdentifer)
+	if err != nil {
+		ri.report(err.Error(), Info)
+	}
+	return err
+}
+
+func (ri *Interpreter) parse(r io.Reader, scriptIdentifer string) error {
 	// helper functions
 	isSectionSeparatorLine := func(line string) bool {
-		return strings.HasPrefix(strings.TrimSpace(line), SectionSeparator)
+		return strings.HasPrefix(strings.TrimSpace(line), sectionSeparator)
 	}
 
-	var s *rwSection
+	var s *section
 	lineNum := 0
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
@@ -108,10 +144,11 @@ func (ri *RwInterpreter) Parse(r io.Reader, scriptIdentifer string) error {
 			if s != nil { //there is an active section, append it to the sections array
 				ri.sections = append(ri.sections, s)
 			}
-			s = newSection(scriptIdentifer, lineNum+1, TableUnknown) //section if any starts on the next line
+			s = newSection(scriptIdentifer, lineNum+1, sectionUnknown) //section if any starts on the next line
 		} else {
+			//TODO: remove this if
 			if s == nil { //if text found before a SectionSeparator (at the start of a script)-> a caption section
-				s = newSection(scriptIdentifer, lineNum, TableCaption)
+				s = newSection(scriptIdentifer, lineNum, sectionCaption)
 			}
 			s.lines = append(s.lines, line)
 		}
@@ -120,15 +157,72 @@ func (ri *RwInterpreter) Parse(r io.Reader, scriptIdentifer string) error {
 	if err := scanner.Err(); err != nil {
 		return fmt.Errorf("failed to parse file %s", err)
 	}
+	if err := ri.createTables(); err != nil {
+		return fmt.Errorf("error parsing tables(s): %s", err)
+	}
+
 	return nil
 }
 
-//ParseFile takes path to a file containing RoseWood script and parses it possibly returning an error
-func (ri *RwInterpreter) ParseFile(filename string) error {
-	file, err := os.Open(filename)
-	if err != nil {
-		return fmt.Errorf("failed to parse file %s", err)
+func (ri *Interpreter) runTableCommands(table *table) error {
+	for _, cmd := range table.cmdList {
+		//fmt.Printf("inside runTable Commands: %d", i)
+		switch cmd.token {
+		case kwSet:
+			//do nothing parser would have handled that
+		case kwMerge:
+			if err := table.Merge(cmd.cellRange); err != nil {
+				return fmt.Errorf("merge command %s failed %s", cmd, err)
+			}
+		case kwStyle:
+		default:
+			return fmt.Errorf("cannot run unknown command %s ", cmd)
+		}
 	}
-	defer file.Close()
-	return ri.Parse(file, filename)
+	return nil
+}
+
+func (ri *Interpreter) runTables() error {
+	for _, t := range ri.tables {
+		//fmt.Printf("inside runTables: %d", i)
+		if err := ri.runTableCommands(t); err != nil {
+			return fmt.Errorf("failed to run commands for table %s", err)
+		}
+	}
+	return nil
+}
+
+func (ri *Interpreter) renderTables(w io.Writer, r *HtmlRenderer) error {
+	r.SetWriter(w)
+	r.SetSettings(ri.settings)
+	r.SetTables(ri.tables)
+	r.StartFile()
+	for _, t := range ri.tables {
+		r.StartTable(t)
+		for _, row := range t.contents.rows {
+			r.StartRow(row)
+			for _, cell := range row.cells {
+				r.OutputCell(cell)
+			}
+			r.EndRow(row)
+		}
+		r.EndTable(t)
+	}
+	r.EndFile()
+	return nil
+}
+
+func (ri *Interpreter) Run(r io.Reader, w io.Writer) error {
+	var err error
+	if err = ri.Parse(r, ri.settings.TableFileName); err != nil {
+		return err
+	}
+	//	fmt.Printf("inside Run before runTables")
+	if err = ri.runTables(); err != nil {
+		return err
+	}
+	// if err = ri.renderTables(w, NewHtmlRenderer()); err != nil {
+	// 	return err
+	// }
+	return nil
 }

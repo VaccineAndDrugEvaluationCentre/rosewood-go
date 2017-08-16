@@ -1,4 +1,14 @@
-package carpenter
+package rosewood
+
+type ReportStatus int
+
+const (
+	Info ReportStatus = iota
+	Echo
+	Warning
+	Error
+	Fatal
+)
 
 //Settings implements a simple configuration solution.
 type Settings struct {
@@ -7,12 +17,26 @@ type Settings struct {
 	StyleSheet    string
 	TableFileName string
 	LogFileName   string
+	Debug         bool
+	RunMode       RunMode
+	Report        func(string, ReportStatus)
 }
 
-//todo: add support for loadDefaultSettings call back
+//NewSettings returns an empty Settings struct
 func NewSettings() *Settings {
 	s := Settings{}
 	return &s
+}
+
+//DefaultSettings returns default settings in case no settings were set.
+func DefaultSettings() *Settings {
+	settings := NewSettings()
+	settings.RangeOperator = ':'
+	settings.Debug = false
+	// if ri.debug {
+	// 	log.Printf("default settings loaded")
+	// }
+	return settings
 }
 
 // func (s Settings) String() string {

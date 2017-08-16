@@ -1,4 +1,4 @@
-package carpenter
+package rosewood
 
 import (
 	"fmt"
@@ -54,7 +54,7 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		// 	`, 1, true, "invalid # args to set"},
 
 	}
-	p := NewCommandParser(nil) //use default settings
+	p := NewCommandParser(DefaultSettings()) //use default settings
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
 			got, err := p.ParseCommands(strings.NewReader(tt.source))
@@ -99,7 +99,7 @@ func TestCommandParser_ParseMultiLineCommands(t *testing.T) {
 		merge	row 1:2 col 1:2
 		`, 2, true, ""},
 	}
-	p := NewCommandParser(nil) //use default settings
+	p := NewCommandParser(DefaultSettings()) //use default settings
 	for _, tt := range tests {
 		t.Run(tt.source, func(t *testing.T) {
 			got, err := p.ParseCommands(strings.NewReader(tt.source))
@@ -154,7 +154,7 @@ func TestCommandParser_ParseFullScript(t *testing.T) {
 	}{
 		{"Script 1", script1, 10, false, ""},
 	}
-	p := NewCommandParser(nil) //use default settings
+	p := NewCommandParser(DefaultSettings()) //use default settings
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

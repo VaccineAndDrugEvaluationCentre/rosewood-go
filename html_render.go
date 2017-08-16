@@ -1,9 +1,10 @@
-package carpenter
+package rosewood
 
 import (
+	"bufio"
 	"bytes"
+	"fmt"
 	"io"
-	"strconv"
 )
 
 const (
@@ -31,7 +32,7 @@ const (
 type HtmlRenderer struct {
 	w        io.Writer
 	settings *Settings
-	tables   []*Table
+	tables   []*table
 }
 
 func NewHtmlRenderer() *HtmlRenderer {
@@ -48,7 +49,7 @@ func (hr *HtmlRenderer) SetSettings(settings *Settings) error {
 	return nil
 }
 
-func (hr *HtmlRenderer) SetTables(tables []*Table) error {
+func (hr *HtmlRenderer) SetTables(tables []*table) error {
 	hr.tables = tables
 	return nil
 }
@@ -63,13 +64,19 @@ func (hr *HtmlRenderer) EndFile() error {
 	return nil
 }
 
-func (hr *HtmlRenderer) StartTable(t *Table) error {
+func (hr *HtmlRenderer) StartTable(t *table) error {
+	if t.caption != nil && t.caption.LineCount() > 0 {
+		io.WriteString(hr.w, t.caption.String()) //strings.Join(t.caption.lines, "")
+	}
 	io.WriteString(hr.w, htmlOpenTable)
 	return nil
 }
 
-func (hr *HtmlRenderer) EndTable(t *Table) error {
+func (hr *HtmlRenderer) EndTable(t *table) error {
 	io.WriteString(hr.w, htmlCloseTable)
+	if t.footnotes != nil && t.footnotes.LineCount() > 0 {
+		io.WriteString(hr.w, t.footnotes.String()) //strings.Join(t.caption.lines, "")
+	}
 	return nil
 }
 
@@ -88,21 +95,21 @@ func (hr *HtmlRenderer) OutputCell(c *Cell) error {
 		return nil
 	}
 	var b bytes.Buffer
-	b.WriteString("<td")
+	w := bufio.NewWriter(&b)
+	fmt.Fprint(w, "<td")
 	if c.rowSpan > 0 {
-		b.WriteString(` rowspan="` + strconv.Itoa(int(c.rowSpan)) + `"`)
+		fmt.Fprintf(w, ` rowspan="%d"`, c.rowSpan)
 	}
 	if c.colSpan > 0 {
-		b.WriteString(` colspan="` + strconv.Itoa(int(c.colSpan)) + `"`)
+		fmt.Fprintf(w, ` colspan="%d"`, c.colSpan)
 	}
-	b.WriteString(">")
-	b.WriteString(c.text)
-	b.WriteString("</td>")
+	fmt.Fprint(w, ">", c.text, "</td>")
+	w.Flush()
 	io.WriteString(hr.w, b.String())
 	return nil
 }
 
-func Render(w io.Writer, r *HtmlRenderer, settings *Settings, tables ...*Table) error {
+func render(w io.Writer, r *HtmlRenderer, settings *Settings, tables ...*table) error {
 	//	fmt.Printf("%#v", *t)
 	r.SetWriter(w)
 	r.SetSettings(settings)
@@ -110,7 +117,7 @@ func Render(w io.Writer, r *HtmlRenderer, settings *Settings, tables ...*Table) 
 	r.StartFile()
 	for _, t := range tables {
 		r.StartTable(t)
-		for _, row := range t.rows {
+		for _, row := range t.contents.rows {
 			r.StartRow(row)
 			for _, cell := range row.cells {
 				r.OutputCell(cell)

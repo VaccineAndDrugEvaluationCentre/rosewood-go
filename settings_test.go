@@ -1,4 +1,4 @@
-package carpenter
+package rosewood
 
 //just for testing
 type settingsMap map[string]interface{}

@@ -1,4 +1,4 @@
-package carpenter
+package rosewood
 
 import (
 	"bytes"
@@ -9,13 +9,20 @@ import (
 )
 
 const (
-	showOutput   = true
-	writeOut     = true
-	developDir   = "/Users/salah/Dropbox/code/go/src/github.com/drgo/carpenter" //not needed remove
-	testDirName  = "test-files"                                                 //relative to the executable directory
+	showOutput = true
+	writeOut   = true
+	//	developDir   = "/Users/salah/Dropbox/code/go/src/github.com/drgo/carpenter" //not needed remove
+	testDirName  = "test-files" //relative to the executable directory
 	testFileName = "rendertest"
 	testFileExt  = "html"
 )
+
+func genTestTableData(rows []*Row) *table {
+	return &table{contents: &tableContents{
+		rows:        rows,
+		maxFldCount: 5,
+	}}
+}
 
 //arrays in Go cannot be declared constant
 var (
@@ -44,7 +51,7 @@ func TestRender(t *testing.T) {
 	type args struct {
 		r *HtmlRenderer
 		s *Settings
-		t *Table
+		t *table
 	}
 	tests := []struct {
 		name    string
@@ -70,7 +77,7 @@ func TestRender(t *testing.T) {
 			args: args{r: NewHtmlRenderer(),
 				t: genTestTableData([]*Row{
 					&Row{[]*Cell{
-						&Cell{"cell11", 1, 1, false, 0, 0},
+						&Cell{"cell11", 1, 1, false, 0, 0}, //text, cell, row, hidden, rowspan, colspan
 						&Cell{"cell12", 1, 2, false, 0, 0},
 						&Cell{"cell13", 1, 3, false, 2, 2},
 						&Cell{"cell14", 1, 4, true, 0, 0}},
@@ -149,7 +156,7 @@ func TestRender(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := &bytes.Buffer{}
-			if err := Render(w, tt.args.r, tt.args.s, tt.args.t); (err != nil) != tt.wantErr {
+			if err := render(w, tt.args.r, tt.args.s, tt.args.t); (err != nil) != tt.wantErr {
 				t.Errorf("Render() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
@@ -166,7 +173,7 @@ func TestRender(t *testing.T) {
 		})
 	}
 	if writeOut {
-		outFileName := path.Join(developDir, testDirName, testFileName+"."+testFileExt)
+		outFileName := path.Join(testDirName, testFileName+"."+testFileExt)
 		if err := ioutil.WriteFile(outFileName, fileBuffer.Bytes(), 0644); err != nil {
 			t.Errorf("failed to write to file %s: %v", outFileName, err)
 		}

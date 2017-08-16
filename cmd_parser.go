@@ -1,4 +1,4 @@
-package carpenter
+package rosewood
 
 import (
 	"fmt"
@@ -48,8 +48,7 @@ type CommandParser struct {
 	debug        bool
 	runMode      RunMode
 	currentToken rune
-	tables       []*Table //list of all loaded tables
-	//	logFile      *os.File
+	tables       []*tableContents //list of all loaded tables
 }
 
 //NewCommandParser initializes and returns a CommandParser
@@ -57,13 +56,10 @@ func NewCommandParser(settings *Settings) *CommandParser {
 	p := CommandParser{errors: NewErrorManager()}
 	//if no custom settings use default ones
 	if settings == nil {
-		if err := p.defaultSettings(); err != nil {
-			panic(fmt.Sprintf("Parser failed to load settings: %v", err))
-		}
-	} else {
-		p.settings = settings
+		panic("nil settings passed to command parser")
 	}
-	p.debug = true
+	p.settings = settings
+	p.runMode = settings.RunMode
 	return &p
 }
 
@@ -71,7 +67,7 @@ func NewCommandParser(settings *Settings) *CommandParser {
 func (p *CommandParser) defaultSettings() error {
 	p.settings = NewSettings()
 	p.settings.RangeOperator = ':'
-	if p.debug {
+	if p.settings.Debug {
 		log.Printf("default settings loaded")
 	}
 	return nil
@@ -89,7 +85,7 @@ func (p *CommandParser) Errors(index int) string {
 //confuse with Go's scanner.Scanner.Next()
 func (p *CommandParser) nextToken() {
 	p.currentToken = p.lexer.Scan()
-	if p.debug {
+	if p.settings.Debug {
 		log.Printf("in nextToken: %s, current token= %q\n", p.lexer.Pos(), p.lexer.TokenText())
 	}
 }
@@ -170,18 +166,18 @@ func (p *CommandParser) init(r io.Reader) error {
 }
 
 //ParseCommands parses input stream and return an array of commands
-func (p *CommandParser) ParseCommands(r io.Reader) ([]*RwCommand, error) {
+func (p *CommandParser) ParseCommands(r io.Reader) ([]*Command, error) {
 	if err := p.init(r); err != nil {
 		return nil, err
 	}
-	var cmd *RwCommand
-	var cmdList []*RwCommand
+	var cmd *Command
+	var cmdList []*Command
 
 	p.nextToken()
 	if p.currentToken == scanner.EOF {
 		return nil, NewError(ErrEmpty, scanner.Position{Line: -1, Column: -1}, "nothing to parse")
 	}
-	cmdList = make([]*RwCommand, 0, SectionCapacity)
+	cmdList = make([]*Command, 0, sectionCapacity)
 
 	for ; p.currentToken != scanner.EOF; p.nextToken() {
 		if p.currentToken == '\n' { //handle lines with no text, just linefeeds
@@ -216,7 +212,7 @@ func (p *CommandParser) ParseCommands(r io.Reader) ([]*RwCommand, error) {
 }
 
 //parseTableFormatCommand: parses a command like command row col args
-func (p *CommandParser) parseTableFormatCommand(cmd *RwCommand) error {
+func (p *CommandParser) parseTableFormatCommand(cmd *Command) error {
 	p.nextToken()
 	p.accept(scanner.Ident, "row") //read row info
 	p.nextToken()
@@ -262,7 +258,7 @@ func (p *CommandParser) parseTableFormatCommand(cmd *RwCommand) error {
 }
 
 //parseSetCommand: parses a command like "set settingname settingvalue"
-func (p *CommandParser) parseSetCommand(cmd *RwCommand) error {
+func (p *CommandParser) parseSetCommand(cmd *Command) error {
 	p.nextToken()
 	settingName := p.acceptArg(scanner.Ident)
 	p.nextToken()

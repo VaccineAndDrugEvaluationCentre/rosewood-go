@@ -1,7 +1,9 @@
-package carpenter
+package rosewood
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -28,6 +30,12 @@ func TestParseTableData(t *testing.T) {
 			want:    "",
 			wantErr: true,
 		},
+		{name: "input with 2 rows and no | in first row",
+			args:    "merged line one\n subtitle1|32423|60%|\n",
+			want:    "",
+			wantErr: true,
+		},
+
 		{name: "input with no | and no LF",
 			args:    "hello",
 			want:    "",
@@ -84,7 +92,7 @@ func TestParseTableData(t *testing.T) {
 	const showOutput = true //false to suppress printing returned table structs
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParseTableData(tt.args)
+			got, err := NewTableContents(tt.args)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParseTableData() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -97,4 +105,42 @@ func TestParseTableData(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_tableContents_ValidateRange(t *testing.T) {
+	tests := []struct {
+		name    string
+		tab     string
+		cmd     string
+		want    Range
+		wantErr bool
+	}{
+		{"", "subtitle1|32423|60%|\nsubtitle2|0|0%|\n", "merge row 1", makeRange(1, 1, 1, 3), false},
+		{"", "subtitle1|32423|60%|\nsubtitle2|0|0%|\n", "merge row 1 col 1:3", makeRange(1, 1, 1, 3), false},
+		{"", "subtitle1|32423|60%|\nsubtitle2|0|0%|\n", "merge row 2 col 1:2", makeRange(1, 1, 1, 3), false},
+		{"", "subtitle1|32423|60%|\nsubtitle2|0|0%|\n", "merge row 2:3 col 1", makeRange(1, 1, 1, 3), false},
+		{"", "subtitle1|32423|60%|\nsubtitle2|0|0%|\n", "merge row 2:3 col 4", makeRange(1, 1, 1, 3), false},
+	}
+	p := NewCommandParser(DefaultSettings())
+	for _, tt := range tests {
+		t.Run(tt.cmd, func(t *testing.T) {
+			tab := monadicParseTableData(tt.tab)
+			cmd, err := p.ParseCommands(strings.NewReader(tt.cmd))
+			got, err := tab.validateRange(cmd[0].cellRange)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("got= %v, want %v", got.testString(), tt.want.testString())
+			}
+		})
+	}
+}
+
+/********* test helpers ************/
+//for testing only; it ignores errors
+func monadicParseTableData(s string) *tableContents {
+	t, _ := NewTableContents(s)
+	return t
 }

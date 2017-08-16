@@ -5,7 +5,7 @@ BUILD := $(shell git describe --always --long --dirty)
 BUILD_DATE=$(shell date)
 
 
-PKG := github.com/drgo/carpenter 
+PKG := github.com/drgo/rosewood 
 PKG_LIST := $(shell go list ${PKG}/... )
 GO_FILES := $(shell find . -name '*.go' )
 
@@ -31,5 +31,10 @@ doc:
 #update README with version and build number in line 4 only and only if it had Version
 	sed -i '' '4s/.*Version.*/Version ${VERSION} build ${BUILD} on ${BUILD_DATE}/' '${README}'
 
+testcover:
+	cd ..
+	go test -cover -coverprofile=c.out  
+	go tool cover -html=c.out -o coverage.html 
+	rm c.out	
 
-.PHONY: clean install doc
+.PHONY: clean install doc testcover
