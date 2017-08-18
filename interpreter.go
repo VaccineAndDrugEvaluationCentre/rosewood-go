@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-//Version of this library
-const Version = "0.3.0"
+//VERSION of this library
+const VERSION = "0.3.0"
 
 var OSEOL string
 
@@ -171,9 +171,9 @@ func (ri *Interpreter) runTableCommands(table *table) error {
 		case kwSet:
 			//do nothing parser would have handled that
 		case kwMerge:
-			if err := table.Merge(cmd.cellRange); err != nil {
-				return fmt.Errorf("merge command %s failed %s", cmd, err)
-			}
+			// if err := table.Merge(cmd.cellRange); err != nil {
+			// 	return fmt.Errorf("merge command %s failed %s", cmd, err)
+			// }
 		case kwStyle:
 		default:
 			return fmt.Errorf("cannot run unknown command %s ", cmd)
@@ -185,9 +185,13 @@ func (ri *Interpreter) runTableCommands(table *table) error {
 func (ri *Interpreter) runTables() error {
 	for _, t := range ri.tables {
 		//fmt.Printf("inside runTables: %d", i)
-		if err := ri.runTableCommands(t); err != nil {
+		// if err := ri.runTableCommands(t); err != nil {
+		// 	return fmt.Errorf("failed to run commands for table %s", err)
+		// }
+		if err := t.run(); err != nil {
 			return fmt.Errorf("failed to run commands for table %s", err)
 		}
+
 	}
 	return nil
 }
@@ -199,7 +203,7 @@ func (ri *Interpreter) renderTables(w io.Writer, r *HtmlRenderer) error {
 	r.StartFile()
 	for _, t := range ri.tables {
 		r.StartTable(t)
-		for _, row := range t.contents.rows {
+		for _, row := range t.grid.rows {
 			r.StartRow(row)
 			for _, cell := range row.cells {
 				r.OutputCell(cell)
@@ -221,8 +225,8 @@ func (ri *Interpreter) Run(r io.Reader, w io.Writer) error {
 	if err = ri.runTables(); err != nil {
 		return err
 	}
-	// if err = ri.renderTables(w, NewHtmlRenderer()); err != nil {
-	// 	return err
-	// }
+	if err = ri.renderTables(w, NewHtmlRenderer()); err != nil {
+		return err
+	}
 	return nil
 }

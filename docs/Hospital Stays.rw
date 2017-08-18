@@ -1,0 +1,89 @@
+---
+Adjusted^21a odds ratio^C (95% confidence interval)^** and interaction^*1 probability^b of 'Hospital length of stay >= 15 days'^* for patients with a Pseudomonas aeruginosa infection by condition and stratified by potential effect modifiers^1.
+---
+Characteristic                     |                                Category                               |
+                                   |               Sub 1^**            |               Sub 2               |
+                                   |       cUTI      |       cIAI^2    |     HAP/VAP^*   |       Any       |
+---
+Female^**                                                                                                     |
+  Ya                               |  6.1 (2.1-17.8)^C |  3.3 (0.7-15.2) |  4.6 (1.8-11.8) |  4.6 (2.5-8.6)  |
+                                   | 10.7 (3.7-30.7) |  1.7 (0.4-6.6)  |  5.3 (2.0-14.3) |  6.2 (3.4-11.5) |
+                                   |      0.466      |      0.761      |      0.998      |      0.562      |
+Age (years)                                                                                                |
+  18^C - 40^*1                          |  6.5 (1.4-29.7) |  1.0 (1.0-1.0)  | 14.2 (1.7-120.3)|  8.2 (2.9-23.5) |
+  41 - 55                          | 18.3 (2.1-158.6)|  1.7 (0.4-7.5)  |  3.1 (0.9-10.7) |  4.0 (1.8-9.0)  |
+  56 - 75                          |  9.1 (2.6-31.7) |  4.0 (0.5-32.3) | 13.4 (2.8-64.6) |  8.8 (3.7-21.0) |
+  > 76                             |  4.4 (0.8-24.2) |  1.0 (0.1-19.6) |  1.6 (0.4-5.9)  |  3.1 (1.2-7.8)  |
+  p for interaction                |      0.759      |      0.403      |      0.162      |      0.229      |
+Rural residence                                                                                            |
+  No                               |  7.8 (3.2-18.7)                                                       |
+  Yes                              |                                                                       |
+  p^a for interaction^b              |                                                                       |
+Has a chronic disease                                                                                      |
+  No                               | 35.8 (4.4-294.3)|  6.2 (0.6-63.6) | 15.2 (1.7-137.2)|  9.6 (3.1-30.1) |
+  Yes                              |  6.8 (3.1-15.0) |  1.9 (0.6-6.0)  |  4.2 (2.1-8.6)  |  4.9 (3.0-7.8)  |
+  p for interaction                |      0.619      |      0.447      |      0.330      |      0.337      |
+>= 1  hospitalization in the previous year                                                                 |
+  No                               | 12.2 (3.7-39.7) |  3.1 (0.6-16.3) | 11.3 (2.6-49.3) |  8.5 (4.1-17.7) |
+  Yes                              |           6.1 (2.3-16.0)          |  3.5 (1.5-7.9)  |  4.0 (2.3-7.0)  |
+  p for interaction                |      0.508      |      0.688      |      0.274      |      0.123      |
+Received^* a pneumococcal^a1 vaccine^1a3* since 2006                                                                |
+  No                               |                7.1                |  5.3 (2.5-10.9) |  5.4 (3.4-8.4)  |
+  Yes                              |            (3.4-15.0)^**          |  2.5 (0.4-16.6) |  8.1 (1.4-45.7) |
+  p for interaction                |      0.153      |      0.478      |      0.455      |      0.826      |
+In long term care                                                                                          |
+  No                               |  8.0 (3.7-17.2) |  2.5 (0.9-6.8)  |  4.6 (2.3-9.0)  |  5.2 (3.4-8.1)  |
+  Yes                              | 2.1e+07 (0.0-.) |     . (.-.)     |     . (.-.)     | 1.5e+08 (0.0-.) |
+  p for interaction                |      0.976^a    |        .        |               0.402               |
+  Test			    	           |                 |        abc      |                                   |
+                                                     |        x        |                More               |
+                   Some Text                         |        y        |                text               |
+                                                     |        z        |                here^ab1*          |
+Some Title                         |  8.0 (3.7-17.2) |  2.5 (0.9-6.8)  |  4.6 (2.3-9.0)  |  5.2 (3.4-8.1)  |													 
+                                                                                                           |
+---
+^a Adjusted for the socio-economic and clinical characteristics included in the table (except the one that is stratified)
+^b Some other footnote
+^C this is very important
+^* p < 0.05, ^** p < 0.01, ^*** p < 0.001
+---
+emphasize row 8
+emphasize row 15 column 2
+bold row 8
+bold row 15 column 2
+merge row 1:3 column 1
+merge row 27,28 column 2:3
+merge row 33,34 column 2
+merge row 1 column 2:5
+merge row 2 column 2:3
+merge row 2 column 4:5
+merge row 15:17 column 2:5
+merge row 24 column 2:3
+merge row 33,34 column 4,5
+bold row 13
+emphasize column 3
+merge row 4 column 1:5
+indent column 1 row 5:7
+merge row 5:7 column 1
+merge row 8 column 1:5
+INDENT column 1 row 9,10,11,12,13
+merge row 14 column 1:5
+indent row 15 column 1
+indent row 16 column 1
+indent row 17 column 1
+merge row 18 column 1:5
+inDEnt column 1 row 19:21, 23:25
+merge row 22 column 1:5
+merge column 1:5 row 26
+indent row 27 column 1
+indent row 28 column 1
+indent row 29 column 1
+merge row 30 column 1:5
+indent row 31 column 1
+indent row 32 column 1
+indent row 33 column 1
+merge row 35:37 column 1:2
+merge row 35,36,37 column 4,5
+merge row 39 column 1:5
+plain row 8 column 1
+---

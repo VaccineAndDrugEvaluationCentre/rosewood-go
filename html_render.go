@@ -12,6 +12,7 @@ const (
 <!DOCTYPE html>
 <head>
 <meta charset="utf-8">
+<meta name="generator" content="Rosewood Carpenter %s" /> 
 <link rel="stylesheet" href="offset-v0_1_0.css">
 </head>
 <body>
@@ -55,7 +56,7 @@ func (hr *HtmlRenderer) SetTables(tables []*table) error {
 }
 
 func (hr *HtmlRenderer) StartFile() error {
-	io.WriteString(hr.w, htmlHeader)
+	io.WriteString(hr.w, fmt.Sprintf(htmlHeader, VERSION))
 	return nil
 }
 

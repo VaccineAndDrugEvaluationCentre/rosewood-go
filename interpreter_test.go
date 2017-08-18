@@ -3,7 +3,9 @@ package rosewood
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path"
 	"testing"
 )
 
@@ -31,9 +33,16 @@ func TestInterpreter_Run(t *testing.T) {
 			if err = ri.Run(r, w); (err != nil) != tt.wantErr {
 				t.Fatalf("Interpreter.Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			fmt.Println(w.String())
-			if gotW := w.String(); gotW != tt.wantW {
-				t.Errorf("Interpreter.Run() = %v, want %v", gotW, tt.wantW)
+			//fmt.Println(w.String())
+			// if gotW := w.String(); gotW != tt.wantW {
+			// 	t.Errorf("Interpreter.Run() = %v, want %v", gotW, tt.wantW)
+			// }
+			if tt.outFileName != "" {
+				fn := path.Join(pathPrefix, tt.outFileName+"."+testFileExt)
+				if err := ioutil.WriteFile(fn, w.Bytes(), 0644); err != nil {
+					t.Errorf("failed to write to file %s: %v", fn, err)
+				}
+				fmt.Printf("Results saved to file://%s\n", fn)
 			}
 		})
 	}

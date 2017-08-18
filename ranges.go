@@ -60,6 +60,10 @@ func (r Range) testString() string {
 		formattedRwInt(r.TopLeft.Col), formattedRwInt(r.BottomRight.Col))
 }
 
+func (r Range) less(s Range) bool {
+	return r.TopLeft.Row < s.TopLeft.Row || (r.TopLeft.Row == s.TopLeft.Row && r.TopLeft.Col < s.TopLeft.Col)
+}
+
 //validate performs simple validation of the range coordinates
 func (r Range) validate() error {
 	if r.BottomRight.Row < r.TopLeft.Row /* && r.BottomRight.Row != -1 */ { //TopLeft.Row cannot be optional (-1)

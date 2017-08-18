@@ -15,6 +15,13 @@ func GetWorkingDir() string {
 	return filepath.Dir(dir)
 }
 
+func iif(condition bool, t, f interface{}) interface{} {
+	if condition {
+		return t
+	}
+	return f
+}
+
 // func FileCompare(file1, file2 string) (error, bool) {
 // 	const chunckSize = 64 * 1024
 // 	f1s, err := os.Stat(file1)

@@ -23,14 +23,36 @@ func (t *tableContents) String() string {
 	return b.String()
 }
 
+type cellFunc func(c *Cell) error
+
+func (t *tableContents) forEachCell(f cellFunc) error {
+	for _, r := range t.rows {
+		for _, c := range r.cells {
+			if err := f(c); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func (t *tableContents) isValidCoordinate(row, col RwInt) bool {
-	if row < 1 || row > RwInt(len(t.rows)) {
+	if row < 1 || row > t.rowCount() {
 		return false
 	}
-	if col < 1 || col > RwInt(len(t.rows[row-1].cells)) {
+	if col < 1 || col > t.row(row).cellCount() {
 		return false
 	}
 	return true
+}
+
+//row return the ith row (warning 1 based not zero based)
+func (t *tableContents) row(i RwInt) *Row {
+	return t.rows[i-1]
+}
+
+func (t *tableContents) rowCount() RwInt {
+	return RwInt(len(t.rows))
 }
 
 func (t *tableContents) Cell(row, col RwInt) *Cell {
@@ -50,13 +72,12 @@ func (t *tableContents) validateRange(ra Range) (Range, error) {
 	}
 	for r := ra.TopLeft.Row; r <= ra.BottomRight.Row; r++ {
 		for c := ra.TopLeft.Col; c <= ra.BottomRight.Col; c++ {
-			fmt.Printf("r%d c%d \n", r, c)
+			//fmt.Printf("r%d c%d \n", r, c)
 			if !t.isValidCoordinate(r, c) {
-				
+
 			}
 		}
 	}
-
 	// normalize := func(value, Default RwInt) RwInt {
 	// 	if value < MinRwInt || value == MissingRwInt {
 	// 		return Default
@@ -101,6 +122,15 @@ type Row struct {
 	cells []*Cell
 }
 
+func newBlankRow(colCount RwInt) *Row {
+	cells := make([]*Cell, colCount)
+	for i := RwInt(0); i < colCount; i++ {
+		cells[i] = &Cell{}
+	}
+	//	fmt.Printf("in newBlankRow %v\n", cells)
+	return &Row{cells}
+}
+
 func (r *Row) String() string {
 	var b bytes.Buffer
 	for _, c := range r.cells {
@@ -108,6 +138,10 @@ func (r *Row) String() string {
 		b.WriteString(columnSeparator)
 	}
 	return b.String()
+}
+
+func (t *Row) cellCount() RwInt {
+	return RwInt(len(t.cells))
 }
 
 type Cell struct {
@@ -124,8 +158,13 @@ func NewCell(text string, row, col RwInt) *Cell {
 		col:  col}
 }
 
+func (c *Cell) clone(src *Cell) *Cell {
+	*c = *src
+	return c
+}
+
 func (c *Cell) String() string {
-	return fmt.Sprintf("r%d c%d: %s", c.row, c.col, c.text)
+	return fmt.Sprintf("%d:%d:%s%s", c.row, c.col, c.text, iif(c.hidden, "X", ""))
 }
 
 func NewTableContents(text string) (*tableContents, error) {
@@ -163,10 +202,23 @@ func NewTableContents(text string) (*tableContents, error) {
 			offset = RwInt(pos + 1) //offset is now just after the separator
 		}
 	}
-	if maxFldCount == 0 || len(rows) == 0 { //no fields or rows found
-		return nil, fmt.Errorf("invalid data table")
+	if maxFldCount == 0 {
+		return nil, fmt.Errorf("invalid data table: field count is 0")
+	}
+	if len(rows) == 0 {
+		return nil, fmt.Errorf("invalid data table, row count is 0")
 	}
 	return &tableContents{rows: rows,
 		maxFldCount: maxFldCount}, nil
 
+}
+
+func newBlankTableContents(rowCount, colCount RwInt) *tableContents {
+	rows := make([]*Row, rowCount)
+	for i := RwInt(0); i < rowCount; i++ {
+		rows[i] = newBlankRow(colCount)
+	}
+	//	fmt.Printf("in newBlankTableContents %v\n", rows)
+	return &tableContents{rows: rows,
+		maxFldCount: colCount}
 }
