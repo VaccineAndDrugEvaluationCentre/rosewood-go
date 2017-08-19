@@ -75,3 +75,19 @@ func (r Range) validate() error {
 	}
 	return nil
 }
+
+type span struct {
+	r1, r2, c1, c2 RwInt
+}
+
+func newSpan() span {
+	return span{MissingRwInt, MissingRwInt, MissingRwInt, MissingRwInt}
+}
+
+func makeSpan(r1, r2, c1, c2 RwInt) span {
+	return span{r1, r2, c1, c2}
+}
+
+func spanToRange(cs span) Range {
+	return makeRange(cs.r1, cs.c1, cs.r2, cs.c2)
+}

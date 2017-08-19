@@ -19,7 +19,7 @@ func TestInterpreter_Run(t *testing.T) {
 		wantW       string
 		wantErr     bool
 	}{
-		{"correct1tab.rw", "", testSettings(), "", false},
+		{"correct1tab.rw", "correct1tab", testSettings(), "", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.srcFileName, func(t *testing.T) {

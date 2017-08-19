@@ -31,6 +31,7 @@ func (args Args) Arg(index int) string {
 type Command struct {
 	token     rwKeyWord
 	name      string
+	cellSpan  span
 	cellRange Range
 	args      Args
 	pos       scanner.Position
@@ -39,7 +40,7 @@ type Command struct {
 
 //NewCommand return an empty RwCommand
 func NewCommand(name string, token rwKeyWord, pos scanner.Position) *Command {
-	return &Command{token: token, name: name, pos: pos, cellRange: newRange()}
+	return &Command{token: token, name: name, pos: pos, cellRange: newRange(), cellSpan: newSpan()}
 }
 
 //formats command for printing

@@ -177,6 +177,10 @@ func NewTableContents(text string) (*tableContents, error) {
 	if strings.TrimSpace(text) == "" {
 		return nil, fmt.Errorf("empty table")
 	}
+	//add eof at the end if none
+	if text[:len(text)-1] != "\n" {
+		text = text + "\n"
+	}
 	line = 1
 	for pos := 0; pos < len(text); pos++ {
 		switch text[pos] {

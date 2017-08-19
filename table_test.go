@@ -2,6 +2,7 @@ package rosewood
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -28,7 +29,8 @@ func Test_createGridTable(t *testing.T) {
 										| Physician claims |  Hospital data  |                     |
 			Pernicious anemia           |       281        |      281.0      |        D51.0        |
 			Autoimmune hemolytic anemia |       283        |      283.0      |        D59.1        |
-			Ankylosing spondylitis      |       720        |      720.0      |         M45         |`,
+			Ankylosing spondylitis      |       720        |      720.0      |         M45         |
+			`,
 			`merge row 1
 			merge row 2:2 col 2:3
 			merge row 2:3 col 1 
@@ -37,10 +39,18 @@ func Test_createGridTable(t *testing.T) {
 		`, nil, false},
 	}
 	p := NewCommandParser(DefaultSettings()) //use default settings
+	tab := newTable()
+	var err error
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cmdList, err := p.ParseCommands(strings.NewReader(tt.source))
-			gotMrlist, err := createMergeRangeList(cmdList)
+			tab.cmdList, err = p.ParseCommands(strings.NewReader(tt.source))
+			tab.contents, err = NewTableContents(tt.tab)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("NewTableContents() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			tab.normalizeMergeRanges()
+			gotMrlist, err := createMergeRangeList(tab.cmdList)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("createMergeRangeList() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -48,13 +58,9 @@ func Test_createGridTable(t *testing.T) {
 			for i, mr := range gotMrlist { //todo: better test of the creation of sorted mergelist
 				fmt.Printf("%d: %s\n", i, mr.orgRange.testString())
 			}
-			tab, err := NewTableContents(tt.tab)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("NewTableContents() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+
 			//fmt.Printf("%v\n", tab)
-			grid, err := createGridTable(tab, gotMrlist)
+			grid, err := createGridTable(tab.contents, gotMrlist)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("createGridTable() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -63,6 +69,33 @@ func Test_createGridTable(t *testing.T) {
 			// if !reflect.DeepEqual(gotMrlist, tt.wantMrlist) {
 			// 	t.Errorf("createMergeRangeList() = %v, want %v", gotMrlist, tt.wantMrlist)
 			// }
+		})
+	}
+}
+
+func Test_normalizeSpan(t *testing.T) {
+	type args struct {
+		cs       span
+		rowCount RwInt
+		colCount RwInt
+	}
+	tests := []struct {
+		name string
+		args args
+		want span
+	}{
+		{"no-missing", args{makeSpan(1, 1, 4, 4), 6, 4}, makeSpan(1, 1, 4, 4)},
+		{"r1-r2-missing", args{makeSpan(MissingRwInt, MissingRwInt, 2, 3), 6, 4}, makeSpan(1, 6, 2, 3)},
+		{"c1-c2-missing", args{makeSpan(1, 1, MissingRwInt, MissingRwInt), 6, 4}, makeSpan(1, 1, 1, 4)},
+		{"r2missing", args{makeSpan(1, MissingRwInt, 2, 2), 6, 4}, makeSpan(1, 1, 2, 2)},
+		{"c2missing", args{makeSpan(1, 1, 2, MissingRwInt), 6, 4}, makeSpan(1, 1, 2, 2)},
+		{"r1-r2-c2-missing", args{makeSpan(MissingRwInt, MissingRwInt, MissingRwInt, 3), 6, 4}, makeSpan(1, 6, 3, 3)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := normalizeSpan(tt.args.cs, tt.args.rowCount, tt.args.colCount); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("normalizeSpan() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }
