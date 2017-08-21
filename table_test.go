@@ -12,7 +12,7 @@ func Test_createGridTable(t *testing.T) {
 		name       string
 		tab        string
 		source     string
-		wantMrlist []mergeRange
+		wantMrlist []Range
 		wantErr    bool
 	}{
 		// {"", "row1|\nr2c1|r2c2|r2c3|\nr3c1|r3c2|r3c3|r3c4|\nr4c1|r4c2|r4c3|\n",
@@ -56,7 +56,7 @@ func Test_createGridTable(t *testing.T) {
 				return
 			}
 			for i, mr := range gotMrlist { //todo: better test of the creation of sorted mergelist
-				fmt.Printf("%d: %s\n", i, mr.orgRange.testString())
+				fmt.Printf("%d: %s\n", i, mr.testString())
 			}
 
 			//fmt.Printf("%v\n", tab)

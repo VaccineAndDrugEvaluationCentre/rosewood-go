@@ -12,14 +12,15 @@ const (
 
 //Settings implements a simple configuration solution.
 type Settings struct {
-	RangeOperator int32
-	MandatoryCol  bool
-	StyleSheet    string
-	TableFileName string
-	LogFileName   string
-	Debug         bool
-	RunMode       RunMode
-	Report        func(string, ReportStatus)
+	RangeOperator    int32
+	MandatoryCol     bool
+	StyleSheet       string
+	TableFileName    string
+	LogFileName      string
+	Debug            bool
+	TrimCellContents bool
+	RunMode          RunMode
+	Report           func(string, ReportStatus)
 }
 
 //NewSettings returns an empty Settings struct
@@ -32,10 +33,7 @@ func NewSettings() *Settings {
 func DefaultSettings() *Settings {
 	settings := NewSettings()
 	settings.RangeOperator = ':'
-	settings.Debug = false
-	// if ri.debug {
-	// 	log.Printf("default settings loaded")
-	// }
+	settings.TrimCellContents = false
 	return settings
 }
 

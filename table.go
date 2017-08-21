@@ -4,10 +4,6 @@ import (
 	"sort"
 )
 
-type mergeRange struct {
-	orgRange Range
-}
-
 //Table holds all the info needed to render a table
 type table struct {
 	identifier string
@@ -17,7 +13,6 @@ type table struct {
 	header     *section
 	footnotes  *section
 	cmdList    []*Command
-	//	mergeList  []mergeRange
 }
 
 func newTable() *table {
@@ -58,43 +53,43 @@ func normalizeSpan(cs span, rowCount, colCount RwInt) span {
 	return cs
 }
 
-func createMergeRangeList(cmdList []*Command) (mrlist []mergeRange, err error) {
+func createMergeRangeList(cmdList []*Command) (mrlist []Range, err error) {
 	for _, cmd := range cmdList {
 		if cmd.token != kwMerge {
 			continue
 		}
-		cr := spanToRange(cmd.cellSpan)
-		mrlist = append(mrlist, mergeRange{cr})
+		mrlist = append(mrlist, spanToRange(cmd.cellSpan))
 	}
 	sort.Slice(mrlist, func(i, j int) bool {
-		return mrlist[i].orgRange.less(mrlist[j].orgRange)
+		return mrlist[i].less(mrlist[j])
 	})
 	return mrlist, nil
 }
 
-func createGridTable(contents *tableContents, mrlist []mergeRange) (*tableContents, error) {
+func createGridTable(contents *tableContents, mrlist []Range) (*tableContents, error) {
 	grid := newBlankTableContents(contents.rowCount(), contents.maxFldCount)
 	for _, mr := range mrlist {
-		for i := mr.orgRange.TopLeft.Row; i <= mr.orgRange.BottomRight.Row; i++ {
-			for j := mr.orgRange.TopLeft.Col; j <= mr.orgRange.BottomRight.Col; j++ {
-				grid.cell(i, j).hidden = true //hide the other cells in the merge range
+		for i := mr.TopLeft.Row; i <= mr.BottomRight.Row; i++ {
+			for j := mr.TopLeft.Col; j <= mr.BottomRight.Col; j++ {
+				grid.cell(i, j).state = csMerged //hide the other cells in the merge range
 			}
 		}
-		topleft := grid.cell(mr.orgRange.TopLeft.Row, mr.orgRange.TopLeft.Col)
-		topleft.hidden = false
-		topleft.colSpan = mr.orgRange.BottomRight.Col - mr.orgRange.TopLeft.Col + 1
-		topleft.rowSpan = mr.orgRange.BottomRight.Row - mr.orgRange.TopLeft.Row + 1
+		topleft := grid.cell(mr.TopLeft.Row, mr.TopLeft.Col)
+		topleft.state = csSpanned
+		topleft.colSpan = mr.BottomRight.Col - mr.TopLeft.Col + 1
+		topleft.rowSpan = mr.BottomRight.Row - mr.TopLeft.Row + 1
 	}
 	for i := RwInt(1); i <= contents.rowCount(); i++ {
 		r := contents.row(i)
 		//fmt.Printf("in createGridTable i=%d, cellcount=%d\n", i, r.cellCount())
 		for j := RwInt(1); j <= r.cellCount(); {
-			if !contents.cell(i, j).hidden {
+			if contents.cell(i, j).state != csMerged {
 				grid.cell(i, j).text = contents.cell(i, j).text
 				j++
 				continue
 			}
-			for ; contents.cell(i, j).hidden && j <= grid.row(i).cellCount(); j++ {
+			for ; contents.cell(i, j).state == csMerged && j <= grid.row(i).cellCount(); j++ {
+				//skip merged cells
 			}
 			if j <= grid.row(i).cellCount() {
 				grid.cell(i, j).text = contents.cell(i, j).text
@@ -115,12 +110,12 @@ func (t *table) run() error {
 	return err
 }
 
-func (t *table) Merge(ra Range) error {
-	//	fmt.Println("range in Merge:", ra)
+// func (t *table) Merge(ra Range) error {
+// 	//	fmt.Println("range in Merge:", ra)
 
-	//	return t.contents.merge(ra)
-	return nil
-}
+// 	//	return t.contents.merge(ra)
+// 	return nil
+// }
 
 // func createGridTable(contents *tableContents, mrlist []mergeRange) (*tableContents, error) {
 // 	grid := newBlankTableContents(contents.rowCount(), contents.maxFldCount)
@@ -133,8 +128,8 @@ func (t *table) Merge(ra Range) error {
 // 			index := searchMRListByCoordinate(mrlist, Coordinates{i, j}) //topleft cell in a merge range?
 // 			if index != -1 {
 // 				fmt.Printf("in createGridTable index=%d, %+v\n", index, mrlist[index])
-// 				bottomRight := mrlist[index].orgRange.BottomRight
-// 				//topLeft := mrlist[index].orgRange.TopLeft
+// 				bottomRight := mrlist[index].BottomRight
+// 				//topLeft := mrlist[index].TopLeft
 // 				k := j + 1
 // 				for ; k <= bottomRight.Col && k <= grid.row(i).cellCount(); k++ {
 // 					grid.cell(i, k).hidden = true //hide the other cells in the merge range
@@ -151,25 +146,25 @@ func (t *table) Merge(ra Range) error {
 // 	return grid, nil
 // }
 
-func searchMRListByRange(mrlist []mergeRange, mr mergeRange) (index int, found bool) {
+func searchMRListByRange(mrlist []Range, mr Range) (index int, found bool) {
 	index = sort.Search(len(mrlist), func(i int) bool { //see https://golang.org/pkg/sort/#Search
-		return !mrlist[i].orgRange.less(mr.orgRange)
+		return !mrlist[i].less(mr)
 	})
-	if index < len(mrlist) && mrlist[index].orgRange == mr.orgRange {
+	if index < len(mrlist) && mrlist[index] == mr {
 		return index, true
 	}
 	return -1, false
 }
 
-func searchMRListByCoordinate(mrlist []mergeRange, coord Coordinates) (index int) {
+func searchMRListByCoordinate(mrlist []Range, coord Coordinates) (index int) {
 	if len(mrlist) == 0 {
 		return -1
 	}
 	index = sort.Search(len(mrlist), func(i int) bool { //see https://golang.org/pkg/sort/#Search
-		return mrlist[i].orgRange.TopLeft.Row >= coord.Row ||
-			(mrlist[i].orgRange.TopLeft.Row == coord.Row && mrlist[i].orgRange.TopLeft.Col >= coord.Col)
+		return mrlist[i].TopLeft.Row >= coord.Row ||
+			(mrlist[i].TopLeft.Row == coord.Row && mrlist[i].TopLeft.Col >= coord.Col)
 	})
-	if index < len(mrlist) && mrlist[index].orgRange.TopLeft == coord {
+	if index < len(mrlist) && mrlist[index].TopLeft == coord {
 		return index
 	}
 	return -1

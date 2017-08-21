@@ -34,7 +34,7 @@ func init() {
 func main() {
 	verbose := flag.Bool("v", false, "verbose")
 	help := flag.Bool("h", false, "prints this screen")
-	flag.Usage = appUsage
+	flag.Usage = helpMessage
 	flag.Parse()
 	if *help {
 		usage(0)
@@ -80,14 +80,14 @@ func run(in io.Reader, out io.Writer, settings *rosewood.Settings) error {
 	return nil
 }
 
-func appUsage() {
+func helpMessage() {
 	fmt.Printf("Carpenter %s (%s)\nCopyRight VDEC 2017\n", Version, Build)
 	io.WriteString(os.Stderr, "Usage: Carpenter <input Rosewood file> \n")
 	flag.PrintDefaults()
 }
 
 func usage(exitCode int) {
-	appUsage()
+	helpMessage()
 	if exitCode > -1 {
 		os.Exit(exitCode)
 	}

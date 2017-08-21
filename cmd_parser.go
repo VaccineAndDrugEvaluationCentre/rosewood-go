@@ -216,8 +216,8 @@ func (p *CommandParser) parseTableFormatCommand(cmd *Command) error {
 	p.nextToken()
 	p.accept(scanner.Ident, "row") //read row info
 	p.nextToken()
-	cmd.cellRange.TopLeft.Row = p.acceptCoordinate()
-	cmd.cellSpan.r1 = cmd.cellRange.TopLeft.Row
+	//	cmd.cellRange.TopLeft.Row = p.acceptCoordinate()
+	cmd.cellSpan.r1 = p.acceptCoordinate()
 	p.nextToken()
 	//	fmt.Printf("in parseTable %q: %d\n", string(p.rangeOperator), p.rangeOperator)
 	colExists := false
@@ -230,8 +230,8 @@ func (p *CommandParser) parseTableFormatCommand(cmd *Command) error {
 		return nil
 	case p.settings.RangeOperator:
 		p.nextToken()
-		cmd.cellRange.BottomRight.Row = p.acceptCoordinate()
-		cmd.cellSpan.r2 = cmd.cellRange.BottomRight.Row
+		//		cmd.cellRange.BottomRight.Row = p.acceptCoordinate()
+		cmd.cellSpan.r2 = p.acceptCoordinate()
 		p.nextToken()
 		fallthrough
 	case scanner.Ident: //either "col" or an argument list
@@ -239,15 +239,15 @@ func (p *CommandParser) parseTableFormatCommand(cmd *Command) error {
 		case "col": //read col info
 			p.accept(scanner.Ident, "col")
 			p.nextToken()
-			cmd.cellRange.TopLeft.Col = p.acceptCoordinate()
-			cmd.cellSpan.c1 = cmd.cellRange.TopLeft.Col
+			//			cmd.cellRange.TopLeft.Col = p.acceptCoordinate()
+			cmd.cellSpan.c1 = p.acceptCoordinate()
 			colExists = true
 			p.nextToken()
 			//fmt.Println(p.rangeOperator, "-->", p.currentToken)
 			if p.currentToken == p.settings.RangeOperator {
 				p.nextToken()
-				cmd.cellRange.BottomRight.Col = p.acceptCoordinate()
-				cmd.cellSpan.c2 = cmd.cellRange.BottomRight.Col
+				//				cmd.cellRange.BottomRight.Col = p.acceptCoordinate()
+				cmd.cellSpan.c2 = p.acceptCoordinate()
 				p.nextToken()
 			}
 			fallthrough

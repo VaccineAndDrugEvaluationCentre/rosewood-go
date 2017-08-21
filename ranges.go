@@ -91,3 +91,19 @@ func makeSpan(r1, r2, c1, c2 RwInt) span {
 func spanToRange(cs span) Range {
 	return makeRange(cs.r1, cs.c1, cs.r2, cs.c2)
 }
+
+func (s span) String() string {
+	return fmt.Sprintf("row %s:%s col %s:%s", formattedRwInt(s.r1), formattedRwInt(s.r2),
+		formattedRwInt(s.c1), formattedRwInt(s.c2))
+}
+
+//validate performs simple validation of the range coordinates
+func (s span) validate() error {
+	if s.r1 > s.r2 {
+		return fmt.Errorf("top row number (%d) must be smaller than bottom row number (%d)", s.r1, s.r2)
+	}
+	if s.c1 > s.c2 {
+		return fmt.Errorf("left column number (%d) must be smaller than right column number (%d)", s.c1, s.c2)
+	}
+	return nil
+}

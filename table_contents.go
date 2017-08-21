@@ -93,31 +93,6 @@ func (t *tableContents) validateRange(ra Range) (Range, error) {
 	return ra, nil
 }
 
-func (t *tableContents) merge(ra Range) error {
-	var err error
-	if ra, err = t.validateRange(ra); err != nil {
-		return fmt.Errorf("merge failed: %s", err)
-	}
-	fmt.Printf("ra=%s  %s tl=%s  br=%s\n", ra.testString(), ra, ra.TopLeft, ra.BottomRight)
-	for r := ra.TopLeft.Row; r <= ra.BottomRight.Row; r++ {
-		for c := ra.TopLeft.Col; c <= ra.BottomRight.Col; c++ {
-			fmt.Printf("r%d c%d \n", r, c)
-			if t.Cell(r, c) != nil {
-				t.Cell(r, c).hidden = true
-			}
-		}
-	}
-	topleft := t.Cell(ra.TopLeft.Row, ra.TopLeft.Col)
-	if topleft == nil {
-		fmt.Printf("topleft is nil, r%d c%d \n", ra.TopLeft.Row, ra.TopLeft.Col)
-	} else {
-		topleft.hidden = false
-		topleft.rowSpan = ra.BottomRight.Row - ra.TopLeft.Row
-		topleft.colSpan = ra.BottomRight.Col - ra.TopLeft.Col
-	}
-	return nil
-}
-
 type Row struct {
 	cells []*Cell
 }
@@ -144,10 +119,20 @@ func (t *Row) cellCount() RwInt {
 	return RwInt(len(t.cells))
 }
 
+type cellState int
+
+const (
+	csUndefined cellState = iota
+	csNormal
+	csSpanned
+	csMerged
+)
+
 type Cell struct {
-	text             string
-	row, col         RwInt
-	hidden           bool
+	text     string
+	row, col RwInt
+	//	hidden           bool
+	state            cellState
 	rowSpan, colSpan RwInt
 }
 
@@ -164,7 +149,7 @@ func (c *Cell) clone(src *Cell) *Cell {
 }
 
 func (c *Cell) String() string {
-	return fmt.Sprintf("%d:%d:%s%s", c.row, c.col, c.text, iif(c.hidden, "X", ""))
+	return fmt.Sprintf("r%d c%d: %s", c.row, c.col, c.text)
 }
 
 func NewTableContents(text string) (*tableContents, error) {
@@ -177,8 +162,8 @@ func NewTableContents(text string) (*tableContents, error) {
 	if strings.TrimSpace(text) == "" {
 		return nil, fmt.Errorf("empty table")
 	}
-	//add eof at the end if none
-	if text[:len(text)-1] != "\n" {
+	//add eol at the end if none
+	if text[len(text)-1:] != "\n" {
 		text = text + "\n"
 	}
 	line = 1
@@ -226,3 +211,28 @@ func newBlankTableContents(rowCount, colCount RwInt) *tableContents {
 	return &tableContents{rows: rows,
 		maxFldCount: colCount}
 }
+
+// func (t *tableContents) merge(ra Range) error {
+// 	var err error
+// 	if ra, err = t.validateRange(ra); err != nil {
+// 		return fmt.Errorf("merge failed: %s", err)
+// 	}
+// 	fmt.Printf("ra=%s  %s tl=%s  br=%s\n", ra.testString(), ra, ra.TopLeft, ra.BottomRight)
+// 	for r := ra.TopLeft.Row; r <= ra.BottomRight.Row; r++ {
+// 		for c := ra.TopLeft.Col; c <= ra.BottomRight.Col; c++ {
+// 			fmt.Printf("r%d c%d \n", r, c)
+// 			if t.Cell(r, c) != nil {
+// 				t.Cell(r, c).hidden = true
+// 			}
+// 		}
+// 	}
+// 	topleft := t.Cell(ra.TopLeft.Row, ra.TopLeft.Col)
+// 	if topleft == nil {
+// 		fmt.Printf("topleft is nil, r%d c%d \n", ra.TopLeft.Row, ra.TopLeft.Col)
+// 	} else {
+// 		topleft.hidden = false
+// 		topleft.rowSpan = ra.BottomRight.Row - ra.TopLeft.Row
+// 		topleft.colSpan = ra.BottomRight.Col - ra.TopLeft.Col
+// 	}
+// 	return nil
+// }

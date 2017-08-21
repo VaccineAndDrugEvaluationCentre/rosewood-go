@@ -66,7 +66,7 @@ func ExampleNewInterpreter() {
 		return
 	}
 	t := ri.tables[0]
-	fmt.Printf("#rows:%d\ncells per row\n", len(t.contents.rows))
+	fmt.Printf("#rows:%d\ncells per row\n", t.contents.rowCount())
 	for _, r := range t.contents.rows {
 		fmt.Printf("%d\n", len(r.cells))
 	}
@@ -76,13 +76,14 @@ func ExampleNewInterpreter() {
 	// 2
 	// 11
 	// 1
-	// 4
+	// 5
 	// 1
-	// #rows:5
+	// #rows:6
 	// cells per row
 	// 1
 	// 3
-	// 2
+	// 4
+	// 4
 	// 4
 	// 4
 }

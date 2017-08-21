@@ -28,12 +28,6 @@ const (
 	columnSeparator  = "|"
 )
 
-// var tablePattern = regexp.MustCompile(`\|\S*|\s\|`) //eg "text|", "2131|", "|"
-
-// func (s *section) hasTablePattern() bool {
-// 	return s.LineCount() != 0 && tablePattern.MatchString(s.lines[len(s.lines)-1])
-// }
-
 type Interpreter struct {
 	fileName string
 	sections []*section //holds raw lines
@@ -96,9 +90,6 @@ func (ri *Interpreter) createTables() error {
 			t = newTable()
 			t.caption = s
 		case sectionBody:
-			// if !s.hasTablePattern() {
-			// 	return fmt.Errorf("section # %d must be a table content but is not", ii)
-			// }
 			if t.contents, err = NewTableContents(s.String()); err != nil {
 				return fmt.Errorf("error parsing table in section # %d: %s ", ii, err)
 			}
@@ -196,36 +187,37 @@ func (ri *Interpreter) runTables() error {
 	return nil
 }
 
-func (ri *Interpreter) renderTables(w io.Writer, r *HtmlRenderer) error {
-	r.SetWriter(w)
-	r.SetSettings(ri.settings)
-	r.SetTables(ri.tables)
-	r.StartFile()
+func (ri *Interpreter) renderTables(w io.Writer, hr *HtmlRenderer) error {
+	hr.SetWriter(w)
+	hr.SetSettings(ri.settings)
+	hr.SetTables(ri.tables)
+	hr.StartFile()
 	for _, t := range ri.tables {
-		r.StartTable(t)
+		hr.StartTable(t)
 		for _, row := range t.grid.rows {
-			r.StartRow(row)
+			hr.StartRow(row)
 			for _, cell := range row.cells {
-				r.OutputCell(cell)
+				hr.OutputCell(cell)
 			}
-			r.EndRow(row)
+			hr.EndRow(row)
 		}
-		r.EndTable(t)
+		hr.EndTable(t)
 	}
-	r.EndFile()
+	hr.EndFile()
 	return nil
 }
 
-func (ri *Interpreter) Run(r io.Reader, w io.Writer) error {
+//Run takes an io.Reader streaming the contents of one or more Rosewood scripts
+//and an io.Writer to output the formatted text.
+func (ri *Interpreter) Run(src io.Reader, out io.Writer) error {
 	var err error
-	if err = ri.Parse(r, ri.settings.TableFileName); err != nil {
+	if err = ri.Parse(src, ri.settings.TableFileName); err != nil {
 		return err
 	}
-	//	fmt.Printf("inside Run before runTables")
 	if err = ri.runTables(); err != nil {
 		return err
 	}
-	if err = ri.renderTables(w, NewHtmlRenderer()); err != nil {
+	if err = ri.renderTables(out, NewHtmlRenderer()); err != nil {
 		return err
 	}
 	return nil

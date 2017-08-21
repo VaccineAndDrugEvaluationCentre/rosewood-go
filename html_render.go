@@ -2,9 +2,9 @@ package rosewood
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io"
+	"strings"
 )
 
 const (
@@ -13,7 +13,7 @@ const (
 <head>
 <meta charset="utf-8">
 <meta name="generator" content="Rosewood Carpenter %s" /> 
-<link rel="stylesheet" href="offset-v0_1_0.css">
+<link rel="stylesheet" href="carpenter.css">
 </head>
 <body>
 `
@@ -21,17 +21,20 @@ const (
 </body>
 </html>
 `
-	htmlOpenTable = `<table class="">
+	htmlOpenTable = `<table>
 	`
 	htmlCloseTable = `</table>
 	`
 	htmlOpenRow  = `<tr>`
 	htmlCloseRow = `</tr>
 	`
+	htmlPara  = "<p>"
+	htmlbreak = "<br>"
 )
 
 type HtmlRenderer struct {
-	w        io.Writer
+	//	w        io.Writer
+	bw       *bufio.Writer
 	settings *Settings
 	tables   []*table
 }
@@ -41,7 +44,7 @@ func NewHtmlRenderer() *HtmlRenderer {
 }
 
 func (hr *HtmlRenderer) SetWriter(w io.Writer) error {
-	hr.w = w
+	hr.bw = bufio.NewWriter(w)
 	return nil
 }
 
@@ -56,57 +59,65 @@ func (hr *HtmlRenderer) SetTables(tables []*table) error {
 }
 
 func (hr *HtmlRenderer) StartFile() error {
-	io.WriteString(hr.w, fmt.Sprintf(htmlHeader, VERSION))
+	fmt.Fprintf(hr.bw, htmlHeader, VERSION)
 	return nil
 }
 
 func (hr *HtmlRenderer) EndFile() error {
-	io.WriteString(hr.w, htmlFooter)
+	fmt.Fprintf(hr.bw, htmlFooter)
+	hr.bw.Flush()
 	return nil
 }
 
 func (hr *HtmlRenderer) StartTable(t *table) error {
-	if t.caption != nil && t.caption.LineCount() > 0 {
-		io.WriteString(hr.w, t.caption.String()) //strings.Join(t.caption.lines, "")
+	fmt.Fprintf(hr.bw, htmlOpenTable)
+	if t.caption != nil {
+		fmt.Fprintf(hr.bw, "<caption>")
+		for _, line := range t.caption.lines {
+			fmt.Fprintf(hr.bw, "%s%s\n", line, htmlbreak)
+		}
 	}
-	io.WriteString(hr.w, htmlOpenTable)
 	return nil
 }
 
 func (hr *HtmlRenderer) EndTable(t *table) error {
-	io.WriteString(hr.w, htmlCloseTable)
-	if t.footnotes != nil && t.footnotes.LineCount() > 0 {
-		io.WriteString(hr.w, t.footnotes.String()) //strings.Join(t.caption.lines, "")
+	fmt.Fprintf(hr.bw, htmlCloseTable)
+	if t.footnotes == nil {
+		return nil
+	}
+	fmt.Fprintf(hr.bw, htmlPara)
+	for _, line := range t.footnotes.lines {
+		fmt.Fprintf(hr.bw, "%s%s\n", line, htmlbreak)
 	}
 	return nil
 }
 
 func (hr *HtmlRenderer) StartRow(r *Row) error {
-	io.WriteString(hr.w, htmlOpenRow)
+	fmt.Fprintf(hr.bw, htmlOpenRow)
 	return nil
 }
 
 func (hr *HtmlRenderer) EndRow(r *Row) error {
-	io.WriteString(hr.w, htmlCloseRow)
+	fmt.Fprintf(hr.bw, htmlCloseRow)
 	return nil
 }
 
 func (hr *HtmlRenderer) OutputCell(c *Cell) error {
-	if c.hidden {
+	if c.state == csMerged {
 		return nil
 	}
-	var b bytes.Buffer
-	w := bufio.NewWriter(&b)
-	fmt.Fprint(w, "<td")
-	if c.rowSpan > 0 {
-		fmt.Fprintf(w, ` rowspan="%d"`, c.rowSpan)
+	fmt.Fprint(hr.bw, "<td")
+	if c.rowSpan > 1 {
+		fmt.Fprintf(hr.bw, ` rowspan="%d"`, c.rowSpan)
 	}
-	if c.colSpan > 0 {
-		fmt.Fprintf(w, ` colspan="%d"`, c.colSpan)
+	if c.colSpan > 1 {
+		fmt.Fprintf(hr.bw, ` colspan="%d"`, c.colSpan)
 	}
-	fmt.Fprint(w, ">", c.text, "</td>")
-	w.Flush()
-	io.WriteString(hr.w, b.String())
+	if hr.settings.TrimCellContents {
+		fmt.Fprint(hr.bw, ">", strings.TrimSpace(c.text), "</td>")
+	} else {
+		fmt.Fprint(hr.bw, ">", c.text, "</td>")
+	}
 	return nil
 }
 

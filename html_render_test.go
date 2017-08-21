@@ -28,22 +28,22 @@ func genTestTableData(rows []*Row) *table {
 var (
 	tabr3c4 = []*Row{ //simple table 3X4 no merging
 		&Row{[]*Cell{
-			&Cell{"cell11", 1, 1, false, 0, 0}, //text, cell, row, hidden, rowspan, colspan
-			&Cell{"cell12", 1, 2, false, 0, 0},
-			&Cell{"cell13", 1, 3, false, 0, 0},
-			&Cell{"cell14", 1, 4, false, 0, 0}},
+			&Cell{"cell11", 1, 1, csUndefined, 0, 0}, //text, cell, row, state, rowspan, colspan
+			&Cell{"cell12", 1, 2, csUndefined, 0, 0},
+			&Cell{"cell13", 1, 3, csUndefined, 0, 0},
+			&Cell{"cell14", 1, 4, csUndefined, 0, 0}},
 		},
 		&Row{[]*Cell{
-			&Cell{"cell21", 2, 1, false, 0, 0},
-			&Cell{"cell22", 2, 2, false, 0, 0},
-			&Cell{"cell23", 2, 3, false, 0, 0},
-			&Cell{"cell24", 2, 4, false, 0, 0}},
+			&Cell{"cell21", 2, 1, csUndefined, 0, 0},
+			&Cell{"cell22", 2, 2, csUndefined, 0, 0},
+			&Cell{"cell23", 2, 3, csUndefined, 0, 0},
+			&Cell{"cell24", 2, 4, csUndefined, 0, 0}},
 		},
 		&Row{[]*Cell{
-			&Cell{"cell31", 3, 1, false, 0, 0},
-			&Cell{"cell32", 3, 2, false, 0, 0},
-			&Cell{"cell33", 3, 3, false, 0, 0},
-			&Cell{"cell34", 3, 4, false, 0, 0}},
+			&Cell{"cell31", 3, 1, csUndefined, 0, 0},
+			&Cell{"cell32", 3, 2, csUndefined, 0, 0},
+			&Cell{"cell33", 3, 3, csUndefined, 0, 0},
+			&Cell{"cell34", 3, 4, csUndefined, 0, 0}},
 		}}
 )
 
@@ -77,22 +77,22 @@ func TestRender(t *testing.T) {
 			args: args{r: NewHtmlRenderer(),
 				t: genTestTableData([]*Row{
 					&Row{[]*Cell{
-						&Cell{"cell11", 1, 1, false, 0, 0}, //text, cell, row, hidden, rowspan, colspan
-						&Cell{"cell12", 1, 2, false, 0, 0},
-						&Cell{"cell13", 1, 3, false, 2, 2},
-						&Cell{"cell14", 1, 4, true, 0, 0}},
+						&Cell{"cell11", 1, 1, csUndefined, 0, 0}, //text, cell, row, hidden, rowspan, colspan
+						&Cell{"cell12", 1, 2, csUndefined, 0, 0},
+						&Cell{"cell13", 1, 3, csUndefined, 2, 2},
+						&Cell{"cell14", 1, 4, csMerged, 0, 0}},
 					},
 					&Row{[]*Cell{
-						&Cell{"cell21", 2, 1, false, 0, 0},
-						&Cell{"cell22", 2, 2, false, 0, 0},
-						&Cell{"cell23", 2, 3, true, 0, 0},
-						&Cell{"cell24", 2, 4, true, 0, 0}},
+						&Cell{"cell21", 2, 1, csUndefined, 0, 0},
+						&Cell{"cell22", 2, 2, csUndefined, 0, 0},
+						&Cell{"cell23", 2, 3, csMerged, 0, 0},
+						&Cell{"cell24", 2, 4, csMerged, 0, 0}},
 					},
 					&Row{[]*Cell{
-						&Cell{"cell31", 3, 1, false, 0, 0},
-						&Cell{"cell32", 3, 2, false, 0, 0},
-						&Cell{"cell33", 3, 3, false, 0, 0},
-						&Cell{"cell34", 3, 4, false, 0, 0}},
+						&Cell{"cell31", 3, 1, csUndefined, 0, 0},
+						&Cell{"cell32", 3, 2, csUndefined, 0, 0},
+						&Cell{"cell33", 3, 3, csUndefined, 0, 0},
+						&Cell{"cell34", 3, 4, csUndefined, 0, 0}},
 					},
 				}),
 			},
@@ -103,22 +103,22 @@ func TestRender(t *testing.T) {
 			args: args{r: NewHtmlRenderer(),
 				t: genTestTableData([]*Row{
 					&Row{[]*Cell{
-						&Cell{"cell11", 1, 1, false, 0, 4}, //text, cell, row, hidden, rowspan, colspan
-						&Cell{"cell12", 1, 2, true, 0, 0},
-						&Cell{"cell13", 1, 3, true, 0, 0},
-						&Cell{"cell14", 1, 4, true, 0, 0}},
+						&Cell{"cell11", 1, 1, csUndefined, 0, 4}, //text, cell, row, hidden, rowspan, colspan
+						&Cell{"cell12", 1, 2, csMerged, 0, 0},
+						&Cell{"cell13", 1, 3, csMerged, 0, 0},
+						&Cell{"cell14", 1, 4, csMerged, 0, 0}},
 					},
 					&Row{[]*Cell{
-						&Cell{"cell21", 2, 1, false, 0, 0},
-						&Cell{"cell22", 2, 2, false, 0, 0},
-						&Cell{"cell23", 2, 3, false, 0, 0},
-						&Cell{"cell24", 2, 4, false, 0, 0}},
+						&Cell{"cell21", 2, 1, csUndefined, 0, 0},
+						&Cell{"cell22", 2, 2, csUndefined, 0, 0},
+						&Cell{"cell23", 2, 3, csUndefined, 0, 0},
+						&Cell{"cell24", 2, 4, csUndefined, 0, 0}},
 					},
 					&Row{[]*Cell{
-						&Cell{"cell31", 3, 1, false, 0, 0},
-						&Cell{"cell32", 3, 2, false, 0, 0},
-						&Cell{"cell33", 3, 3, false, 0, 0},
-						&Cell{"cell34", 3, 4, false, 0, 0}},
+						&Cell{"cell31", 3, 1, csUndefined, 0, 0},
+						&Cell{"cell32", 3, 2, csUndefined, 0, 0},
+						&Cell{"cell33", 3, 3, csUndefined, 0, 0},
+						&Cell{"cell34", 3, 4, csUndefined, 0, 0}},
 					},
 				}),
 			},
@@ -129,22 +129,22 @@ func TestRender(t *testing.T) {
 			args: args{r: NewHtmlRenderer(),
 				t: genTestTableData([]*Row{
 					&Row{[]*Cell{
-						&Cell{"cell11", 1, 1, false, 4, 0}, //text, cell, row, hidden, rowspan, colspan
-						&Cell{"cell12", 1, 2, false, 0, 0},
-						&Cell{"cell13", 1, 3, false, 0, 0},
-						&Cell{"cell14", 1, 4, false, 0, 0}},
+						&Cell{"cell11", 1, 1, csUndefined, 4, 0}, //text, cell, row, hidden, rowspan, colspan
+						&Cell{"cell12", 1, 2, csUndefined, 0, 0},
+						&Cell{"cell13", 1, 3, csUndefined, 0, 0},
+						&Cell{"cell14", 1, 4, csUndefined, 0, 0}},
 					},
 					&Row{[]*Cell{
-						&Cell{"cell21", 2, 1, true, 0, 0},
-						&Cell{"cell22", 2, 2, false, 0, 0},
-						&Cell{"cell23", 2, 3, false, 0, 0},
-						&Cell{"cell24", 2, 4, false, 0, 0}},
+						&Cell{"cell21", 2, 1, csMerged, 0, 0},
+						&Cell{"cell22", 2, 2, csUndefined, 0, 0},
+						&Cell{"cell23", 2, 3, csUndefined, 0, 0},
+						&Cell{"cell24", 2, 4, csUndefined, 0, 0}},
 					},
 					&Row{[]*Cell{
-						&Cell{"cell31", 3, 1, true, 0, 0},
-						&Cell{"cell32", 3, 2, false, 0, 0},
-						&Cell{"cell33", 3, 3, false, 0, 0},
-						&Cell{"cell34", 3, 4, false, 0, 0}},
+						&Cell{"cell31", 3, 1, csMerged, 0, 0},
+						&Cell{"cell32", 3, 2, csUndefined, 0, 0},
+						&Cell{"cell33", 3, 3, csUndefined, 0, 0},
+						&Cell{"cell34", 3, 4, csUndefined, 0, 0}},
 					},
 				}),
 			},
@@ -156,7 +156,7 @@ func TestRender(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := &bytes.Buffer{}
-			if err := render(w, tt.args.r, tt.args.s, tt.args.t); (err != nil) != tt.wantErr {
+			if err := render(w, tt.args.r, DefaultSettings(), tt.args.t); (err != nil) != tt.wantErr {
 				t.Errorf("Render() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}

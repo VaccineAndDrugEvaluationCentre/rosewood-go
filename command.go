@@ -29,18 +29,18 @@ func (args Args) Arg(index int) string {
 
 //Command is the AST for a rw command.
 type Command struct {
-	token     rwKeyWord
-	name      string
-	cellSpan  span
-	cellRange Range
-	args      Args
-	pos       scanner.Position
+	token    rwKeyWord
+	name     string
+	cellSpan span
+	//	cellRange Range
+	args Args
+	pos  scanner.Position
 	//	execOrder int
 }
 
 //NewCommand return an empty RwCommand
 func NewCommand(name string, token rwKeyWord, pos scanner.Position) *Command {
-	return &Command{token: token, name: name, pos: pos, cellRange: newRange(), cellSpan: newSpan()}
+	return &Command{token: token, name: name, pos: pos, cellSpan: newSpan()}
 }
 
 //formats command for printing
@@ -49,7 +49,7 @@ func (c *Command) String() string {
 	case kwSet:
 		return fmt.Sprintf("%s %s", c.name, c.args)
 	default:
-		return fmt.Sprintf("%s %s %s", c.name, c.cellRange.testString(), c.args)
+		return fmt.Sprintf("%s %s %s", c.name, c.cellSpan, c.args)
 	}
 }
 
@@ -62,7 +62,7 @@ func (c *Command) Validate() error {
 			return fmt.Errorf("expected 2 arguments, found %d arguments", len(c.args))
 		}
 	case kwMerge:
-		return c.cellRange.validate()
+		return c.cellSpan.validate()
 	case kwStyle:
 		return err
 	default:
