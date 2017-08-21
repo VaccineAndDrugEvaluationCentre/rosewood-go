@@ -1,6 +1,7 @@
 package rosewood
 
 import (
+	"fmt"
 	"sort"
 )
 
@@ -69,16 +70,23 @@ func createMergeRangeList(cmdList []*Command) (mrlist []Range, err error) {
 func createGridTable(contents *tableContents, mrlist []Range) (*tableContents, error) {
 	grid := newBlankTableContents(contents.rowCount(), contents.maxFldCount)
 	for _, mr := range mrlist {
-		for i := mr.TopLeft.Row; i <= mr.BottomRight.Row; i++ {
-			for j := mr.TopLeft.Col; j <= mr.BottomRight.Col; j++ {
+		for i := mr.TopLeft.Row + 1; i <= mr.BottomRight.Row; i++ {
+			for j := mr.TopLeft.Col + 1; j <= mr.BottomRight.Col; j++ {
+				if grid.cell(i, j).state == csSpanned {
+					return nil, fmt.Errorf("invalid merge range [%s]: it hides a spanned cell [%s]", mr.testString(), grid.cell(i, j))
+				}
 				grid.cell(i, j).state = csMerged //hide the other cells in the merge range
 			}
 		}
 		topleft := grid.cell(mr.TopLeft.Row, mr.TopLeft.Col)
+		if topleft.state == csMerged {
+			return nil, fmt.Errorf("invalid merge range [%s]: attempting to span a merged cell [%s]", mr.testString(), topleft)
+		}
 		topleft.state = csSpanned
 		topleft.colSpan = mr.BottomRight.Col - mr.TopLeft.Col + 1
 		topleft.rowSpan = mr.BottomRight.Row - mr.TopLeft.Row + 1
 	}
+	//now copy contents to unmerged cells
 	for i := RwInt(1); i <= contents.rowCount(); i++ {
 		r := contents.row(i)
 		//fmt.Printf("in createGridTable i=%d, cellcount=%d\n", i, r.cellCount())

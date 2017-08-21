@@ -22,6 +22,15 @@ func iif(condition bool, t, f interface{}) interface{} {
 	return f
 }
 
+// RemoveIfExists removes a file, returning no error if it does not exist.
+func RemoveIfExists(filename string) error {
+	err := os.Remove(filename)
+	if err != nil && os.IsNotExist(err) {
+		err = nil
+	}
+	return err
+}
+
 // func FileCompare(file1, file2 string) (error, bool) {
 // 	const chunckSize = 64 * 1024
 // 	f1s, err := os.Stat(file1)
