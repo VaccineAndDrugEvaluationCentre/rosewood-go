@@ -30,43 +30,6 @@ func (t *table) normalizeMergeRanges() (err error) {
 	return nil
 }
 
-func normalizeSpan(cs span, rowCount, colCount RwInt) span {
-	if cs.r1 == MissingRwInt && cs.r2 == MissingRwInt {
-		cs.r1 = 1
-		cs.r2 = rowCount
-	}
-	if cs.c1 == MissingRwInt && cs.c2 == MissingRwInt {
-		cs.c1 = 1
-		cs.c2 = colCount
-	}
-	if cs.r1 == MissingRwInt {
-		cs.r1 = cs.r2
-	}
-	if cs.r2 == MissingRwInt {
-		cs.r2 = cs.r1
-	}
-	if cs.c1 == MissingRwInt {
-		cs.c1 = cs.c2
-	}
-	if cs.c2 == MissingRwInt {
-		cs.c2 = cs.c1
-	}
-	return cs
-}
-
-func createMergeRangeList(cmdList []*Command) (mrlist []Range, err error) {
-	for _, cmd := range cmdList {
-		if cmd.token != kwMerge {
-			continue
-		}
-		mrlist = append(mrlist, spanToRange(cmd.cellSpan))
-	}
-	sort.Slice(mrlist, func(i, j int) bool {
-		return mrlist[i].less(mrlist[j])
-	})
-	return mrlist, nil
-}
-
 func createGridTable(contents *tableContents, mrlist []Range) (*tableContents, error) {
 	grid := newBlankTableContents(contents.rowCount(), contents.maxFldCount)
 	for _, mr := range mrlist {
