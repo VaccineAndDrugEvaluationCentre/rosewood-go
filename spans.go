@@ -5,6 +5,17 @@ import (
 	"sort"
 )
 
+type subspan struct {
+	kind        string
+	left, right RwInt
+	by          RwInt
+	list        []RwInt
+}
+
+func newSubSpan() subspan {
+	return subspan{left: MissingRwInt, right: MissingRwInt, by: MissingRwInt}
+}
+
 type span struct {
 	r1, r2, c1, c2 RwInt
 	rby, cby       RwInt

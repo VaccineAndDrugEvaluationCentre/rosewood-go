@@ -1,6 +1,7 @@
 package rosewood
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
 	"strings"
@@ -27,15 +28,21 @@ func (args Args) Arg(index int) string {
 	return ""
 }
 
+//TODO: use scanner.Position in error messages
+type commandInfo struct {
+	scanner.Position
+	sawRow, sawCol bool
+}
+
 //Command is the AST for a rw command.
 type Command struct {
 	token    rwKeyWord
 	name     string
 	cellSpan span
-	//	cellRange Range
-	args Args
-	pos  scanner.Position
-	//	execOrder int
+	spans    []*subspan
+	args     Args
+	pos      scanner.Position
+	info     commandInfo
 }
 
 //NewCommand return an empty RwCommand
@@ -49,7 +56,19 @@ func (c *Command) String() string {
 	case kwSet:
 		return fmt.Sprintf("%s %s", c.name, c.args)
 	default:
-		return fmt.Sprintf("%s %s %s", c.name, c.cellSpan, c.args)
+		buf := &bytes.Buffer{}
+		fmt.Fprintf(buf, "%s", c.name)
+		for _, s := range c.spans {
+			fmt.Fprintf(buf, " %s %s", s.kind, formattedRwInt(s.left))
+			if s.by != MissingRwInt {
+				fmt.Fprintf(buf, ":%s", formattedRwInt(s.by))
+			}
+			fmt.Fprintf(buf, ":%s", formattedRwInt(s.right))
+		}
+		if len(c.args) > 0 {
+			fmt.Fprintf(buf, " %s", c.args)
+		}
+		return buf.String()
 	}
 }
 

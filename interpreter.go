@@ -96,7 +96,7 @@ func (ri *Interpreter) createTables() error {
 		case sectionFootNotes:
 			t.footnotes = s
 		case sectionControl:
-			if t.cmdList, err = ri.parser.ParseCommands(strings.NewReader(s.String())); err != nil {
+			if t.cmdList, err = ri.parser.ParseCommandLines(s.lines); err != nil {
 				return fmt.Errorf("error parsing commands in section # %d: %s ", ii, err)
 			}
 			ri.tables = append(ri.tables, t)

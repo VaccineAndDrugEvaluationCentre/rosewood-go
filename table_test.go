@@ -43,7 +43,7 @@ func Test_createGridTable(t *testing.T) {
 	var err error
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tab.cmdList, err = p.ParseCommands(strings.NewReader(tt.source))
+			tab.cmdList, err = p.ParseCommandLines(strings.Split(tt.source, "\n"))
 			tab.contents, err = NewTableContents(tt.tab)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewTableContents() error = %v, wantErr %v", err, tt.wantErr)
