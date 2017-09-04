@@ -8,19 +8,16 @@ import (
 	"text/scanner"
 )
 
-type Args []string
+type rwArgs []string
 
-func (args Args) String() string {
-	if len(args) == 0 {
-		return ""
-	}
+func (args rwArgs) String() string {
 	return strings.Join(args, ",")
 }
 
 //Arg returns the index-th argument as unquoted string
-func (args Args) Arg(index int) string {
+func (args rwArgs) Arg(index int) string {
 	if index < 0 || index >= len(args) {
-		panic("rwArgs.UnquoteString called with invalid index")
+		panic("Args.arg() called with invalid index")
 	}
 	if s, err := strconv.Unquote(args[index]); err == nil {
 		return s
@@ -28,21 +25,14 @@ func (args Args) Arg(index int) string {
 	return ""
 }
 
-//TODO: use scanner.Position in error messages
-type commandInfo struct {
-	scanner.Position
-	sawRow, sawCol bool
-}
-
-//Command is the AST for a rw command.
+//Command is the AST for a Rosewood command.
 type Command struct {
 	token    rwKeyWord
 	name     string
-	cellSpan span
+	cellSpan *span
 	spans    []*subspan
-	args     Args
+	args     rwArgs
 	pos      scanner.Position
-	info     commandInfo
 }
 
 //NewCommand return an empty RwCommand
@@ -50,26 +40,51 @@ func NewCommand(name string, token rwKeyWord, pos scanner.Position) *Command {
 	return &Command{token: token, name: name, pos: pos, cellSpan: newSpan()}
 }
 
-//formats command for printing
+//formats command for printing; warning used for testing the parser
 func (c *Command) String() string {
 	switch c.token {
 	case kwSet:
 		return fmt.Sprintf("%s %s", c.name, c.args)
 	default:
 		buf := &bytes.Buffer{}
-		fmt.Fprintf(buf, "%s", c.name)
+		fmt.Fprintf(buf, "%s ", c.name)
 		for _, s := range c.spans {
-			fmt.Fprintf(buf, " %s %s", s.kind, formattedRwInt(s.left))
-			if s.by != MissingRwInt {
-				fmt.Fprintf(buf, ":%s", formattedRwInt(s.by))
+			fmt.Fprintf(buf, "%s ", s.kind)
+			if s.left != MissingRwInt {
+				fmt.Fprintf(buf, "%s", formattedRwInt(s.left))
+				if s.by != MissingRwInt {
+					fmt.Fprintf(buf, ":%s", formattedRwInt(s.by))
+				}
+				fmt.Fprintf(buf, ":%s", formattedRwInt(s.right))
 			}
-			fmt.Fprintf(buf, ":%s", formattedRwInt(s.right))
+			for _, item := range s.list {
+				fmt.Fprintf(buf, "%s,", formattedRwInt(item))
+			}
+			//remove last comma if any
+			if bytes.HasSuffix(buf.Bytes(), []byte{','}) {
+				buf.Truncate(buf.Len() - 1)
+			}
+			fmt.Fprintf(buf, " ")
 		}
 		if len(c.args) > 0 {
-			fmt.Fprintf(buf, " %s", c.args)
+			fmt.Fprintf(buf, "%s", c.args)
 		}
-		return buf.String()
+		return strings.TrimSpace(buf.String())
 	}
+}
+
+func (c *Command) subSpan(modifier string) *subspan {
+	for _, ss := range c.spans {
+		if ss.kind == modifier {
+			return ss
+		}
+	}
+	return nil
+}
+
+func (c *Command) validateMerge() error {
+
+	return nil
 }
 
 //Validate checks command for errors
@@ -81,7 +96,7 @@ func (c *Command) Validate() error {
 			return fmt.Errorf("expected 2 arguments, found %d arguments", len(c.args))
 		}
 	case kwMerge:
-		return c.cellSpan.validate()
+		return c.validateMerge()
 	case kwStyle:
 		return err
 	default:

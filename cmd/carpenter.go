@@ -11,87 +11,97 @@ import (
 	"io"
 	"log"
 	"os"
-	"runtime"
 
 	"github.com/drgo/rosewood"
 )
 
+//initialized in the Makefile
 var (
 	Version string
 	Build   string
-	OSEOL   string
+)
+
+const (
+	versionMessage = "Carpenter %s (%s)\nCopyRight VDEC 2017\n"
+	usageMessage   = `Usage: Carpenter [input Rosewood file] -vho
+	if no -o output file specified, the output will be printed to standard output.
+	if no input file specified, input will be read from standard input <stdin> and output printed to standard output <stdout>.`
+)
+
+var (
+	verbose     bool
+	help        bool
+	outFileName string
 )
 
 func init() {
-	OSEOL = "\n"
-	if runtime.GOOS == "windows" {
-		OSEOL = "\r\n"
-	}
+	const (
+		verboseDesc     = "output debug information"
+		outFileNameDesc = "output filename"
+	)
+	flag.BoolVar(&help, "h", false, "Print help screen")
+	flag.StringVar(&outFileName, "o", "", outFileNameDesc)
+	flag.StringVar(&outFileName, "output", "", outFileNameDesc)
+	flag.BoolVar(&verbose, "v", false, verboseDesc)
+	flag.BoolVar(&verbose, "verbose", false, verboseDesc)
 }
 
 func main() {
-	verbose := flag.Bool("v", false, "verbose")
-	help := flag.Bool("h", false, "prints this screen")
 	flag.Usage = helpMessage
 	flag.Parse()
-	if *help {
+	if help {
 		usage(0)
 	}
+	//settings
 	settings := rosewood.DefaultSettings()
-	settings.Debug = *verbose
-	var (
-		input      io.ReadCloser
-		out        io.WriteCloser
-		inFileName string
-		err        error
-	)
-	switch flag.NArg() {
-	case 2:
-		outFileName := flag.Arg(1)
-		if out, err = os.Open(outFileName); err != nil {
-			log.Fatalf("error opening output file %s: %s", outFileName, err)
+	settings.Debug = verbose
+
+	//setup output
+	var err error
+	out := os.Stdout
+	if outFileName != "" {
+		if out, err = os.Create(outFileName); err != nil {
+			crash(outFileName, err)
 		}
 		defer out.Close()
-		fallthrough
-	case 1:
-		inFileName = flag.Arg(0)
-		if input, err = os.Open(inFileName); err != nil {
-			log.Fatalf("error opening input file %s: %s", inFileName, err)
-		}
-		defer input.Close()
+	}
+	switch flag.NArg() {
 	case 0:
 		if info, _ := os.Stdin.Stat(); info.Size() > 0 { //input is being piped in
-			inFileName = "<stdin>"
-			input = os.Stdin
-			out = os.Stdout
+			if err := run("<stdin>", out, settings); err != nil {
+				crash("<stdin>", err)
+			}
 		} else {
 			usage(1)
 		}
 	default:
-		usage(1)
-	}
-	if err := run(bufio.NewReader(input), out, settings); err != nil {
-		log.Fatalf("error running file %s: %s", inFileName, err)
+		for _, inFileName := range flag.Args() { //skip the command line name
+			if err := run(inFileName, out, settings); err != nil {
+				crash(inFileName, err)
+			}
+		}
 	}
 	os.Exit(0)
 }
 
-func run(in io.Reader, out io.Writer, settings *rosewood.Settings) error {
+func run(inFileName string, out io.Writer, settings *rosewood.Settings) error {
 	ri := rosewood.NewInterpreter(settings)
-	if err := ri.Run(in, out); err != nil {
-		return err
+	switch inFileName {
+	case "<stdin>":
+		return ri.Run(bufio.NewReader(os.Stdin), out)
+	default:
+		in, err := os.Open(inFileName)
+		if err != nil {
+			return fmt.Errorf("error opening input file %s: %s", inFileName, err)
+		}
+		defer in.Close()
+		return ri.Run(in, out)
 	}
-
-	return nil
 }
 
 func helpMessage() {
-	fmt.Fprintf(os.Stderr, "Carpenter %s (%s)\nCopyRight VDEC 2017\n", Version, Build)
-	fmt.Fprintf(os.Stderr,
-		`Usage: Carpenter <input Rosewood file> <output file>
-	if only 1 file is specified, it will be used for input and output will be printed to standard output <stdout>.
-	if both files are omitted, input will be read from standard input <stdin> and output printed to standard output <stdout>.%s
-	`, "\n")
+	fmt.Fprintf(os.Stderr, versionMessage, Version, Build)
+	fmt.Fprintln(os.Stderr, usageMessage)
 	flag.PrintDefaults()
 }
 
@@ -102,25 +112,29 @@ func usage(exitCode int) {
 	}
 }
 
-func runPipe(in io.Reader, out io.Writer) error {
-	echo := func(s string) { //prints s to out followed by linefeed
-		io.WriteString(out, s)
-		io.WriteString(out, OSEOL)
-	}
-	p := rosewood.NewCommandParser(nil)
-	cmdList, err := p.ParseCommands(in)
-	if err != nil {
-		echo(p.Errors(-1)) //show all errors
-		return err
-	}
-	echo(cmdList[0].String())
-	//p.Run(cmdList)
-	if err != nil {
-		echo(p.Errors(-1)) //show all errors
-		return err
-	}
-	return nil
+func crash(inFileName string, err error) {
+	log.Fatalf("error running file [%s]: %s", inFileName, err)
 }
+
+// func runPipe(in io.Reader, out io.Writer) error {
+// 	echo := func(s string) { //prints s to out followed by linefeed
+// 		io.WriteString(out, s)
+// 		io.WriteString(out, OSEOL)
+// 	}
+// 	p := rosewood.NewCommandParser(nil)
+// 	cmdList, err := p.ParseCommands(in)
+// 	if err != nil {
+// 		echo(p.Errors(-1)) //show all errors
+// 		return err
+// 	}
+// 	echo(cmdList[0].String())
+// 	//p.Run(cmdList)
+// 	if err != nil {
+// 		echo(p.Errors(-1)) //show all errors
+// 		return err
+// 	}
+// 	return nil
+// }
 
 const (
 	othercolor = "\x1b[39m"
@@ -143,7 +157,7 @@ func newecho(w *io.Writer, s string, color string) {
 // 	settings.Report = echo
 // 	rwi := rosewood.NewInterpreter(settings)
 // 	for {
-// 		fmt.Printf("\n>>")
+// 		trace.Printf("\n>>")
 // 		if !in.Scan() || strings.ToLower(in.Text()) == "q" {
 // 			return
 // 		}

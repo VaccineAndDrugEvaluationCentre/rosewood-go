@@ -16,21 +16,42 @@ func newSubSpan() subspan {
 	return subspan{left: MissingRwInt, right: MissingRwInt, by: MissingRwInt}
 }
 
+func subSpansToSpan(subSpans []*subspan) *span {
+	s := newSpan()
+	for _, ss := range subSpans {
+		switch ss.kind {
+		case "row":
+			s.r1 = ss.left
+			s.r2 = ss.right
+			s.rby = ss.by
+			s.rcl = ss.list
+		case "col":
+			s.c1 = ss.left
+			s.c2 = ss.right
+			s.cby = ss.by
+			s.ccl = ss.list
+		default:
+			panic("invalid subspan in subspanToSpan()") //should never happen
+		}
+	}
+	return s
+}
+
 type span struct {
 	r1, r2, c1, c2 RwInt
 	rby, cby       RwInt
 	rcl, ccl       []RwInt
 }
 
-func newSpan() span {
-	return span{r1: MissingRwInt, r2: MissingRwInt, c1: MissingRwInt, c2: MissingRwInt, rby: MissingRwInt, cby: MissingRwInt}
+func newSpan() *span {
+	return &span{r1: MissingRwInt, r2: MissingRwInt, c1: MissingRwInt, c2: MissingRwInt, rby: MissingRwInt, cby: MissingRwInt}
 }
 
-func makeSpan(r1, r2, c1, c2 RwInt) span {
-	return span{r1: r1, r2: r2, c1: c1, c2: c2, rby: MissingRwInt, cby: MissingRwInt}
+func makeSpan(r1, r2, c1, c2 RwInt) *span {
+	return &span{r1: r1, r2: r2, c1: c1, c2: c2, rby: MissingRwInt, cby: MissingRwInt}
 }
 
-func spanToRange(cs span) Range {
+func spanToRange(cs *span) Range {
 	return makeRange(cs.r1, cs.c1, cs.r2, cs.c2)
 }
 
@@ -45,7 +66,7 @@ func (s span) testString() string {
 }
 
 //validate performs simple validation of the range coordinates
-func (s span) validate() error {
+func (s *span) validate() error {
 	if s.r1 > s.r2 {
 		return fmt.Errorf("top row number (%d) must be smaller than bottom row number (%d)", s.r1, s.r2)
 	}
@@ -55,7 +76,7 @@ func (s span) validate() error {
 	return nil
 }
 
-func normalizeSpan(cs span, rowCount, colCount RwInt) span {
+func (cs *span) normalize(rowCount, colCount RwInt) {
 	if cs.r1 == MissingRwInt && cs.r2 == MissingRwInt {
 		cs.r1 = 1
 		cs.r2 = rowCount
@@ -76,30 +97,9 @@ func normalizeSpan(cs span, rowCount, colCount RwInt) span {
 	if cs.c2 == MissingRwInt {
 		cs.c2 = cs.c1
 	}
-	return cs
 }
 
-func createMergeRangeList(cmdList []*Command) (rList []Range, err error) {
-	var sList []span
-	for _, cmd := range cmdList {
-		if cmd.token != kwMerge {
-			continue
-		}
-		tmpList, err := expandSpan(cmd.cellSpan)
-		if err != nil {
-			return nil, err
-		}
-		sList = append(sList, tmpList...)
-	}
-	sList = deduplicateSpanList(sList)
-	//todo: convert sList to rList
-	sort.Slice(rList, func(i, j int) bool {
-		return rList[i].less(rList[j])
-	})
-	return rList, nil
-}
-
-func expandSpan(cs span) (sList []span, err error) {
+func (cs *span) expandSpan() (sList []*span, err error) {
 	var rPoints, cPoints []RwInt
 	//if skipped span, generate lists of all row and col points included
 	if cs.rby != MissingRwInt {
@@ -142,8 +142,8 @@ func expandSpan(cs span) (sList []span, err error) {
 }
 
 //returns deduplicated (unique r1,r2,c1,c2) span list
-func deduplicateSpanList(sList []span) []span {
-	set := make(map[string]span, len(sList))
+func deduplicateSpanList(sList []*span) []*span {
+	set := make(map[string]*span, len(sList))
 	i := 0
 	for _, cs := range sList {
 		if _, exists := set[cs.String()]; exists {
@@ -164,4 +164,27 @@ func genAllPossibleRangePoints(p1, p2, by RwInt) (pList []RwInt) {
 		pList = append(pList, i)
 	}
 	return pList
+}
+
+func createMergeRangeList(cmdList []*Command) (rList []Range, err error) {
+	var sList []*span
+	for _, cmd := range cmdList {
+		if cmd.token != kwMerge {
+			continue
+		}
+		tmpList, err := cmd.cellSpan.expandSpan()
+		if err != nil {
+			return nil, err
+		}
+		sList = append(sList, tmpList...)
+	}
+	sList = deduplicateSpanList(sList)
+	for _, s := range sList {
+		rList = append(rList, spanToRange(s))
+	}
+
+	sort.Slice(rList, func(i, j int) bool {
+		return rList[i].less(rList[j])
+	})
+	return rList, nil
 }

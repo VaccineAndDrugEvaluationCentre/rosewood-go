@@ -2,7 +2,6 @@ package rosewood
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"path"
 	"testing"
@@ -164,7 +163,7 @@ func TestRender(t *testing.T) {
 				t.Errorf("Wanted string [%s] was not found", tt.want)
 			}
 			if showOutput {
-				fmt.Printf("%s: \n %q \n", tt.name, w.String())
+				trace.Printf("%s: \n %q \n", tt.name, w.String())
 			}
 			if writeOut {
 				w.WriteString("<p><p>")
@@ -177,7 +176,7 @@ func TestRender(t *testing.T) {
 		if err := ioutil.WriteFile(outFileName, fileBuffer.Bytes(), 0644); err != nil {
 			t.Errorf("failed to write to file %s: %v", outFileName, err)
 		}
-		fmt.Printf("Results saved to file://%s\n", outFileName)
+		trace.Printf("Results saved to file://%s\n", outFileName)
 	}
 }
 

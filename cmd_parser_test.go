@@ -1,7 +1,6 @@
 package rosewood
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 )
@@ -14,6 +13,11 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		wantError bool
 		want      string
 	}{
+		{"merge row 1,2  //same line comment", 1, false, "merge row 1,2"},
+		{"merge row 1,2", 1, false, "merge row 1,2"},
+		{"merge row 1,2,3,6", 1, false, "merge row 1,2,3,6"},
+		{"merge row 1,2 col 1,2", 1, false, "merge row 1,2 col 1,2"},
+		{"merge row 1,2,3,6 col 1,2,3,6", 1, false, "merge row 1,2,3,6 col 1,2,3,6"},
 		{"merge row 1:2", 1, false, "merge row 1:2"},
 		{"merge row 1", 1, false, "merge row 1:NA"},
 		{"merge row 1:2 col 1:2 \n", 1, false, "merge row 1:2 col 1:2"},
@@ -30,7 +34,8 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		{"merge row 1:2:3 col 1:2 \n", 1, false, "merge row 1:2:3 col 1:2"},
 		{"merge row 1:2:3 col 1:2:3 \n", 1, false, "merge row 1:2:3 col 1:2:3"},
 		{"style row 1:2:3 col 1:2:3 style1\n", 1, false, "style row 1:2:3 col 1:2:3 style1"},
-		//{"style row 1,7 style1 \n", 1, false, "style row 1:NA col 0:NA style1"},       //test args x 2
+		{"style row 1,7 style1 \n", 1, false, "style row 1,7 style1"},
+		{"style row 1,7 col 1 style1 \n", 1, false, "style row 1,7 col 1:NA style1"},
 		{`set rangeseparator "-"
 			`, 1, false, "set rangeseparator,\"-\""}, //escaping " using \
 		{"merge col 1:2 row 1 ", 1, false, "merge col 1:2 row 1:NA"}, //switched row and col positions
@@ -50,7 +55,7 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		{"merge row 1:2 col 1;2 \n", 1, true, ": misstyped"},
 		{"merge row 1:2:", 1, true, "missing right range"},
 		{"merge row 1:2: col 1:2 \n", 1, true, "missing right range"},
-		//todo: fix validation of number ranges
+		//TODO: fix validation of number ranges
 		// {"merge row 3:1 col 1\n", 1, true, "row numbers invalid"},
 		// {"merge row 1:2 col 3:2\n", 1, true, "col numbers invalid"},
 		{"\n", 1, true, "empty line"},
@@ -63,18 +68,19 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		// {`set rangeseparator "-" "onemore"
 		// 	`, 1, true, "invalid # args to set"},
 	}
-	p := NewCommandParser(DefaultSettings()) //use default settings
+	p := NewCommandParser(debugSettings(true)) //use default settings
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
 			ss := strings.Split(tt.source, "\n")
-			//fmt.Printf("%d %+q\n", len(ss), ss)
+			p.trace.Println(strings.Repeat("*", 30))
+			p.trace.Printf("%d %+q\n", len(ss), ss)
 			got, err := p.ParseCommandLines(ss)
 			//fmt.Println(tt.source)
 			if tt.wantError != (err != nil) {
-				t.Errorf("Error handling failed, wanted %t, got %t \n", tt.wantError, err != nil)
+				t.Errorf("Error handling failed, wanted %t, got %t\n error: %s", tt.wantError, err != nil, p.errors.String())
 			}
 			if showErrorMessages && p.errors.Count() > 0 {
-				fmt.Printf("%s --> %s", tt.source, p.errors.String())
+				p.trace.Printf("%s: expected %s", strings.TrimSpace(tt.source), p.errors.String())
 
 			}
 			if err != nil {
@@ -118,7 +124,7 @@ func TestCommandParser_ParseMultiLineCommands(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.source, func(t *testing.T) {
 			ss := strings.Split(tt.source, "\n")
-			fmt.Printf("%d %+q", len(ss), ss)
+			//trace.Printf("%d %+q", len(ss), ss)
 			got, err := p.ParseCommandLines(ss)
 			if tt.wantError != (err != nil) {
 				t.Errorf("Error handling failed, wanted %t, got %t \n errors %s:", tt.wantError, err != nil, p.errors.String())
@@ -145,7 +151,7 @@ func TestCommandParser_ParseMultiLineCommands(t *testing.T) {
 }
 
 const script1 = `
-/*following commands should parse without error*/
+//*following commands should parse without error*/
 merge row 1:2 col 1
 merge row 1:2 col 1
 merge row 1:2 col 1:2   //another comment

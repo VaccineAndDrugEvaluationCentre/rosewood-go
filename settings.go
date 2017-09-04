@@ -12,15 +12,15 @@ const (
 
 //Settings implements a simple configuration solution.
 type Settings struct {
-	RangeOperator    int32
-	MandatoryCol     bool
-	StyleSheet       string
-	TableFileName    string
-	LogFileName      string
+	RangeOperator int32
+	MandatoryCol  bool
+	StyleSheet    string
+	// TableFileName    string
+	// LogFileName      string
 	Debug            bool
 	TrimCellContents bool
-	RunMode          RunMode
-	Report           func(string, ReportStatus)
+	//	RunMode          RunMode
+	Report func(string, ReportStatus)
 }
 
 //NewSettings returns an empty Settings struct
@@ -37,11 +37,18 @@ func DefaultSettings() *Settings {
 	return settings
 }
 
+//debugSettings returns default settings for settings and setup tracing
+func debugSettings(Tracing bool) *Settings {
+	settings := DefaultSettings()
+	settings.Debug = Tracing
+	return settings
+}
+
 // func (s Settings) String() string {
 // 	return fmt.Sprintf("Settings:\n %#v", s)
 // }
 
-// //todo: change path to io.reader
+// //TODO: change path to io.reader
 // func (s *Settings) LoadSettings(path string) error {
 // 	file, err := ioutil.ReadFile(path)
 // 	if err != nil {
@@ -54,7 +61,7 @@ func DefaultSettings() *Settings {
 // 	return nil
 // }
 
-// //todo: change path to io.writer
+// //TODO: change path to io.writer
 // func (s *Settings) SaveSettings(path string, replace true) error {
 // 	file, err := os.Create(path)
 // 	if err != nil {

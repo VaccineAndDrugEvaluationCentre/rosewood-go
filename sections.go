@@ -13,15 +13,14 @@ const (
 )
 
 type section struct {
-	scriptIdentifer string
-	offset          int
-	kind            sectionDescriptor
-	lines           []string
+	//	scriptIdentifer string
+	kind   sectionDescriptor
+	offset int
+	lines  []string
 }
 
-//todo: change section to byte.buffer or []bytes
-func newSection(scriptIdentifer string, offset int, kind sectionDescriptor) *section {
-	return &section{scriptIdentifer: scriptIdentifer, offset: offset, kind: kind}
+func newSection(kind sectionDescriptor, offset int) *section {
+	return &section{kind: kind, offset: offset}
 }
 
 func (s *section) String() string {

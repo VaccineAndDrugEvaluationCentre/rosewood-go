@@ -49,6 +49,7 @@ func NewErrorManager() *ErrorManager {
 }
 
 func (em *ErrorManager) Add(e error) {
+	trace.Println(e)
 	em.Errors = append(em.Errors, e)
 }
 
@@ -57,15 +58,13 @@ func (em *ErrorManager) Count() int {
 }
 
 func (em *ErrorManager) Reset() {
-	em.Errors = nil //for clarity
 	em.Errors = make([]error, 0, 10)
 }
 
 func (em *ErrorManager) String() string {
 	var b bytes.Buffer
 	for i := 0; i < len(em.Errors); i++ {
-		b.WriteString(em.Errors[i].Error())
-		b.WriteString("\n")
+		fmt.Fprintln(&b, em.Errors[i].Error())
 	}
 	return b.String()
 }

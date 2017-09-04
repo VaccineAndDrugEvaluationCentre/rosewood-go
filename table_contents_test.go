@@ -1,7 +1,6 @@
 package rosewood
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -109,7 +108,7 @@ func TestParseTableData(t *testing.T) {
 				t.Errorf("ParseTableData() = [%v], want [%v]", got, tt.want)
 			}
 			if showOutput {
-				fmt.Printf("%s (%q): \n %v \n", tt.name, tt.args, got)
+				trace.Printf("%s (%q): \n %v \n", tt.name, tt.args, got)
 			}
 		})
 	}

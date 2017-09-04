@@ -51,13 +51,13 @@ func TestInterpreter_Run(t *testing.T) {
 func ExampleNewInterpreter() {
 	ri := NewInterpreter(nil)
 	if err := parseFile(ri, "test-files/correct1tab.rw"); err != nil {
-		fmt.Printf("error parsing file: %s\n", err)
+		trace.Printf("error parsing file: %s\n", err)
 	}
-	fmt.Println(ri.SectionCount())
-	if ri.SectionCount() != 4 {
+	fmt.Println(ri.sectionCount())
+	if ri.sectionCount() != 4 {
 		return
 	}
-	fmt.Printf("%d\n", ri.sections[0].offset)
+	trace.Printf("%d\n", ri.sections[0].offset)
 	fmt.Printf("%d\n", ri.sections[2].offset)
 	fmt.Printf("%d\n", ri.sections[0].LineCount())
 	fmt.Printf("%d\n", ri.sections[3].LineCount())
@@ -93,8 +93,8 @@ func ExampleNewInterpreter2() {
 	if err := parseFile(ri, "test-files/correct2tabs.rw"); err != nil {
 		fmt.Printf("error parsing file: %s\n", err)
 	}
-	fmt.Println(ri.SectionCount())
-	if ri.SectionCount() == 8 {
+	fmt.Println(ri.sectionCount())
+	if ri.sectionCount() == 8 {
 		fmt.Printf("%d\n", ri.sections[0].offset)
 		fmt.Printf("%d\n", ri.sections[2].offset)
 		fmt.Printf("%d\n", ri.sections[0].LineCount())

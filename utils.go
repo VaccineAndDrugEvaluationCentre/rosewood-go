@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 )
 
-//todo merge with other utils
+//TODO merge with other utils
 //FILE utils
 func GetWorkingDir() string {
 	dir, err := os.Executable()

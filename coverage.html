@@ -306,11 +306,11 @@ func (p *CommandParser) parseTableFormatCommand(cmd *Command) error <span class=
         p.nextToken()
         cmd.cellRange.TopLeft.Row = p.acceptCoordinate()
         p.nextToken()
-        //        fmt.Printf("in parseTable %q: %d\n", string(p.rangeOperator), p.rangeOperator)
+        //        trace.Printf("in parseTable %q: %d\n", string(p.rangeOperator), p.rangeOperator)
         colExists := false
         switch p.currentToken </span>{
         case '\n', scanner.EOF:<span class="cov8" title="1">
-                // fmt.Printf("inside end of line or EOF: mandatory: %t, colexists: %t\n", p.settings.MandatoryCol, colExists)
+                // trace.Printf("inside end of line or EOF: mandatory: %t, colexists: %t\n", p.settings.MandatoryCol, colExists)
                 if p.settings.MandatoryCol &amp;&amp; !colExists </span><span class="cov0" title="0">{
                         p.addSyntaxError("col is missing")
                 }</span>
@@ -677,7 +677,7 @@ func (hr *HtmlRenderer) OutputCell(c *Cell) error <span class="cov8" title="1">{
 }
 
 func render(w io.Writer, r *HtmlRenderer, settings *Settings, tables ...*table) error <span class="cov8" title="1">{
-        //        fmt.Printf("%#v", *t)
+        //        trace.Printf("%#v", *t)
         r.SetWriter(w)
         r.SetSettings(settings)
         r.SetTables(tables)
@@ -736,7 +736,7 @@ type section struct {
         lines           []string
 }
 
-//todo: change section to byte.buffer or []bytes
+//TODO: change section to byte.buffer or []bytes
 func newSection(scriptIdentifer string, offset int, kind sectionDescriptor) *section <span class="cov8" title="1">{
         return &amp;section{scriptIdentifer: scriptIdentifer, offset: offset, kind: kind}
 }</span>
@@ -1034,7 +1034,7 @@ type Settings struct {
         Report        func(string, ReportStatus)
 }
 
-//todo: add support for loadDefaultSettings call back
+//TODO: add support for loadDefaultSettings call back
 func NewSettings() *Settings <span class="cov8" title="1">{
         s := Settings{}
         return &amp;s
@@ -1055,7 +1055,7 @@ func DefaultSettings() *Settings <span class="cov8" title="1">{
 //         return fmt.Sprintf("Settings:\n %#v", s)
 // }
 
-// //todo: change path to io.reader
+// //TODO: change path to io.reader
 // func (s *Settings) LoadSettings(path string) error {
 //         file, err := ioutil.ReadFile(path)
 //         if err != nil {
@@ -1068,7 +1068,7 @@ func DefaultSettings() *Settings <span class="cov8" title="1">{
 //         return nil
 // }
 
-// //todo: change path to io.writer
+// //TODO: change path to io.writer
 // func (s *Settings) SaveSettings(path string, replace true) error {
 //         file, err := os.Create(path)
 //         if err != nil {
@@ -1222,9 +1222,9 @@ func ParseTableData(s string) (*tableData, error) <span class="cov8" title="1">{
         for pos := 0; pos &lt; len(s); pos++ </span><span class="cov8" title="1">{
                 switch s[pos] </span>{
                 case '\r':</span><span class="cov8" title="1"> //carriage return followed by linefeed as EOL sequence (Windows)
-                        //todo: \r must be preceded by |
+                        //TODO: \r must be preceded by |
                 case '\n':<span class="cov8" title="1"> //linefeed for Linux and MacOs as EOL marker
-                        //todo: \n must be preceded by | or \r
+                        //TODO: \n must be preceded by | or \r
                         line++
                         offset = RwInt(pos + 1) //offset is now just after the \n
                         if fldCount &gt; maxFldCount </span><span class="cov8" title="1">{
@@ -1262,7 +1262,7 @@ import (
         "path/filepath"
 )
 
-//todo merge with other utils
+//TODO merge with other utils
 
 func GetWorkingDir() string <span class="cov0" title="0">{
         dir, err := os.Executable()

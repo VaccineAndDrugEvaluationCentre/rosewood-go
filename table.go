@@ -25,7 +25,8 @@ func (t *table) normalizeMergeRanges() (err error) {
 		if cmd.token != kwMerge {
 			continue
 		}
-		cmd.cellSpan = normalizeSpan(cmd.cellSpan, t.contents.rowCount(), t.contents.maxFldCount)
+		cmd.cellSpan.normalize(t.contents.rowCount(), t.contents.maxFldCount)
+		trace.Printf("normalized: %v\n", cmd.cellSpan.testString())
 	}
 	return nil
 }
@@ -52,7 +53,7 @@ func createGridTable(contents *tableContents, mrlist []Range) (*tableContents, e
 	//now copy contents to unmerged cells
 	for i := RwInt(1); i <= contents.rowCount(); i++ {
 		r := contents.row(i)
-		//fmt.Printf("in createGridTable i=%d, cellcount=%d\n", i, r.cellCount())
+		//trace.Printf("in createGridTable i=%d, cellcount=%d\n", i, r.cellCount())
 		for j := RwInt(1); j <= r.cellCount(); {
 			if contents.cell(i, j).state != csMerged {
 				grid.cell(i, j).text = contents.cell(i, j).text
@@ -80,42 +81,6 @@ func (t *table) run() error {
 	t.grid, err = createGridTable(t.contents, mrlist)
 	return err
 }
-
-// func (t *table) Merge(ra Range) error {
-// 	//	fmt.Println("range in Merge:", ra)
-
-// 	//	return t.contents.merge(ra)
-// 	return nil
-// }
-
-// func createGridTable(contents *tableContents, mrlist []mergeRange) (*tableContents, error) {
-// 	grid := newBlankTableContents(contents.rowCount(), contents.maxFldCount)
-// 	for i := RwInt(1); i <= contents.rowCount(); i++ {
-// 		r := contents.row(i)
-// 		//fmt.Printf("in createGridTable i=%d, cellcount=%d\n", i, r.cellCount())
-// 		for j := RwInt(1); j <= r.cellCount(); {
-// 			grid.cell(i, j).clone(&Cell{row: i, col: j, text: contents.cell(i, j).text})
-// 			//fmt.Printf("in createGridTable i=%d, j=%d old %s new %s\n", i, j, contents.cell(i, j).text, grid.cell(i, j).text)
-// 			index := searchMRListByCoordinate(mrlist, Coordinates{i, j}) //topleft cell in a merge range?
-// 			if index != -1 {
-// 				fmt.Printf("in createGridTable index=%d, %+v\n", index, mrlist[index])
-// 				bottomRight := mrlist[index].BottomRight
-// 				//topLeft := mrlist[index].TopLeft
-// 				k := j + 1
-// 				for ; k <= bottomRight.Col && k <= grid.row(i).cellCount(); k++ {
-// 					grid.cell(i, k).hidden = true //hide the other cells in the merge range
-// 				}
-// 				//update the row and colspan attributes of the topleft cell
-// 				grid.cell(i, j).colSpan = k - j //
-// 				//				grid.cell(i, j).rowSpan = bottomRight.Row - topLeft.Row
-
-// 				j = k - 1 //j now is the last processed cell
-// 			}
-// 			j++
-// 		}
-// 	}
-// 	return grid, nil
-// }
 
 func searchMRListByRange(mrlist []Range, mr Range) (index int, found bool) {
 	index = sort.Search(len(mrlist), func(i int) bool { //see https://golang.org/pkg/sort/#Search

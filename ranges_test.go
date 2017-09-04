@@ -51,9 +51,9 @@ func Test_expandSpan(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.cs.testString(), func(t *testing.T) {
-			gotSList, err := expandSpan(tt.cs)
+			gotSList, err := tt.cs.expandSpan()
 			if showOutput {
-				fmt.Printf("%s:\n%v\n", tt.cs.testString(), gotSList)
+				trace.Printf("%s:\n%v\n", tt.cs.testString(), gotSList)
 			}
 			if (err != nil) != tt.wantErr {
 				t.Errorf("expandSpan() error = %v, wantErr %v", err, tt.wantErr)
@@ -63,7 +63,7 @@ func Test_expandSpan(t *testing.T) {
 				t.Errorf("wrong number of expanded spans = %d, wanted %v", len(gotSList), tt.wantListSize)
 				return
 			}
-			if !reflect.DeepEqual(gotSList[0], tt.wantSpan1) {
+			if !reflect.DeepEqual(*gotSList[0], tt.wantSpan1) {
 				t.Errorf("wrong first expanded span = %v, want %v", gotSList[0], tt.wantSpan1)
 			}
 		})
@@ -83,13 +83,13 @@ func Test_deduplicateSpanList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.cs.testString(), func(t *testing.T) {
-			gotSList, err := expandSpan(tt.cs)
+			gotSList, err := tt.cs.expandSpan()
 			if err != nil {
 				t.Errorf("expandSpan() error = %v", err)
 				return
 			}
 			if showOutput {
-				fmt.Printf("%s:\n%v\n", tt.cs.testString(), gotSList)
+				trace.Printf("%s:\n%v\n", tt.cs.testString(), gotSList)
 			}
 			redupList := deduplicateSpanList(gotSList)
 			if len(redupList) != tt.wantListSize {
@@ -97,12 +97,40 @@ func Test_deduplicateSpanList(t *testing.T) {
 				return
 			}
 			if showOutput {
-				fmt.Printf("%s:\n%v\n", "deduplicated", redupList)
+				trace.Printf("%s:\n%v\n", "deduplicated", redupList)
 				fmt.Println(strings.Repeat("*", 30))
 			}
 			// if !reflect.DeepEqual(gotSList[0], tt.wantSpan1) {
 			// 	t.Errorf("wrong first expanded span = %v, want %v", gotSList[0], tt.wantSpan1)
 			// }
+		})
+	}
+}
+
+func Test_normalizeSpan(t *testing.T) {
+	type args struct {
+		cs       *span
+		rowCount RwInt
+		colCount RwInt
+	}
+	tests := []struct {
+		name string
+		args args
+		want *span
+	}{
+		{"no-missing", args{makeSpan(1, 1, 4, 4), 6, 4}, makeSpan(1, 1, 4, 4)},
+		{"r1-r2-missing", args{makeSpan(MissingRwInt, MissingRwInt, 2, 3), 6, 4}, makeSpan(1, 6, 2, 3)},
+		{"c1-c2-missing", args{makeSpan(1, 1, MissingRwInt, MissingRwInt), 6, 4}, makeSpan(1, 1, 1, 4)},
+		{"r2missing", args{makeSpan(1, MissingRwInt, 2, 2), 6, 4}, makeSpan(1, 1, 2, 2)},
+		{"c2missing", args{makeSpan(1, 1, 2, MissingRwInt), 6, 4}, makeSpan(1, 1, 2, 2)},
+		{"r1-r2-c2-missing", args{makeSpan(MissingRwInt, MissingRwInt, MissingRwInt, 3), 6, 4}, makeSpan(1, 6, 3, 3)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.args.cs.normalize(tt.args.rowCount, tt.args.colCount)
+			if !reflect.DeepEqual(tt.args.cs, tt.want) {
+				t.Errorf("normalizeSpan() = %v, want %v", tt.args.cs, tt.want)
+			}
 		})
 	}
 }

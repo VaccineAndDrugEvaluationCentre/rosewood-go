@@ -2,7 +2,6 @@ package rosewood
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io"
 	"runtime"
@@ -12,13 +11,18 @@ import (
 //VERSION of this library
 const VERSION = "0.3.0"
 
-var OSEOL string
+var (
+	OSEOL string
+
+	trace tracer
+)
 
 func init() {
 	OSEOL = "\n"
 	if runtime.GOOS == "windows" {
 		OSEOL = "\r\n"
 	}
+	trace = newTrace(off, nil) //default trace is off
 }
 
 const (
@@ -33,8 +37,7 @@ type Interpreter struct {
 	sections []*section //holds raw lines
 	settings *Settings
 	tables   []*table
-	//	logFile      *os.File
-	parser *CommandParser
+	parser   *CommandParser
 }
 
 func NewInterpreter(settings *Settings) *Interpreter {
@@ -42,33 +45,33 @@ func NewInterpreter(settings *Settings) *Interpreter {
 	//if no custom settings use default ones
 	if settings == nil {
 		ri.settings = DefaultSettings()
+		if ri.settings == nil {
+			panic("Interpreter failed to load settings")
+		}
 	} else {
 		ri.settings = settings
-	}
-	if ri.settings == nil {
-		panic("Interpreter failed to load settings")
 	}
 	ri.parser = NewCommandParser(ri.settings)
 	return ri
 }
 
-func (ri *Interpreter) String() string {
-	var b bytes.Buffer
-	for i := 0; i < sectionsPerTable; i++ {
-		b.WriteString(sectionSeparator + "\n")
-		b.WriteString(ri.sections[i].String())
-		b.WriteString("\n")
-	}
-	return b.String()
-}
+// func (ri *Interpreter) String() string {
+// 	var b bytes.Buffer
+// 	for i := 0; i < sectionsPerTable; i++ {
+// 		b.WriteString(sectionSeparator + "\n")
+// 		b.WriteString(ri.sections[i].String())
+// 		b.WriteString("\n")
+// 	}
+// 	return b.String()
+// }
 
-func (ri *Interpreter) SectionCount() int {
+func (ri *Interpreter) sectionCount() int {
 	return len(ri.sections)
 }
 
-func (ri *Interpreter) OK() bool {
-	return true
-}
+// func (ri *Interpreter) OK() bool {
+// 	return true
+// }
 
 func (ri *Interpreter) report(message string, status ReportStatus) {
 	if ri.settings.Report != nil {
@@ -77,8 +80,8 @@ func (ri *Interpreter) report(message string, status ReportStatus) {
 }
 
 func (ri *Interpreter) createTables() error {
-	if ri.SectionCount() == 0 || ri.SectionCount()%sectionsPerTable != 0 {
-		return fmt.Errorf("incorrect number of sections %d", ri.SectionCount())
+	if ri.sectionCount() == 0 || ri.sectionCount()%sectionsPerTable != 0 {
+		return fmt.Errorf("incorrect number of sections %d", ri.sectionCount())
 	}
 	var t *table
 	var err error
@@ -135,11 +138,11 @@ func (ri *Interpreter) parse(r io.Reader, scriptIdentifer string) error {
 			if s != nil { //there is an active section, append it to the sections array
 				ri.sections = append(ri.sections, s)
 			}
-			s = newSection(scriptIdentifer, lineNum+1, sectionUnknown) //section if any starts on the next line
+			s = newSection(sectionUnknown, lineNum+1) //section if any starts on the next line
 		} else {
 			//TODO: remove this if
 			if s == nil { //if text found before a SectionSeparator (at the start of a script)-> a caption section
-				s = newSection(scriptIdentifer, lineNum, sectionCaption)
+				s = newSection(sectionCaption, lineNum)
 			}
 			s.lines = append(s.lines, line)
 		}
@@ -157,7 +160,7 @@ func (ri *Interpreter) parse(r io.Reader, scriptIdentifer string) error {
 
 func (ri *Interpreter) runTableCommands(table *table) error {
 	for _, cmd := range table.cmdList {
-		//fmt.Printf("inside runTable Commands: %d", i)
+		//trace.Printf("inside runTable Commands: %d", i)
 		switch cmd.token {
 		case kwSet:
 			//do nothing parser would have handled that
@@ -175,7 +178,7 @@ func (ri *Interpreter) runTableCommands(table *table) error {
 
 func (ri *Interpreter) runTables() error {
 	for _, t := range ri.tables {
-		//fmt.Printf("inside runTables: %d", i)
+		//trace.Printf("inside runTables: %d", i)
 		// if err := ri.runTableCommands(t); err != nil {
 		// 	return fmt.Errorf("failed to run commands for table %s", err)
 		// }
@@ -211,7 +214,8 @@ func (ri *Interpreter) renderTables(w io.Writer, hr *HtmlRenderer) error {
 //and an io.Writer to output the formatted text.
 func (ri *Interpreter) Run(src io.Reader, out io.Writer) error {
 	var err error
-	if err = ri.Parse(src, ri.settings.TableFileName); err != nil {
+	//TODO: hook up parsing of error messages
+	if err = ri.Parse(src, ""); err != nil {
 		return err
 	}
 	if err = ri.runTables(); err != nil {

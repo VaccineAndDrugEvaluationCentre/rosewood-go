@@ -3,7 +3,6 @@ package rosewood
 import (
 	"fmt"
 	"io"
-	"log"
 	"strconv"
 	"strings"
 	"text/scanner"
@@ -42,10 +41,11 @@ const (
 
 // CommandParser specialized parser for format commands
 type CommandParser struct {
-	errors       *ErrorManager
-	lexer        *scanner.Scanner
-	settings     *Settings
-	debug        bool
+	trace    tracer
+	errors   *ErrorManager
+	lexer    *scanner.Scanner
+	settings *Settings
+	//	debug        bool
 	runMode      RunMode
 	currentToken rune
 	tables       []*tableContents //list of all loaded tables
@@ -53,41 +53,31 @@ type CommandParser struct {
 
 //NewCommandParser initializes and returns a CommandParser
 func NewCommandParser(settings *Settings) *CommandParser {
-	p := CommandParser{errors: NewErrorManager()}
-	//if no custom settings use default ones
 	if settings == nil {
-		panic("nil settings passed to command parser")
+		panic("nil settings passed to NewCommandParser")
 	}
+	p := CommandParser{errors: NewErrorManager()}
 	p.settings = settings
-	p.runMode = settings.RunMode
+	//	fmt.Println("trace is", p.settings.Debug)
+	p.trace = newTrace(off, nil) //writer to stderr
+	if p.settings.Debug {
+		p.trace.On()
+	}
 	return &p
 }
 
-//defaultSettings: returns default settings in case no settings were set.
-func (p *CommandParser) defaultSettings() error {
-	p.settings = NewSettings()
-	p.settings.RangeOperator = ':'
-	if p.settings.Debug {
-		log.Printf("default settings loaded")
-	}
-	return nil
-}
-
-//Errors returns a \n separated list of errors
+//Errors returns a \n separated list of errors if index =-1, otherwise returns the indexth error;
 func (p *CommandParser) Errors(index int) string {
 	if index < 0 {
 		return p.errors.String()
 	}
-	return p.errors.Errors[index].Error()
+	return p.errors.Errors[index].Error() //intended: will panic if index out of range
 }
 
-//nextToken advances the lexer and updates currentToken of CommandParser. Do not
-//confuse with Go's scanner.Scanner.Next()
+//nextToken advances the lexer and updates currentToken of CommandParser.
 func (p *CommandParser) nextToken() {
 	p.currentToken = p.lexer.Scan()
-	if p.settings.Debug {
-		log.Printf("in nextToken: %s, current token= %q\n", p.lexer.Pos(), p.lexer.TokenText())
-	}
+	p.trace.Printf("in nextToken: %s, current token= %q\n", p.lexer.Pos(), p.currentWord())
 }
 
 //nextNotNull like nextToken but returns an error if EOL or EOF
@@ -96,7 +86,7 @@ func (p *CommandParser) nextNotNull() error {
 	switch p.currentToken {
 	case scanner.EOF:
 		return fmt.Errorf("unexpected end of input")
-	case '\n': //todo: use CRLF as well
+	case '\n':
 		return fmt.Errorf("unexpected end of line")
 	}
 	return nil
@@ -117,13 +107,12 @@ func (p *CommandParser) wrongToken(wantedText string) {
 	if strings.HasPrefix(wantedText, "*") {
 		wantedText = wantedText[1:] //do not print the *
 	}
-	p.errors.Add(NewError(ErrSyntaxError, p.lexer.Pos(), fmt.Sprintf("expected %s, found %s (%s)",
-		wantedText, scanner.TokenString(p.currentToken), p.lexer.TokenText())))
+	p.errors.Add(NewError(ErrSyntaxError, p.lexer.Pos(), fmt.Sprintf("expected %s, found %s (%s)", wantedText, scanner.TokenString(p.currentToken), p.currentWord())))
 }
 
-//wrongToken adds an error into the parser's error list
-func (p *CommandParser) addSyntaxError(msg string) {
-	p.errors.Add(NewError(ErrSyntaxError, p.lexer.Pos(), msg))
+//addSyntaxError adds an error into the parser's error list
+func (p *CommandParser) addSyntaxError(msg string, a ...interface{}) {
+	p.errors.Add(NewError(ErrSyntaxError, p.lexer.Pos(), fmt.Sprintf(msg, a...)))
 }
 
 func (p *CommandParser) isToken(wantedTok rune, wantedText string) bool {
@@ -145,8 +134,8 @@ func (p *CommandParser) accept(wantedTok rune, wantedText string) {
 	if strings.HasPrefix(wantedText, "*") {
 		return
 	}
-	if wantedText != strings.ToLower(p.lexer.TokenText()) {
-		p.addSyntaxError(fmt.Sprintf("expected %s, found %s", wantedText, p.lexer.TokenText()))
+	if wantedText != p.currentWord() {
+		p.addSyntaxError("expected %s, found %s", wantedText, p.exactCurrentWord())
 	}
 }
 
@@ -160,15 +149,15 @@ func (p *CommandParser) acceptCommandName() (string, rwKeyWord) {
 	}
 	cmd, found := lookupKeyword(cmdName)
 	if !found {
-		p.addSyntaxError(fmt.Sprintf("unknown command %s", cmdName))
+		p.addSyntaxError("unknown command %s", cmdName)
 		return cmdName, kwInvalid
 	}
 	return cmdName, cmd
 }
 
 //acceptArgNameAndValue: reads an argument name and its value
-func (p *CommandParser) acceptArg(lexeme rune) string {
-	p.accept(lexeme, "*any identifier")
+func (p *CommandParser) acceptArg(token rune) string {
+	p.accept(token, "*any identifier")
 	return p.currentWord()
 }
 
@@ -182,7 +171,7 @@ func (p *CommandParser) parsePoint() (RwInt, error) {
 	}
 	coordinate, _ := strconv.Atoi(p.currentWord()) //no error check as we know it must be an int
 	if coordinate < 1 {
-		p.addSyntaxError(fmt.Sprintf("wanted row/col number > 0; found %s", p.exactCurrentWord())) //keep parsing
+		p.addSyntaxError("wanted row/col number > 0; found %s", p.exactCurrentWord()) //keep parsing
 		return MissingRwInt, nil
 	}
 	return RwInt(coordinate), nil
@@ -191,17 +180,20 @@ func (p *CommandParser) parsePoint() (RwInt, error) {
 //parseCommaSepPoints reads a list of coordinates points in the form x,y,z
 func (p *CommandParser) parseCommaSepPoints(ss *subspan) error {
 	for {
-		//read a coordinate point
-		p.nextToken()
+		//parser is on a comma, read a coordinate point
 		point, err := p.parsePoint()
 		if err != nil {
 			return err
 		}
 		ss.list = append(ss.list, point)
-		switch p.lexer.Peek() {
+		p.nextToken()
+		switch p.currentToken {
 		case ',':
-			p.nextToken()
 			continue
+		case p.settings.RangeOperator:
+			if err := p.parseRangePoints(ss); err != nil {
+				return err
+			}
 		default:
 			return nil
 		}
@@ -283,13 +275,16 @@ func (p *CommandParser) parseTableFormatCommand(cmd *Command) error {
 		return err
 	}
 	//next, we either have another col/row modifier, argument or EOF
-	//p.nextToken()
 	switch p.currentToken {
 	case scanner.EOF:
-		return nil
+	default:
+		return fmt.Errorf("expected row, col or an argument, found %s", p.exactCurrentWord())
 	case scanner.Ident:
 		switch p.currentWord() {
 		case "col", "row":
+			if cmd.subSpan(p.currentWord()) != nil { //already parsed
+				return fmt.Errorf("duplicate %s", p.exactCurrentWord())
+			}
 			if err := parseSegment(p.currentWord()); err != nil {
 				return err
 			}
@@ -303,9 +298,10 @@ func (p *CommandParser) parseTableFormatCommand(cmd *Command) error {
 				return fmt.Errorf("expected row, col or an argument, found %s", p.exactCurrentWord())
 			}
 		}
-	default:
-		return fmt.Errorf("expected row, col or an argument, found %s", p.exactCurrentWord())
 	}
+	//success
+	cmd.cellSpan = subSpansToSpan(cmd.spans)
+	p.trace.Printf("parsed: %v\n", cmd)
 	return nil
 }
 
@@ -323,7 +319,7 @@ func (p *CommandParser) parseSetCommand(cmd *Command) error {
 //initialize lexer and its settings
 func (p *CommandParser) init(r io.Reader) error {
 	p.lexer = new(scanner.Scanner).Init(r)
-	p.lexer.Whitespace = 1<<'\t' | 1<<'\r' | 1<<' ' //ignore spaces, tabs and CRs
+	p.lexer.Whitespace = 1<<' ' | 1<<'\t' | 1<<'\r' //ignore spaces, tabs and CRs
 	return nil
 }
 
@@ -343,12 +339,15 @@ func (p *CommandParser) ParseCommandLines(Lines []string) ([]*Command, error) {
 	cmdList := make([]*Command, 0, len(Lines))
 	p.errors.Reset()
 	for i, line := range Lines {
+		p.trace.Printf("src: :%v->", line)
 		if !isCommandLine(line) {
+			p.trace.Println("skipped")
 			continue
 		}
+		p.trace.Println("to be parsed")
 		p.init(strings.NewReader(line))
 		cmdName, cmdToken := p.acceptCommandName()
-		cmd = NewCommand(cmdName, cmdToken, scanner.Position{"", 0, i, 0}) //todo: fix line numbers
+		cmd = NewCommand(cmdName, cmdToken, scanner.Position{"", 0, i, 0}) //TODO: fix line numbers
 		switch cmdName {
 		case "set":
 			p.parseSetCommand(cmd)
@@ -370,71 +369,3 @@ func (p *CommandParser) ParseCommandLines(Lines []string) ([]*Command, error) {
 	}
 	return cmdList, nil
 }
-
-// //ParseCommands parses input stream and return an array of commands
-// func (p *CommandParser) ParseCommands(r io.Reader) ([]*Command, error) {
-// 	if err := p.init(r); err != nil {
-// 		return nil, err
-// 	}
-// 	var cmd *Command
-// 	var cmdList []*Command
-
-// 	p.nextToken()
-// 	if p.currentToken == scanner.EOF {
-// 		return nil, NewError(ErrEmpty, scanner.Position{Line: -1, Column: -1}, "nothing to parse")
-// 	}
-// 	cmdList = make([]*Command, 0, sectionCapacity)
-
-// 	for ; p.currentToken != scanner.EOF; p.nextToken() {
-// 		if p.currentToken == '\n' { //handle lines with no text, just linefeeds
-// 			p.accept('\n', "*end of line") //advance beyond it and loop back
-// 			continue
-// 		}
-// 		cmdName, cmdToken := p.acceptCommandName()
-// 		cmd = NewCommand(cmdName, cmdToken, p.lexer.Pos())
-// 		switch cmdName {
-// 		case "set":
-// 			p.parseSetCommand(cmd)
-// 		default:
-// 			p.parseTableFormatCommand(cmd) //all other commands will be parsed as a formatting command
-// 		}
-// 		if p.currentToken == '\n' {
-// 			p.accept('\n', "*end of line")
-// 		}
-// 		err := cmd.Validate()
-// 		if err != nil {
-// 			p.addSyntaxError(err.Error())
-// 		}
-// 		cmdList = append(cmdList, cmd)
-// 	}
-
-// 	if len(cmdList) == 0 {
-// 		return nil, NewError(ErrEmpty, scanner.Position{Line: -1, Column: -1}, "found no valid commands")
-// 	}
-// 	if p.errors.Count() > 0 {
-// 		return nil, NewError(ErrGeneric, scanner.Position{Line: -1, Column: -1}, "syntax errors")
-// 	}
-// 	return cmdList, nil
-// }
-
-// switch ss.kind {
-// case "row":
-// 	if cmd.info.sawRow {
-// 		return nil, fmt.Errorf("row was already specified")
-// 	}
-// 	cmd.info.sawRow = true
-// case "col":
-// 	if cmd.info.sawCol {
-// 		return nil, fmt.Errorf("col was already specified")
-// 	}
-// 	cmd.info.sawCol = true
-// }
-//now we must have a cell coordinate
-//fmt.Println("just before parsePoint(),  p.currentToken=", p.currentWord())
-
-//move to next token
-//fmt.Println("just before nextNotNull(),  p.currentToken=", p.currentWord())
-// if err := p.nextNotNull(); err != nil {
-// 	return ss, nil //no more input, return
-// }
-//fmt.Println("just before switch,  p.currentToken=", p.currentWord())

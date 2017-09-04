@@ -33,8 +33,7 @@ const (
 )
 
 type HtmlRenderer struct {
-	//	w        io.Writer
-	bw       *bufio.Writer
+	bw       io.Writer
 	settings *Settings
 	tables   []*table
 }
@@ -44,7 +43,7 @@ func NewHtmlRenderer() *HtmlRenderer {
 }
 
 func (hr *HtmlRenderer) SetWriter(w io.Writer) error {
-	hr.bw = bufio.NewWriter(w)
+	hr.bw = w
 	return nil
 }
 
@@ -65,7 +64,6 @@ func (hr *HtmlRenderer) StartFile() error {
 
 func (hr *HtmlRenderer) EndFile() error {
 	fmt.Fprintf(hr.bw, htmlFooter)
-	hr.bw.Flush()
 	return nil
 }
 
@@ -122,8 +120,9 @@ func (hr *HtmlRenderer) OutputCell(c *Cell) error {
 }
 
 func render(w io.Writer, r *HtmlRenderer, settings *Settings, tables ...*table) error {
-	//	fmt.Printf("%#v", *t)
-	r.SetWriter(w)
+	//	trace.Printf("%#v", *t)
+	bw := bufio.NewWriter(w)
+	r.SetWriter(bw)
 	r.SetSettings(settings)
 	r.SetTables(tables)
 	r.StartFile()
@@ -139,5 +138,6 @@ func render(w io.Writer, r *HtmlRenderer, settings *Settings, tables ...*table) 
 		r.EndTable(t)
 	}
 	r.EndFile()
+	bw.Flush()
 	return nil
 }

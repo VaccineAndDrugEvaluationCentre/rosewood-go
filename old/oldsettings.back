@@ -11,7 +11,7 @@ type Settings struct {
 	items map[string]interface{}
 }
 
-//todo: add support for loadDefaultSettings call back
+//TODO: add support for loadDefaultSettings call back
 func NewSettings() *Settings {
 	s := Settings{}
 	s.items = make(map[string]interface{}, 10) //initial capacity of 10
@@ -29,7 +29,7 @@ func (s *Settings) Set(key string, value interface{}) interface{} {
 	return oldValue
 }
 
-//todo: change path to io.reader
+//TODO: change path to io.reader
 func (s *Settings) LoadSettings(path string) error {
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -42,7 +42,7 @@ func (s *Settings) LoadSettings(path string) error {
 	return nil
 }
 
-//todo: change path to io.writer
+//TODO: change path to io.writer
 func (s *Settings) SaveSettings(path string) error {
 	file, err := os.Create(path)
 	if err != nil {

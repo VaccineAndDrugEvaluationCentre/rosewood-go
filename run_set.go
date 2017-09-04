@@ -46,20 +46,17 @@ func (p *CommandParser) runSetCommand(cmd *Command) error {
 			return err
 		}
 		if table, err := loadTable(s); err != nil {
-			fmt.Println("an error occurred ", err)
+			trace.Println("an error occurred ", err)
 			return err
 		} else {
 			p.tables = append(p.tables, table)
-			p.settings.TableFileName = s
-			if p.settings.Debug {
-				fmt.Printf("%v", table)
-			}
+			trace.Printf("%v", table)
 		}
 	case "logfilename":
 		if s, err = getArgAsString(1, 1); err != nil {
 			return err
 		}
-		p.settings.LogFileName = s //change to method on CommandParser
+		//		p.settings.LogFileName = s //change to method on CommandParser
 	default:
 		return fmt.Errorf("unknown option %s", cmd.args[0])
 	}
