@@ -1,14 +1,17 @@
-package rosewood
+package parser
 
 import (
 	"fmt"
 	"io/ioutil"
 	"strconv"
+
+	"github.com/drgo/rosewood/types"
+	"github.com/drgo/rosewood/utils"
 )
 
-func (p *CommandParser) runSetCommand(cmd *Command) error {
+func (p *CommandParser) runSetCommand(cmd *types.Command) error {
 	getArgAsString := func(argIndex int, reqLen int) (string, error) {
-		s := cmd.args.Arg(argIndex)
+		s := cmd.Arg(argIndex)
 		if len(s) < reqLen {
 			return "", fmt.Errorf("invalid argument in set command")
 		}
@@ -17,18 +20,18 @@ func (p *CommandParser) runSetCommand(cmd *Command) error {
 	// openFile := func(fileName string) (*os.File, error) {
 	// 	return os.Open(fileName)
 	// }
-	loadTable := func(fileName string) (*tableContents, error) {
+	loadTable := func(fileName string) (*types.TableContents, error) {
 		if data, err := ioutil.ReadFile(fileName); err != nil {
 			return nil, fmt.Errorf("failed to load table data %s", err)
 		} else {
-			return NewTableContents(string(data))
+			return types.NewTableContents(string(data))
 		}
 	}
 
 	var s string
 	var err error
-	trace := newTrace(on, nil)
-	switch cmd.args[0] { //setting name
+	trace := utils.NewTrace(true, nil)
+	switch cmd.Arg(0) { //setting name
 	case "rangeseparator":
 		if s, err = getArgAsString(1, 1); err != nil {
 			return err
@@ -58,7 +61,7 @@ func (p *CommandParser) runSetCommand(cmd *Command) error {
 		}
 		//		p.settings.LogFileName = s //change to method on CommandParser
 	default:
-		return fmt.Errorf("unknown option %s", cmd.args[0])
+		return fmt.Errorf("unknown option %s", cmd.Arg(0))
 	}
 	return nil
 }

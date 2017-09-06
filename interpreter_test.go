@@ -8,6 +8,8 @@ import (
 	"path"
 	"strings"
 	"testing"
+
+	"github.com/drgo/rosewood/utils"
 )
 
 func TestInterpreter_Run(t *testing.T) {
@@ -15,12 +17,12 @@ func TestInterpreter_Run(t *testing.T) {
 	tests := []struct {
 		srcFileName string
 		outFileName string
-		settings    *Settings
+		settings    *utils.Settings
 		wantW       string
 		wantErr     bool
 	}{
-		{"correct1tab.rw", "correct1tab", debugSettings(true), "", false},
-		{"wrong1tab.rw", "", debugSettings(true), "", true},
+		{"correct1tab.rw", "correct1tab", utils.DebugSettings(true), "", false},
+		{"wrong1tab.rw", "", utils.DebugSettings(true), "", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.srcFileName, func(t *testing.T) {
@@ -54,46 +56,46 @@ func TestInterpreter_Run(t *testing.T) {
 	}
 }
 
-func ExampleNewInterpreter() {
-	trace := newTrace(on, nil)
-	ri := NewInterpreter(nil)
-	if err := parseFile(ri, "test-files/correct1tab.rw"); err != nil {
-		trace.Printf("error parsing file: %s\n", err)
-	}
-	fmt.Println(ri.sectionCount())
-	if ri.sectionCount() != 4 {
-		return
-	}
-	trace.Printf("%d\n", ri.sections[0].offset)
-	fmt.Printf("%d\n", ri.sections[2].offset)
-	fmt.Printf("%d\n", ri.sections[0].LineCount())
-	fmt.Printf("%d\n", ri.sections[3].LineCount())
-	fmt.Printf("%d\n", len(ri.tables))
-	if len(ri.tables) == 0 {
-		return
-	}
-	t := ri.tables[0]
-	fmt.Printf("#rows:%d\ncells per row\n", t.contents.rowCount())
-	for _, r := range t.contents.rows {
-		fmt.Printf("%d\n", len(r.cells))
-	}
+// func ExampleNewInterpreter() {
+// 	trace := newTrace(on, nil)
+// 	ri := NewInterpreter(nil)
+// 	if err := parseFile(ri, "test-files/correct1tab.rw"); err != nil {
+// 		trace.Printf("error parsing file: %s\n", err)
+// 	}
+// 	fmt.Println(ri.sectionCount())
+// 	if ri.sectionCount() != 4 {
+// 		return
+// 	}
+// 	trace.Printf("%d\n", ri.sections[0].offset)
+// 	fmt.Printf("%d\n", ri.sections[2].offset)
+// 	fmt.Printf("%d\n", ri.sections[0].LineCount())
+// 	fmt.Printf("%d\n", ri.sections[3].LineCount())
+// 	fmt.Printf("%d\n", len(ri.tables))
+// 	if len(ri.tables) == 0 {
+// 		return
+// 	}
+// 	t := ri.tables[0]
+// 	fmt.Printf("#rows:%d\ncells per row\n", t.contents.rowCount())
+// 	for _, r := range t.contents.rows {
+// 		fmt.Printf("%d\n", len(r.cells))
+// 	}
 
-	// Output:
-	// 4
-	// 2
-	// 11
-	// 1
-	// 5
-	// 1
-	// #rows:6
-	// cells per row
-	// 1
-	// 3
-	// 4
-	// 4
-	// 4
-	// 4
-}
+// 	// Output:
+// 	// 4
+// 	// 2
+// 	// 11
+// 	// 1
+// 	// 5
+// 	// 1
+// 	// #rows:6
+// 	// cells per row
+// 	// 1
+// 	// 3
+// 	// 4
+// 	// 4
+// 	// 4
+// 	// 4
+// }
 
 // //TODO: fix sigv in Pos() in this test
 // func ExampleNewInterpreter2() {

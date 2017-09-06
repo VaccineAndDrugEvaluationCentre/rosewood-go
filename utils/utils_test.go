@@ -1,4 +1,4 @@
-package rosewood
+package utils
 
 import (
 	"bufio"

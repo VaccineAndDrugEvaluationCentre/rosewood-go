@@ -4,23 +4,15 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"runtime"
 	"strings"
+
+	"github.com/drgo/rosewood/parser"
+	"github.com/drgo/rosewood/types"
+	"github.com/drgo/rosewood/utils"
 )
 
 //VERSION of this library
 const VERSION = "0.3.0"
-
-var (
-	OSEOL string
-)
-
-func init() {
-	OSEOL = "\n"
-	if runtime.GOOS == "windows" {
-		OSEOL = "\r\n"
-	}
-}
 
 const (
 	sectionCapacity  = 100
@@ -31,24 +23,24 @@ const (
 
 type Interpreter struct {
 	fileName string
-	sections []*section //holds raw lines
-	settings *Settings
-	tables   []*table
-	parser   *CommandParser
+	sections []*types.Section //holds raw lines
+	settings *utils.Settings
+	tables   []*types.Table
+	parser   *parser.CommandParser
 }
 
-func NewInterpreter(settings *Settings) *Interpreter {
+func NewInterpreter(settings *utils.Settings) *Interpreter {
 	ri := &Interpreter{}
 	//if no custom settings use default ones
 	if settings == nil {
-		ri.settings = DefaultSettings()
+		ri.settings = utils.DefaultSettings()
 		if ri.settings == nil {
 			panic("Interpreter failed to load settings")
 		}
 	} else {
 		ri.settings = settings
 	}
-	ri.parser = NewCommandParser(ri.settings)
+	ri.parser = parser.NewCommandParser(ri.settings)
 	return ri
 }
 
@@ -56,11 +48,11 @@ func NewInterpreter(settings *Settings) *Interpreter {
 func (ri *Interpreter) Errors(err error) (eList []error) {
 	//	fmt.Printf("%T\n", err)
 	switch cause := err.(type) {
-	case *EmError:
+	case *utils.EmError:
 		//		fmt.Println(cause.Type)
 		switch cause.Type {
-		case ErrSyntaxError:
-			return ri.parser.errors.Errors
+		case utils.ErrSyntaxError:
+			return ri.parser.Errors()
 		default:
 			return nil
 		}
@@ -83,32 +75,32 @@ func (ri *Interpreter) createTables() error {
 	if ri.sectionCount() == 0 || ri.sectionCount()%sectionsPerTable != 0 {
 		return fmt.Errorf("incorrect number of sections %d", ri.sectionCount())
 	}
-	var t *table
+	var t *types.Table
 	var err error
 	for i, s := range ri.sections {
 		ii := i + 1 //i is zero-based, section numbers should be one-based
-		s.kind = sectionDescriptor(i%sectionsPerTable + 1)
-		switch s.kind {
-		case sectionCaption:
-			t = newTable()
-			t.caption = s
-		case sectionBody:
-			if t.contents, err = NewTableContents(s.String()); err != nil {
+		kind := types.SectionDescriptor(i%sectionsPerTable + 1)
+		switch kind {
+		case types.SectionCaption:
+			t = types.NewTable()
+			t.Caption = s
+		case types.SectionBody:
+			if t.Contents, err = types.NewTableContents(s.String()); err != nil {
 				return fmt.Errorf("error parsing table in section # %d: %s ", ii, err)
 			}
-		case sectionFootNotes:
-			t.footnotes = s
-		case sectionControl:
-			if t.cmdList, err = ri.parser.ParseCommandLines(s); err != nil {
+		case types.SectionFootNotes:
+			t.Footnotes = s
+		case types.SectionControl:
+			if t.CmdList, err = ri.parser.ParseCommandLines(s); err != nil {
 				return err
 			}
 			ri.tables = append(ri.tables, t)
 		default:
-			panic(fmt.Sprintf("invalid switch case [%v] in Interpreter.CreateTables()", s.kind))
+			panic(fmt.Sprintf("invalid switch case [%v] in Interpreter.CreateTables()", kind))
 		}
 	}
 	if len(ri.tables) == 0 {
-		return NewError(ErrUnknown, ri.parser.Pos(), "unknown error in Interpreter.CreateTables()")
+		return utils.NewError(utils.ErrUnknown, ri.parser.Pos(), "unknown error in Interpreter.CreateTables()")
 	}
 	return nil
 }
@@ -128,7 +120,7 @@ func (ri *Interpreter) parse(r io.Reader, scriptIdentifer string) error {
 		return strings.HasPrefix(strings.TrimSpace(line), sectionSeparator)
 	}
 
-	var s *section
+	var s *types.Section
 	lineNum := 0
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
@@ -138,75 +130,45 @@ func (ri *Interpreter) parse(r io.Reader, scriptIdentifer string) error {
 			if s != nil { //there is an active section, append it to the sections array
 				ri.sections = append(ri.sections, s)
 			}
-			s = newSection(sectionUnknown, lineNum+1) //section if any starts on the next line
+			s = types.NewSection(types.SectionUnknown, lineNum+1) //section if any starts on the next line
 		} else {
 			//TODO: remove this if
 			if s == nil { //if text found before a SectionSeparator (at the start of a script)-> a caption section
-				s = newSection(sectionCaption, lineNum)
+				s = types.NewSection(types.SectionCaption, lineNum)
 			}
-			s.lines = append(s.lines, line)
+			s.Lines = append(s.Lines, line)
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		return NewError(ErrSyntaxError, ri.parser.Pos(), err.Error())
+		return utils.NewError(utils.ErrSyntaxError, ri.parser.Pos(), err.Error())
 	}
 	if err := ri.createTables(); err != nil {
-		return NewError(ErrSyntaxError, ri.parser.Pos(), err.Error())
-	}
-	return nil
-}
-
-func (ri *Interpreter) runTableCommands(table *table) error {
-	for _, cmd := range table.cmdList {
-		//trace.Printf("inside runTable Commands: %d", i)
-		switch cmd.token {
-		case kwSet:
-			//do nothing parser would have handled that
-		case kwMerge:
-			// if err := table.Merge(cmd.cellRange); err != nil {
-			// 	return fmt.Errorf("merge command %s failed %s", cmd, err)
-			// }
-		case kwStyle:
-		default:
-			return fmt.Errorf("cannot run unknown command %s ", cmd)
-		}
+		return utils.NewError(utils.ErrSyntaxError, ri.parser.Pos(), err.Error())
 	}
 	return nil
 }
 
 func (ri *Interpreter) runTables() error {
 	for _, t := range ri.tables {
-		//trace.Printf("inside runTables: %d", i)
-		// if err := ri.runTableCommands(t); err != nil {
-		// 	return fmt.Errorf("failed to run commands for table %s", err)
-		// }
-		if err := t.run(); err != nil {
+		if err := t.Run(); err != nil {
 			return fmt.Errorf("failed to run commands for table %s", err)
 		}
-
 	}
 	return nil
 }
 
-func (ri *Interpreter) renderTables(w io.Writer, hr *HtmlRenderer) error {
+func (ri *Interpreter) renderTables(w io.Writer, hr types.Renderer) error {
+	var err error
 	hr.SetWriter(w)
 	hr.SetSettings(ri.settings)
 	hr.SetTables(ri.tables)
 	hr.StartFile()
 	for _, t := range ri.tables {
-		hr.StartTable(t)
-		for _, row := range t.grid.rows {
-			hr.StartRow(row)
-			for _, cell := range row.cells {
-				hr.OutputCell(cell)
-			}
-			hr.EndRow(row)
-		}
-		hr.EndTable(t)
+		err = t.Render(w, hr)
 	}
 	hr.EndFile()
-	return nil
+	return err
 }
 
 //Run takes an io.Reader streaming the contents of one or more Rosewood scripts
@@ -237,4 +199,22 @@ func (ri *Interpreter) Run(src io.Reader, out io.Writer) error {
 
 // func (ri *Interpreter) OK() bool {
 // 	return true
+// }
+
+// func (ri *Interpreter) runTableCommands(table *types.Table) error {
+// 	for _, cmd := range table.cmdList {
+// 		//trace.Printf("inside runTable Commands: %d", i)
+// 		switch cmd.token {
+// 		case kwSet:
+// 			//do nothing parser would have handled that
+// 		case kwMerge:
+// 			// if err := table.Merge(cmd.cellRange); err != nil {
+// 			// 	return fmt.Errorf("merge command %s failed %s", cmd, err)
+// 			// }
+// 		case kwStyle:
+// 		default:
+// 			return fmt.Errorf("cannot run unknown command %s ", cmd)
+// 		}
+// 	}
+// 	return nil
 // }

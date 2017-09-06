@@ -1,4 +1,4 @@
-package rosewood
+package utils
 
 import (
 	"fmt"
@@ -6,9 +6,8 @@ import (
 	"os"
 )
 
-//TODO: move to own package and make race-proof
-
-type tracer interface {
+//Tracer defines interface for outputing debug and tracing info
+type Tracer interface {
 	Printf(string, ...interface{}) (int, error)
 	Print(...interface{}) (int, error)
 	Println(...interface{}) (int, error)
@@ -16,20 +15,13 @@ type tracer interface {
 	Off() error
 }
 
-type traceState int
-
-const (
-	off traceState = iota
-	on
-)
-
 type xtrace struct {
-	state  traceState
+	on     bool
 	writer io.Writer
 }
 
-func newTrace(state traceState, writer io.Writer) tracer {
-	tr := &xtrace{state, writer}
+func NewTrace(on bool, writer io.Writer) Tracer {
+	tr := &xtrace{on, writer}
 	if tr.writer == nil {
 		tr.writer = os.Stdout
 	}
@@ -37,32 +29,32 @@ func newTrace(state traceState, writer io.Writer) tracer {
 }
 
 func (tr *xtrace) Printf(format string, a ...interface{}) (n int, err error) {
-	if tr.state == on {
+	if tr.on {
 		return fmt.Fprintf(tr.writer, format, a...)
 	}
 	return 0, nil
 }
 
 func (tr *xtrace) Print(a ...interface{}) (n int, err error) {
-	if tr.state == on {
+	if tr.on {
 		return fmt.Fprint(tr.writer, a...)
 	}
 	return 0, nil
 }
 
 func (tr *xtrace) Println(a ...interface{}) (n int, err error) {
-	if tr.state == on {
+	if tr.on {
 		return fmt.Fprintln(tr.writer, a...)
 	}
 	return 0, nil
 }
 
 func (tr *xtrace) On() error {
-	tr.state = on
+	tr.on = true
 	return nil
 }
 
 func (tr *xtrace) Off() error {
-	tr.state = off
+	tr.on = false
 	return nil
 }

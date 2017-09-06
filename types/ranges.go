@@ -1,4 +1,4 @@
-package rosewood
+package types
 
 import (
 	"fmt"
@@ -55,12 +55,12 @@ func (r Range) String() string {
 	return fmt.Sprintf("topleft %s bottomright %s", r.TopLeft, r.BottomRight)
 
 }
-func (r Range) testString() string {
+func (r Range) TestString() string {
 	return fmt.Sprintf("row %s:%s col %s:%s", formattedRwInt(r.TopLeft.Row), formattedRwInt(r.BottomRight.Row),
 		formattedRwInt(r.TopLeft.Col), formattedRwInt(r.BottomRight.Col))
 }
 
-func (r Range) less(s Range) bool {
+func (r Range) Less(s Range) bool {
 	return r.TopLeft.Row < s.TopLeft.Row || (r.TopLeft.Row == s.TopLeft.Row && r.TopLeft.Col < s.TopLeft.Col)
 }
 

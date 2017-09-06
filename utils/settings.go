@@ -1,14 +1,14 @@
-package rosewood
+package utils
 
-type ReportStatus int
+// type ReportStatus int
 
-const (
-	Info ReportStatus = iota
-	Echo
-	Warning
-	Error
-	Fatal
-)
+// const (
+// 	Info ReportStatus = iota
+// 	Echo
+// 	Warning
+// 	Error
+// 	Fatal
+// )
 
 //Settings implements a simple configuration solution.
 type Settings struct {
@@ -20,7 +20,7 @@ type Settings struct {
 	Debug            bool
 	TrimCellContents bool
 	//	RunMode          RunMode
-	Report func(string, ReportStatus)
+	// Report func(string, ReportStatus)
 }
 
 //NewSettings returns an empty Settings struct
@@ -37,7 +37,7 @@ func DefaultSettings() *Settings {
 }
 
 //debugSettings returns default settings for settings and setup tracing
-func debugSettings(Tracing bool) *Settings {
+func DebugSettings(Tracing bool) *Settings {
 	settings := DefaultSettings()
 	settings.Debug = Tracing
 	return settings

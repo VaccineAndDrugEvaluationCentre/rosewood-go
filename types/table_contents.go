@@ -1,31 +1,44 @@
-package rosewood
+package types
 
 import (
 	"bytes"
 	"fmt"
+	"runtime"
 	"strings"
 )
 
-//add parent link in each object to its parent: cell->range or row->table
-//add interface to use in parent property; flds: topleft, bottomright coords, parent
+const columnSeparator = "|"
 
-type tableContents struct {
+var OsEOL string
+
+func init() {
+	OsEOL = "\n"
+	if runtime.GOOS == "windows" {
+		OsEOL = "\r\n"
+	}
+}
+
+type TableContents struct {
 	rows        []*Row
 	maxFldCount RwInt
 }
 
-func (t *tableContents) String() string {
+func (t *TableContents) String() string {
 	var b bytes.Buffer
 	for _, r := range t.rows {
 		b.WriteString(r.String())
-		b.WriteString(OSEOL)
+		b.WriteString(OsEOL)
 	}
 	return b.String()
 }
 
+func (t *TableContents) MaxFieldCount() RwInt {
+	return t.maxFldCount
+}
+
 type cellFunc func(c *Cell) error
 
-func (t *tableContents) forEachCell(f cellFunc) error {
+func (t *TableContents) forEachCell(f cellFunc) error {
 	for _, r := range t.rows {
 		for _, c := range r.cells {
 			if err := f(c); err != nil {
@@ -36,37 +49,37 @@ func (t *tableContents) forEachCell(f cellFunc) error {
 	return nil
 }
 
-func (t *tableContents) isValidCoordinate(row, col RwInt) bool {
-	if row < 1 || row > t.rowCount() {
+func (t *TableContents) isValidCoordinate(row, col RwInt) bool {
+	if row < 1 || row > t.RowCount() {
 		return false
 	}
-	if col < 1 || col > t.row(row).cellCount() {
+	if col < 1 || col > t.Row(row).cellCount() {
 		return false
 	}
 	return true
 }
 
 //row return the ith row (warning 1 based not zero based)
-func (t *tableContents) row(i RwInt) *Row {
+func (t *TableContents) Row(i RwInt) *Row {
 	return t.rows[i-1]
 }
 
-func (t *tableContents) rowCount() RwInt {
+func (t *TableContents) RowCount() RwInt {
 	return RwInt(len(t.rows))
 }
 
-func (t *tableContents) Cell(row, col RwInt) *Cell {
+func (t *TableContents) Cell(row, col RwInt) *Cell {
 	if !t.isValidCoordinate(row, col) {
 		return nil
 	}
 	return t.cell(row, col)
 }
 
-func (t *tableContents) cell(row, col RwInt) *Cell {
+func (t *TableContents) cell(row, col RwInt) *Cell {
 	return t.rows[row-1].cells[col-1]
 }
 
-func (t *tableContents) validateRange(ra Range) (Range, error) {
+func (t *TableContents) validateRange(ra Range) (Range, error) {
 	if err := ra.validate(); err != nil {
 		return ra, err
 	}
@@ -93,66 +106,7 @@ func (t *tableContents) validateRange(ra Range) (Range, error) {
 	return ra, nil
 }
 
-type Row struct {
-	cells []*Cell
-}
-
-func newBlankRow(colCount RwInt) *Row {
-	cells := make([]*Cell, colCount)
-	for i := RwInt(0); i < colCount; i++ {
-		cells[i] = &Cell{}
-	}
-	//	trace.Printf("in newBlankRow %v\n", cells)
-	return &Row{cells}
-}
-
-func (r *Row) String() string {
-	var b bytes.Buffer
-	for _, c := range r.cells {
-		b.WriteString(c.String())
-		b.WriteString(columnSeparator)
-	}
-	return b.String()
-}
-
-func (t *Row) cellCount() RwInt {
-	return RwInt(len(t.cells))
-}
-
-type cellState int
-
-const (
-	csUndefined cellState = iota
-	csNormal
-	csSpanned
-	csMerged
-)
-
-type Cell struct {
-	text     string
-	row, col RwInt
-	//	hidden           bool
-	state            cellState
-	rowSpan, colSpan RwInt
-}
-
-func NewCell(text string, row, col RwInt) *Cell {
-	return &Cell{
-		text: text,
-		row:  row,
-		col:  col}
-}
-
-func (c *Cell) clone(src *Cell) *Cell {
-	*c = *src
-	return c
-}
-
-func (c *Cell) String() string {
-	return fmt.Sprintf("r%d c%d: %s", c.row, c.col, c.text)
-}
-
-func NewTableContents(text string) (*tableContents, error) {
+func NewTableContents(text string) (*TableContents, error) {
 	var (
 		line, offset          RwInt
 		fldCount, maxFldCount RwInt
@@ -197,22 +151,22 @@ func NewTableContents(text string) (*tableContents, error) {
 	if len(rows) == 0 {
 		return nil, fmt.Errorf("invalid data table, row count is 0")
 	}
-	return &tableContents{rows: rows,
+	return &TableContents{rows: rows,
 		maxFldCount: maxFldCount}, nil
 
 }
 
-func newBlankTableContents(rowCount, colCount RwInt) *tableContents {
-	rows := make([]*Row, rowCount)
-	for i := RwInt(0); i < rowCount; i++ {
+func NewBlankTableContents(RowCount, colCount RwInt) *TableContents {
+	rows := make([]*Row, RowCount)
+	for i := RwInt(0); i < RowCount; i++ {
 		rows[i] = newBlankRow(colCount)
 	}
 	//	trace.Printf("in newBlankTableContents %v\n", rows)
-	return &tableContents{rows: rows,
+	return &TableContents{rows: rows,
 		maxFldCount: colCount}
 }
 
-// func (t *tableContents) merge(ra Range) error {
+// func (t *TableContents) merge(ra Range) error {
 // 	var err error
 // 	if ra, err = t.validateRange(ra); err != nil {
 // 		return fmt.Errorf("merge failed: %s", err)

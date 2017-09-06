@@ -1,4 +1,4 @@
-package rosewood
+package utils
 
 //just for testing
 type settingsMap map[string]interface{}

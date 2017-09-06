@@ -1,10 +1,12 @@
 package rosewood
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/drgo/rosewood/types"
+	"github.com/drgo/rosewood/utils"
 )
 
 const (
@@ -34,8 +36,8 @@ const (
 
 type HtmlRenderer struct {
 	bw       io.Writer
-	settings *Settings
-	tables   []*table
+	settings *utils.Settings
+	tables   []*types.Table
 }
 
 func NewHtmlRenderer() *HtmlRenderer {
@@ -47,12 +49,12 @@ func (hr *HtmlRenderer) SetWriter(w io.Writer) error {
 	return nil
 }
 
-func (hr *HtmlRenderer) SetSettings(settings *Settings) error {
+func (hr *HtmlRenderer) SetSettings(settings *utils.Settings) error {
 	hr.settings = settings
 	return nil
 }
 
-func (hr *HtmlRenderer) SetTables(tables []*table) error {
+func (hr *HtmlRenderer) SetTables(tables []*types.Table) error {
 	hr.tables = tables
 	return nil
 }
@@ -71,77 +73,77 @@ func (hr *HtmlRenderer) EndFile() error {
 	return nil
 }
 
-func (hr *HtmlRenderer) StartTable(t *table) error {
+func (hr *HtmlRenderer) StartTable(t *types.Table) error {
 	fmt.Fprintf(hr.bw, htmlOpenTable)
-	if t.caption != nil {
+	if t.Caption != nil {
 		fmt.Fprintf(hr.bw, "<caption>")
-		for _, line := range t.caption.lines {
+		for _, line := range t.Caption.Lines {
 			fmt.Fprintf(hr.bw, "%s%s\n", line, htmlbreak)
 		}
 	}
 	return nil
 }
 
-func (hr *HtmlRenderer) EndTable(t *table) error {
+func (hr *HtmlRenderer) EndTable(t *types.Table) error {
 	fmt.Fprintf(hr.bw, htmlCloseTable)
-	if t.footnotes == nil {
+	if t.Footnotes == nil {
 		return nil
 	}
 	fmt.Fprintf(hr.bw, htmlPara)
-	for _, line := range t.footnotes.lines {
+	for _, line := range t.Footnotes.Lines {
 		fmt.Fprintf(hr.bw, "%s%s\n", line, htmlbreak)
 	}
 	return nil
 }
 
-func (hr *HtmlRenderer) StartRow(r *Row) error {
+func (hr *HtmlRenderer) StartRow(r *types.Row) error {
 	fmt.Fprintf(hr.bw, htmlOpenRow)
 	return nil
 }
 
-func (hr *HtmlRenderer) EndRow(r *Row) error {
+func (hr *HtmlRenderer) EndRow(r *types.Row) error {
 	fmt.Fprintf(hr.bw, htmlCloseRow)
 	return nil
 }
 
-func (hr *HtmlRenderer) OutputCell(c *Cell) error {
-	if c.state == csMerged {
+func (hr *HtmlRenderer) OutputCell(c *types.Cell) error {
+	if c.State() == types.CsMerged {
 		return nil
 	}
 	fmt.Fprint(hr.bw, "<td")
-	if c.rowSpan > 1 {
-		fmt.Fprintf(hr.bw, ` rowspan="%d"`, c.rowSpan)
+	if c.RowSpan() > 1 {
+		fmt.Fprintf(hr.bw, ` rowspan="%d"`, c.RowSpan())
 	}
-	if c.colSpan > 1 {
-		fmt.Fprintf(hr.bw, ` colspan="%d"`, c.colSpan)
+	if c.ColSpan() > 1 {
+		fmt.Fprintf(hr.bw, ` colspan="%d"`, c.ColSpan())
 	}
 	if hr.settings.TrimCellContents {
-		fmt.Fprint(hr.bw, ">", strings.TrimSpace(c.text), "</td>")
+		fmt.Fprint(hr.bw, ">", strings.TrimSpace(c.Text()), "</td>")
 	} else {
-		fmt.Fprint(hr.bw, ">", c.text, "</td>")
+		fmt.Fprint(hr.bw, ">", c.Text(), "</td>")
 	}
 	return nil
 }
 
-func render(w io.Writer, r *HtmlRenderer, settings *Settings, tables ...*table) error {
-	//	trace.Printf("%#v", *t)
-	bw := bufio.NewWriter(w)
-	r.SetWriter(bw)
-	r.SetSettings(settings)
-	r.SetTables(tables)
-	r.StartFile()
-	for _, t := range tables {
-		r.StartTable(t)
-		for _, row := range t.contents.rows {
-			r.StartRow(row)
-			for _, cell := range row.cells {
-				r.OutputCell(cell)
-			}
-			r.EndRow(row)
-		}
-		r.EndTable(t)
-	}
-	r.EndFile()
-	bw.Flush()
-	return nil
-}
+// func render(w io.Writer, r types.Renderer, settings *utils.Settings, tables ...*types.Table) error {
+// 	//	trace.Printf("%#v", *t)
+// 	bw := bufio.NewWriter(w)
+// 	r.SetWriter(bw)
+// 	r.SetSettings(settings)
+// 	r.SetTables(tables)
+// 	r.StartFile()
+// 	for _, t := range tables {
+// 		r.StartTable(t)
+// 		for _, row := range t.contents.rows {
+// 			r.StartRow(row)
+// 			for _, cell := range row.cells {
+// 				r.OutputCell(cell)
+// 			}
+// 			r.EndRow(row)
+// 		}
+// 		r.EndTable(t)
+// 	}
+// 	r.EndFile()
+// 	bw.Flush()
+// 	return nil
+// }

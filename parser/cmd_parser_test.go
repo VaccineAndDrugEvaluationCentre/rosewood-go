@@ -1,8 +1,11 @@
-package rosewood
+package parser
 
 import (
 	"strings"
 	"testing"
+
+	"github.com/drgo/rosewood/types"
+	"github.com/drgo/rosewood/utils"
 )
 
 func TestCommandParser_ParseOneLineCommands(t *testing.T) {
@@ -68,13 +71,13 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		// {`set rangeseparator "-" "onemore"
 		// 	`, 1, true, "invalid # args to set"},
 	}
-	p := NewCommandParser(debugSettings(true)) //use default settings
+	p := NewCommandParser(utils.DebugSettings(true)) //use default settings
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
 			ss := strings.Split(tt.source, "\n")
 			p.trace.Println(strings.Repeat("*", 30))
 			p.trace.Printf("%d %+q\n", len(ss), ss)
-			got, err := p.ParseCommandLines(newControlSection(ss))
+			got, err := p.ParseCommandLines(types.NewControlSection(ss))
 			//fmt.Println(tt.source)
 			if tt.wantError != (err != nil) {
 				t.Errorf("Error handling failed, wanted %t, got %t\n error: %s", tt.wantError, err != nil, p.errors.String())
@@ -120,12 +123,12 @@ func TestCommandParser_ParseMultiLineCommands(t *testing.T) {
 		merge	row 1:2 col 1:2
 		`, 2, true, ""},
 	}
-	p := NewCommandParser(DefaultSettings()) //use default settings
+	p := NewCommandParser(utils.DefaultSettings()) //use default settings
 	for _, tt := range tests {
 		t.Run(tt.source, func(t *testing.T) {
 			ss := strings.Split(tt.source, "\n")
 			//trace.Printf("%d %+q", len(ss), ss)
-			got, err := p.ParseCommandLines(newControlSection(ss))
+			got, err := p.ParseCommandLines(types.NewControlSection(ss))
 			if tt.wantError != (err != nil) {
 				t.Errorf("Error handling failed, wanted %t, got %t \n errors %s:", tt.wantError, err != nil, p.errors.String())
 			}
@@ -176,11 +179,11 @@ func TestCommandParser_ParseFullScript(t *testing.T) {
 	}{
 		{"Script 1", script1, 10, false, ""},
 	}
-	p := NewCommandParser(DefaultSettings()) //use default settings
+	p := NewCommandParser(utils.DefaultSettings()) //use default settings
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := p.ParseCommandLines(newControlSection(strings.Split(tt.source, "\n")))
+			got, err := p.ParseCommandLines(types.NewControlSection(strings.Split(tt.source, "\n")))
 			// fmt.Println(tt.source)
 			if tt.wantError != (err != nil) {
 				t.Errorf("Error handling failed, wanted %t, got %t \n errors %s:", tt.wantError, err != nil, p.errors.String())

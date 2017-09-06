@@ -1,4 +1,4 @@
-package rosewood
+package parser
 
 import (
 	"fmt"
@@ -6,30 +6,10 @@ import (
 	"strconv"
 	"strings"
 	"text/scanner"
+
+	"github.com/drgo/rosewood/types"
+	"github.com/drgo/rosewood/utils"
 )
-
-// keyword lookup
-type rwKeyWord int
-
-const (
-	kwInvalid rwKeyWord = iota
-	kwMerge
-	kwStyle
-	kwSet
-	kwUse
-)
-
-var keywords = map[string]rwKeyWord{
-	"merge": kwMerge,
-	"style": kwStyle,
-	"set":   kwSet,
-	"use":   kwUse,
-}
-
-func lookupKeyword(name string) (kw rwKeyWord, isKeyWord bool) {
-	kw, isKeyWord = keywords[name]
-	return
-}
 
 // RunMode describes Parser's running mode
 type RunMode int
@@ -41,33 +21,37 @@ const (
 
 // CommandParser specialized parser for format commands
 type CommandParser struct {
-	trace        tracer
-	errors       *ErrorManager
+	trace        utils.Tracer
+	errors       *utils.ErrorManager
 	lexer        *scanner.Scanner
-	settings     *Settings
+	settings     *utils.Settings
 	runMode      RunMode
 	position     scanner.Position
 	currentToken rune
-	tables       []*tableContents //list of all loaded tables
+	tables       []*types.TableContents //list of all loaded tables
 }
 
 //NewCommandParser initializes and returns a CommandParser
-func NewCommandParser(settings *Settings) *CommandParser {
+func NewCommandParser(settings *utils.Settings) *CommandParser {
 	if settings == nil {
 		panic("nil settings passed to NewCommandParser")
 	}
-	p := CommandParser{errors: NewErrorManager()}
+	p := CommandParser{errors: utils.NewErrorManager()}
 	p.settings = settings
 	//	fmt.Println("trace is", p.settings.Debug)
-	p.trace = newTrace(off, nil) //writer to stderr
+	p.trace = utils.NewTrace(false, nil) //writer to stderr
 	if p.settings.Debug {
 		p.trace.On()
 	}
 	return &p
 }
 
+func (p *CommandParser) Errors() []error {
+	return p.errors.Errors
+}
+
 //Errors returns a \n separated list of errors if index =-1, otherwise returns the indexth error;
-func (p *CommandParser) Errors(index int) string {
+func (p *CommandParser) ErrorText(index int) string {
 	if index < 0 {
 		return p.errors.String()
 	}
@@ -112,12 +96,12 @@ func (p *CommandParser) wrongToken(wantedText string) {
 	if strings.HasPrefix(wantedText, "*") {
 		wantedText = wantedText[1:] //do not print the *
 	}
-	p.errors.Add(NewError(ErrSyntaxError, p.Pos(), fmt.Sprintf("expected %s, found %s (%s)", wantedText, scanner.TokenString(p.currentToken), p.currentWord())))
+	p.errors.Add(utils.NewError(utils.ErrSyntaxError, p.Pos(), fmt.Sprintf("expected %s, found %s (%s)", wantedText, scanner.TokenString(p.currentToken), p.currentWord())))
 }
 
 //addSyntaxError adds an error into the parser's error list
 func (p *CommandParser) addSyntaxError(msg string, a ...interface{}) {
-	p.errors.Add(NewError(ErrSyntaxError, p.Pos(), fmt.Sprintf(msg, a...)))
+	p.errors.Add(utils.NewError(utils.ErrSyntaxError, p.Pos(), fmt.Sprintf(msg, a...)))
 }
 
 func (p *CommandParser) isToken(wantedTok rune, wantedText string) bool {
@@ -145,7 +129,7 @@ func (p *CommandParser) accept(wantedTok rune, wantedText string) {
 }
 
 //acceptCommandName: reads and validates a command name
-func (p *CommandParser) acceptCommandName() (string, rwKeyWord) {
+func (p *CommandParser) acceptCommandName() (string, int) {
 	p.nextToken()
 	cmdName := p.currentWord()
 	if p.currentToken != scanner.Ident {
@@ -167,30 +151,30 @@ func (p *CommandParser) acceptArg(token rune) string {
 }
 
 //parsePoint: reads and validates a row/cell coordinate
-func (p *CommandParser) parsePoint() (RwInt, error) {
+func (p *CommandParser) parsePoint() (types.RwInt, error) {
 	if err := p.nextNotNull(); err != nil {
-		return MissingRwInt, err
+		return types.MissingRwInt, err
 	}
 	if p.currentToken != scanner.Int {
-		return MissingRwInt, fmt.Errorf("expected col or row number, found %s", p.exactCurrentWord())
+		return types.MissingRwInt, fmt.Errorf("expected col or row number, found %s", p.exactCurrentWord())
 	}
 	coordinate, _ := strconv.Atoi(p.currentWord()) //no error check as we know it must be an int
 	if coordinate < 1 {
 		p.addSyntaxError("wanted row/col number > 0; found %s", p.exactCurrentWord()) //keep parsing
-		return MissingRwInt, nil
+		return types.MissingRwInt, nil
 	}
-	return RwInt(coordinate), nil
+	return types.RwInt(coordinate), nil
 }
 
 //parseCommaSepPoints reads a list of coordinates points in the form x,y,z
-func (p *CommandParser) parseCommaSepPoints(ss *subspan) error {
+func (p *CommandParser) parseCommaSepPoints(ss *types.Subspan) error {
 	for {
 		//parser is on a comma, read a coordinate point
 		point, err := p.parsePoint()
 		if err != nil {
 			return err
 		}
-		ss.list = append(ss.list, point)
+		ss.List = append(ss.List, point)
 		p.nextToken()
 		switch p.currentToken {
 		case ',':
@@ -206,19 +190,19 @@ func (p *CommandParser) parseCommaSepPoints(ss *subspan) error {
 }
 
 //parseRangePoints read a range of coordinate either left:right or left:skipby:right
-func (p *CommandParser) parseRangePoints(ss *subspan) error {
+func (p *CommandParser) parseRangePoints(ss *types.Subspan) error {
 	var err error
 	//p.nextToken() //skip ":"
 	//read the right term of the range
-	if ss.right, err = p.parsePoint(); err != nil {
+	if ss.Right, err = p.parsePoint(); err != nil {
 		return err
 	}
 	p.nextToken()
 	switch p.currentToken {
 	case p.settings.RangeOperator: //so this a skipped range r:by:l
-		ss.by = ss.right
+		ss.By = ss.Right
 		//read the right term of the range
-		if ss.right, err = p.parsePoint(); err != nil {
+		if ss.Right, err = p.parsePoint(); err != nil {
 			return err
 		}
 		p.nextToken()
@@ -232,12 +216,11 @@ func (p *CommandParser) parseRangePoints(ss *subspan) error {
 	return nil
 }
 
-func (p *CommandParser) parseRowOrColSegment(cmd *Command, segment string) (subspan, error) {
+func (p *CommandParser) parseRowOrColSegment(cmd *types.Command, segment string) (types.Subspan, error) {
 	var err error
-	ss := newSubSpan()
-	ss.kind = segment
+	ss := types.NewSubSpan(segment)
 
-	if ss.left, err = p.parsePoint(); err != nil {
+	if ss.Left, err = p.parsePoint(); err != nil {
 		return ss, err
 	}
 	//now parse either ":", ",", either "col"/"row", an argument list or EOF
@@ -248,8 +231,8 @@ func (p *CommandParser) parseRowOrColSegment(cmd *Command, segment string) (subs
 			return ss, err
 		}
 	case ',':
-		ss.list = append(ss.list, ss.left) //list has just begun
-		ss.left = MissingRwInt
+		ss.List = append(ss.List, ss.Left) //list has just begun
+		ss.Left = types.MissingRwInt
 		if err := p.parseCommaSepPoints(&ss); err != nil {
 			return ss, err
 		}
@@ -261,12 +244,12 @@ func (p *CommandParser) parseRowOrColSegment(cmd *Command, segment string) (subs
 }
 
 //parseTableFormatCommand: parses a command like command row col args
-func (p *CommandParser) parseTableFormatCommand(cmd *Command) error {
+func (p *CommandParser) parseTableFormatCommand(cmd *types.Command) error {
 	//helper closure
 	parseSegment := func(segment string) error {
 		ss, err := p.parseRowOrColSegment(cmd, segment)
 		if err == nil {
-			cmd.spans = append(cmd.spans, &ss)
+			cmd.AddSubSpan(&ss)
 		}
 		return err
 	}
@@ -287,7 +270,7 @@ func (p *CommandParser) parseTableFormatCommand(cmd *Command) error {
 	case scanner.Ident:
 		switch p.currentWord() {
 		case "col", "row":
-			if cmd.subSpan(p.currentWord()) != nil { //already parsed
+			if cmd.SubSpan(p.currentWord()) != nil { //already parsed
 				return fmt.Errorf("duplicate %s", p.exactCurrentWord())
 			}
 			if err := parseSegment(p.currentWord()); err != nil {
@@ -297,7 +280,7 @@ func (p *CommandParser) parseTableFormatCommand(cmd *Command) error {
 		default: //read args
 			for ; p.currentToken == scanner.Ident; p.nextToken() {
 				arg := p.acceptArg(scanner.Ident)
-				cmd.args = append(cmd.args, arg)
+				cmd.AddArg(arg)
 			}
 			if p.currentToken != scanner.EOF {
 				return fmt.Errorf("expected row, col or an argument, found %s", p.exactCurrentWord())
@@ -305,18 +288,18 @@ func (p *CommandParser) parseTableFormatCommand(cmd *Command) error {
 		}
 	}
 	//success
-	cmd.cellSpan = subSpansToSpan(cmd.spans)
+	cmd.Finalize()
 	return nil
 }
 
 //parseSetCommand: parses a command like "set settingname settingvalue"
-func (p *CommandParser) parseSetCommand(cmd *Command) error {
+func (p *CommandParser) parseSetCommand(cmd *types.Command) error {
 	p.nextToken()
 	settingName := p.acceptArg(scanner.Ident)
 	p.nextToken()
 	settingValue := p.acceptArg(scanner.String)
 	p.nextToken()
-	cmd.args = append(cmd.args, settingName, settingValue)
+	cmd.AddArg(settingName, settingValue)
 	return nil
 }
 
@@ -328,8 +311,8 @@ func (p *CommandParser) init(r io.Reader) error {
 }
 
 //ParseCommandLines parses a list of strings into list of commands
-func (p *CommandParser) ParseCommandLines(s *section) ([]*Command, error) {
-	if len(s.lines) == 0 {
+func (p *CommandParser) ParseCommandLines(s *types.Section) ([]*types.Command, error) {
+	if len(s.Lines) == 0 {
 		return nil, nil
 	}
 	isCommandLine := func(line string) bool {
@@ -339,13 +322,13 @@ func (p *CommandParser) ParseCommandLines(s *section) ([]*Command, error) {
 		}
 		return true
 	}
-	var cmd *Command
-	cmdList := make([]*Command, 0, len(s.lines))
+	var cmd *types.Command
+	cmdList := make([]*types.Command, 0, len(s.Lines))
 	p.errors.Reset()
-	p.position.Offset = s.offset
-	for i, line := range s.lines {
+	p.position.Offset = s.Offset
+	for i, line := range s.Lines {
 		p.position.Line = i
-		p.trace.Printf("src[%d]: :%v->", i+s.offset, line)
+		p.trace.Printf("src[%d]: :%v->", i+s.Offset, line)
 		if !isCommandLine(line) {
 			p.trace.Println("skipped")
 			continue
@@ -353,7 +336,7 @@ func (p *CommandParser) ParseCommandLines(s *section) ([]*Command, error) {
 		p.trace.Println("to be parsed")
 		p.init(strings.NewReader(line))
 		cmdName, cmdToken := p.acceptCommandName()
-		cmd = NewCommand(cmdName, cmdToken, p.Pos())
+		cmd = types.NewCommand(cmdName, cmdToken, p.Pos())
 		switch cmdName {
 		case "set":
 			p.parseSetCommand(cmd)
@@ -370,10 +353,11 @@ func (p *CommandParser) ParseCommandLines(s *section) ([]*Command, error) {
 		cmdList = append(cmdList, cmd)
 	}
 	if len(cmdList) == 0 {
-		return nil, NewError(ErrEmpty, p.Pos(), "found no valid commands")
+		//		ss := types.NewSubSpan("")
+		return nil, utils.NewError(utils.ErrEmpty, p.Pos(), "found no valid commands")
 	}
 	if p.errors.Count() > 0 {
-		return nil, NewError(ErrSyntaxError, p.Pos(), "syntax errors")
+		return nil, utils.NewError(utils.ErrSyntaxError, p.Pos(), "syntax errors")
 	}
 	return cmdList, nil
 }

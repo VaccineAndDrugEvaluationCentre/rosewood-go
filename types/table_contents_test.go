@@ -1,10 +1,13 @@
-package rosewood
+package types
 
 import (
 	"testing"
+
+	"github.com/drgo/rosewood/utils"
 )
 
 func TestParseTableData(t *testing.T) {
+	const showOutput = true
 	tests := []struct {
 		name    string
 		args    string
@@ -96,7 +99,7 @@ func TestParseTableData(t *testing.T) {
 			wantErr: false,
 		},
 	}
-	trace := newTrace(on, nil)
+	trace := utils.NewTrace(true, nil)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewTableContents(tt.args)
@@ -147,7 +150,7 @@ func TestParseTableData(t *testing.T) {
 
 /********* test helpers ************/
 //for testing only; it ignores errors
-func monadicParseTableData(s string) *tableContents {
+func monadicParseTableData(s string) *TableContents {
 	t, _ := NewTableContents(s)
 	return t
 }
