@@ -35,12 +35,14 @@ func Test_createGridTable(t *testing.T) {
 			style row 1:3 header
 		`, nil, false},
 	}
-	p := NewCommandParser(DefaultSettings()) //use default settings
+	trace := newTrace(on, nil)
+	p := NewCommandParser(debugSettings(true)) //set to false to silence tracing
 	tab := newTable()
 	var err error
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tab.cmdList, err = p.ParseCommandLines(strings.Split(tt.source, "\n"))
+			//TODO: parse sources before passing control commands to p.ParseCommandLines
+			tab.cmdList, err = p.ParseCommandLines(newControlSection(strings.Split(tt.source, "\n")))
 			tab.contents, err = NewTableContents(tt.tab)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewTableContents() error = %v, wantErr %v", err, tt.wantErr)

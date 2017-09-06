@@ -13,8 +13,6 @@ const VERSION = "0.3.0"
 
 var (
 	OSEOL string
-
-	trace tracer
 )
 
 func init() {
@@ -22,7 +20,6 @@ func init() {
 	if runtime.GOOS == "windows" {
 		OSEOL = "\r\n"
 	}
-	trace = newTrace(off, nil) //default trace is off
 }
 
 const (
@@ -55,29 +52,32 @@ func NewInterpreter(settings *Settings) *Interpreter {
 	return ri
 }
 
-// func (ri *Interpreter) String() string {
-// 	var b bytes.Buffer
-// 	for i := 0; i < sectionsPerTable; i++ {
-// 		b.WriteString(sectionSeparator + "\n")
-// 		b.WriteString(ri.sections[i].String())
-// 		b.WriteString("\n")
-// 	}
-// 	return b.String()
-// }
+//Errors returns a list of rosewood.EmError
+func (ri *Interpreter) Errors(err error) (eList []error) {
+	//	fmt.Printf("%T\n", err)
+	switch cause := err.(type) {
+	case *EmError:
+		//		fmt.Println(cause.Type)
+		switch cause.Type {
+		case ErrSyntaxError:
+			return ri.parser.errors.Errors
+		default:
+			return nil
+		}
+	default:
+		return nil
+	}
+}
 
 func (ri *Interpreter) sectionCount() int {
 	return len(ri.sections)
 }
 
-// func (ri *Interpreter) OK() bool {
-// 	return true
+// func (ri *Interpreter) report(message string, status ReportStatus) {
+// 	if ri.settings.Report != nil {
+// 		ri.settings.Report(message, status)
+// 	}
 // }
-
-func (ri *Interpreter) report(message string, status ReportStatus) {
-	if ri.settings.Report != nil {
-		ri.settings.Report(message, status)
-	}
-}
 
 func (ri *Interpreter) createTables() error {
 	if ri.sectionCount() == 0 || ri.sectionCount()%sectionsPerTable != 0 {
@@ -99,8 +99,8 @@ func (ri *Interpreter) createTables() error {
 		case sectionFootNotes:
 			t.footnotes = s
 		case sectionControl:
-			if t.cmdList, err = ri.parser.ParseCommandLines(s.lines); err != nil {
-				return fmt.Errorf("error parsing commands in section # %d: %s ", ii, err)
+			if t.cmdList, err = ri.parser.ParseCommandLines(s); err != nil {
+				return err
 			}
 			ri.tables = append(ri.tables, t)
 		default:
@@ -108,7 +108,7 @@ func (ri *Interpreter) createTables() error {
 		}
 	}
 	if len(ri.tables) == 0 {
-		return fmt.Errorf("unknown error in Interpreter.CreateTables()")
+		return NewError(ErrUnknown, ri.parser.Pos(), "unknown error in Interpreter.CreateTables()")
 	}
 	return nil
 }
@@ -116,9 +116,9 @@ func (ri *Interpreter) createTables() error {
 //Parse takes an io.Reader containing RoseWood script and an optional script identifier and return an error
 func (ri *Interpreter) Parse(r io.Reader, scriptIdentifer string) error {
 	err := ri.parse(r, scriptIdentifer)
-	if err != nil {
-		ri.report(err.Error(), Info)
-	}
+	// if err != nil {
+	// 	ri.report(err.Error(), Info)
+	// }
 	return err
 }
 
@@ -149,12 +149,11 @@ func (ri *Interpreter) parse(r io.Reader, scriptIdentifer string) error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("failed to parse file %s", err)
+		return NewError(ErrSyntaxError, ri.parser.Pos(), err.Error())
 	}
 	if err := ri.createTables(); err != nil {
-		return fmt.Errorf("error parsing tables(s): %s", err)
+		return NewError(ErrSyntaxError, ri.parser.Pos(), err.Error())
 	}
-
 	return nil
 }
 
@@ -214,7 +213,6 @@ func (ri *Interpreter) renderTables(w io.Writer, hr *HtmlRenderer) error {
 //and an io.Writer to output the formatted text.
 func (ri *Interpreter) Run(src io.Reader, out io.Writer) error {
 	var err error
-	//TODO: hook up parsing of error messages
 	if err = ri.Parse(src, ""); err != nil {
 		return err
 	}
@@ -226,3 +224,17 @@ func (ri *Interpreter) Run(src io.Reader, out io.Writer) error {
 	}
 	return nil
 }
+
+// func (ri *Interpreter) String() string {
+// 	var b bytes.Buffer
+// 	for i := 0; i < sectionsPerTable; i++ {
+// 		b.WriteString(sectionSeparator + "\n")
+// 		b.WriteString(ri.sections[i].String())
+// 		b.WriteString("\n")
+// 	}
+// 	return b.String()
+// }
+
+// func (ri *Interpreter) OK() bool {
+// 	return true
+// }

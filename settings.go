@@ -25,8 +25,7 @@ type Settings struct {
 
 //NewSettings returns an empty Settings struct
 func NewSettings() *Settings {
-	s := Settings{}
-	return &s
+	return &Settings{}
 }
 
 //DefaultSettings returns default settings in case no settings were set.

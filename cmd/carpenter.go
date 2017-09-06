@@ -24,24 +24,27 @@ var (
 const (
 	versionMessage = "Carpenter %s (%s)\nCopyRight VDEC 2017\n"
 	usageMessage   = `Usage: Carpenter [input Rosewood file] -vho
-	if no -o output file specified, the output will be printed to standard output.
-	if no input file specified, input will be read from standard input <stdin> and output printed to standard output <stdout>.`
+	if -o output file is not specified, the output will be printed to standard output.
+	if one or more input files are not specified, input will be read from standard input <stdin>.
+	`
 )
 
 var (
 	verbose     bool
 	help        bool
 	outFileName string
+	cssFileName string
 )
 
 func init() {
 	const (
-		verboseDesc     = "output debug information"
-		outFileNameDesc = "output filename"
+		verboseDesc     = "Output debug information"
+		outFileNameDesc = "Output filename"
 	)
 	flag.BoolVar(&help, "h", false, "Print help screen")
 	flag.StringVar(&outFileName, "o", "", outFileNameDesc)
 	flag.StringVar(&outFileName, "output", "", outFileNameDesc)
+	flag.StringVar(&cssFileName, "css", "", "stylesheet file name")
 	flag.BoolVar(&verbose, "v", false, verboseDesc)
 	flag.BoolVar(&verbose, "verbose", false, verboseDesc)
 }
@@ -55,6 +58,7 @@ func main() {
 	//settings
 	settings := rosewood.DefaultSettings()
 	settings.Debug = verbose
+	settings.StyleSheet = cssFileName
 
 	//setup output
 	var err error
@@ -77,7 +81,7 @@ func main() {
 	default:
 		for _, inFileName := range flag.Args() { //skip the command line name
 			if err := run(inFileName, out, settings); err != nil {
-				crash(inFileName, err)
+				os.Exit(1)
 			}
 		}
 	}
@@ -86,16 +90,28 @@ func main() {
 
 func run(inFileName string, out io.Writer, settings *rosewood.Settings) error {
 	ri := rosewood.NewInterpreter(settings)
+	Run := func(in io.Reader) error {
+		err := ri.Run(in, out)
+		if err != nil {
+			fmt.Printf("error running file [%s]\n", inFileName)
+			eList := ri.Errors(err)
+			//fmt.Println("eList:", eList)
+			for _, e := range eList {
+				fmt.Println(e)
+			}
+		}
+		return err
+	}
 	switch inFileName {
 	case "<stdin>":
-		return ri.Run(bufio.NewReader(os.Stdin), out)
+		return Run(bufio.NewReader(os.Stdin))
 	default:
 		in, err := os.Open(inFileName)
 		if err != nil {
 			return fmt.Errorf("error opening input file %s: %s", inFileName, err)
 		}
 		defer in.Close()
-		return ri.Run(in, out)
+		return Run(in)
 	}
 }
 

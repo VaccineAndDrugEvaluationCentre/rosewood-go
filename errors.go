@@ -6,18 +6,19 @@ import (
 	"text/scanner"
 )
 
-type rwError int
+type RwErrType int
 
 const (
-	ErrGeneric rwError = iota
+	ErrGeneric RwErrType = iota
 	ErrSyntaxError
 	ErrEmpty
+	ErrUnknown
 )
 
 // A EmError is a generic error returned for parsing errors.
 // The first line is 1.  The first column is 0.
 type EmError struct {
-	Type rwError
+	Type RwErrType
 	scanner.Position
 	Message string
 }
@@ -26,16 +27,17 @@ func (e EmError) Error() string {
 	var msg string
 	switch e.Type {
 	case ErrSyntaxError:
-		msg = fmt.Sprintf("%sline %d:%d: %s", "syntax error:", e.Line, e.Column, e.Message)
+		msg = fmt.Sprintf("%s:line %d:%d: %s", "syntax error", e.Line+e.Offset, e.Column, e.Message)
 	case ErrEmpty:
-		msg = fmt.Sprintf("%sline %d:%d: %s", "", e.Line, e.Column, "nothing to parse")
+		msg = fmt.Sprintf("%sline %d:%d: %s", "", e.Line+e.Offset, e.Column, "nothing to parse")
 	default:
-		msg = fmt.Sprintf("%sline %d:%d: %s", "", e.Line, e.Column, e.Message)
+		msg = fmt.Sprintf("%sline %d:%d: %s", "", e.Line+e.Offset, e.Column, e.Message)
 	}
 	return msg
 }
 
-func NewError(etype rwError, pos scanner.Position, msg string) *EmError {
+func NewError(etype RwErrType, pos scanner.Position, msg string) *EmError {
+	//	fmt.Println(pos.Offset, " ", pos.Line, " ", msg)
 	return &EmError{etype, pos, msg}
 }
 
@@ -49,7 +51,6 @@ func NewErrorManager() *ErrorManager {
 }
 
 func (em *ErrorManager) Add(e error) {
-	trace.Println(e)
 	em.Errors = append(em.Errors, e)
 }
 

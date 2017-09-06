@@ -74,7 +74,7 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 			ss := strings.Split(tt.source, "\n")
 			p.trace.Println(strings.Repeat("*", 30))
 			p.trace.Printf("%d %+q\n", len(ss), ss)
-			got, err := p.ParseCommandLines(ss)
+			got, err := p.ParseCommandLines(newControlSection(ss))
 			//fmt.Println(tt.source)
 			if tt.wantError != (err != nil) {
 				t.Errorf("Error handling failed, wanted %t, got %t\n error: %s", tt.wantError, err != nil, p.errors.String())
@@ -125,7 +125,7 @@ func TestCommandParser_ParseMultiLineCommands(t *testing.T) {
 		t.Run(tt.source, func(t *testing.T) {
 			ss := strings.Split(tt.source, "\n")
 			//trace.Printf("%d %+q", len(ss), ss)
-			got, err := p.ParseCommandLines(ss)
+			got, err := p.ParseCommandLines(newControlSection(ss))
 			if tt.wantError != (err != nil) {
 				t.Errorf("Error handling failed, wanted %t, got %t \n errors %s:", tt.wantError, err != nil, p.errors.String())
 			}
@@ -180,7 +180,7 @@ func TestCommandParser_ParseFullScript(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := p.ParseCommandLines(strings.Split(tt.source, "\n"))
+			got, err := p.ParseCommandLines(newControlSection(strings.Split(tt.source, "\n")))
 			// fmt.Println(tt.source)
 			if tt.wantError != (err != nil) {
 				t.Errorf("Error handling failed, wanted %t, got %t \n errors %s:", tt.wantError, err != nil, p.errors.String())

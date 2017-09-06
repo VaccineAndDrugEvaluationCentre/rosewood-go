@@ -6,12 +6,12 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"strings"
 	"testing"
 )
 
 func TestInterpreter_Run(t *testing.T) {
 	const pathPrefix = "test-files/"
-	testSettings := func() *Settings { return DefaultSettings() }
 	tests := []struct {
 		srcFileName string
 		outFileName string
@@ -19,7 +19,8 @@ func TestInterpreter_Run(t *testing.T) {
 		wantW       string
 		wantErr     bool
 	}{
-		{"correct1tab.rw", "correct1tab", testSettings(), "", false},
+		//	{"correct1tab.rw", "correct1tab", debugSettings(true), "", false},
+		{"wrong1tab.rw", "", debugSettings(true), "", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.srcFileName, func(t *testing.T) {
@@ -29,9 +30,14 @@ func TestInterpreter_Run(t *testing.T) {
 			if err != nil {
 				t.Fatalf("could not open file [%s]: %s", tt.srcFileName, err)
 			}
+			fmt.Println(strings.Repeat("*", 40))
 			w := &bytes.Buffer{}
-			if err = ri.Run(r, w); (err != nil) != tt.wantErr {
+			err = ri.Run(r, w)
+			if (err != nil) != tt.wantErr {
 				t.Fatalf("Interpreter.Run() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if err != nil {
+				fmt.Printf("error running file [%s]: %s\n", tt.srcFileName, err)
 			}
 			//fmt.Println(w.String())
 			// if gotW := w.String(); gotW != tt.wantW {
@@ -49,6 +55,7 @@ func TestInterpreter_Run(t *testing.T) {
 }
 
 func ExampleNewInterpreter() {
+	trace := newTrace(on, nil)
 	ri := NewInterpreter(nil)
 	if err := parseFile(ri, "test-files/correct1tab.rw"); err != nil {
 		trace.Printf("error parsing file: %s\n", err)

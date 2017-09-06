@@ -13,7 +13,7 @@ const (
 <head>
 <meta charset="utf-8">
 <meta name="generator" content="Rosewood Carpenter %s" /> 
-<link rel="stylesheet" href="carpenter.css">
+<link rel="stylesheet" href="%s">
 </head>
 <body>
 `
@@ -58,7 +58,11 @@ func (hr *HtmlRenderer) SetTables(tables []*table) error {
 }
 
 func (hr *HtmlRenderer) StartFile() error {
-	fmt.Fprintf(hr.bw, htmlHeader, VERSION)
+	cssFileName := hr.settings.StyleSheet
+	if cssFileName == "" {
+		cssFileName = "carpenter.css"
+	}
+	fmt.Fprintf(hr.bw, htmlHeader, VERSION, cssFileName)
 	return nil
 }
 

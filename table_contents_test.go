@@ -96,7 +96,7 @@ func TestParseTableData(t *testing.T) {
 			wantErr: false,
 		},
 	}
-	const showOutput = true //false to suppress printing returned table structs
+	trace := newTrace(on, nil)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewTableContents(tt.args)

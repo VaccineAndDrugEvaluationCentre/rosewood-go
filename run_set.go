@@ -27,7 +27,7 @@ func (p *CommandParser) runSetCommand(cmd *Command) error {
 
 	var s string
 	var err error
-
+	trace := newTrace(on, nil)
 	switch cmd.args[0] { //setting name
 	case "rangeseparator":
 		if s, err = getArgAsString(1, 1); err != nil {

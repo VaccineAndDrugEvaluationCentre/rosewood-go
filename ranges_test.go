@@ -1,7 +1,6 @@
 package rosewood
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -35,7 +34,7 @@ func Test_genAllPossibleRangePoints(t *testing.T) {
 
 func Test_expandSpan(t *testing.T) {
 	const na = MissingRwInt
-	const showOutput = true
+	//const showOutput = true
 	tests := []struct {
 		cs           span
 		wantListSize int
@@ -49,6 +48,7 @@ func Test_expandSpan(t *testing.T) {
 		{span{1, 6, 1, 6, na, na, []RwInt{1, 3, 5}, nil}, 3, span{1, na, 1, 6, na, na, nil, nil}, false},
 		{span{11, 16, 1, 6, 2, na, []RwInt{1, 3, 5}, nil}, 6, span{11, na, 1, 6, na, na, nil, nil}, false},
 	}
+	trace := newTrace(on, nil)
 	for _, tt := range tests {
 		t.Run(tt.cs.testString(), func(t *testing.T) {
 			gotSList, err := tt.cs.expandSpan()
@@ -72,7 +72,7 @@ func Test_expandSpan(t *testing.T) {
 
 func Test_deduplicateSpanList(t *testing.T) {
 	const na = MissingRwInt
-	const showOutput = true
+	//const showOutput = true
 	tests := []struct {
 		cs           span
 		wantListSize int
@@ -81,6 +81,7 @@ func Test_deduplicateSpanList(t *testing.T) {
 		{span{11, 16, 1, 6, 2, na, []RwInt{1, 3, 5}, nil}, 6, span{11, na, 1, 6, na, na, nil, nil}},
 		{span{1, 6, 1, 6, 2, na, []RwInt{1, 3, 5}, nil}, 3, span{11, na, 1, 6, na, na, nil, nil}},
 	}
+	trace := newTrace(on, nil)
 	for _, tt := range tests {
 		t.Run(tt.cs.testString(), func(t *testing.T) {
 			gotSList, err := tt.cs.expandSpan()
@@ -98,7 +99,7 @@ func Test_deduplicateSpanList(t *testing.T) {
 			}
 			if showOutput {
 				trace.Printf("%s:\n%v\n", "deduplicated", redupList)
-				fmt.Println(strings.Repeat("*", 30))
+				trace.Println(strings.Repeat("*", 30))
 			}
 			// if !reflect.DeepEqual(gotSList[0], tt.wantSpan1) {
 			// 	t.Errorf("wrong first expanded span = %v, want %v", gotSList[0], tt.wantSpan1)

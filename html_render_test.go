@@ -7,15 +7,6 @@ import (
 	"testing"
 )
 
-const (
-	showOutput = true
-	writeOut   = true
-	//	developDir   = "/Users/salah/Dropbox/code/go/src/github.com/drgo/carpenter" //not needed remove
-	testDirName  = "test-files" //relative to the executable directory
-	testFileName = "rendertest"
-	testFileExt  = "html"
-)
-
 func genTestTableData(rows []*Row) *table {
 	return &table{contents: &tableContents{
 		rows:        rows,
@@ -58,13 +49,6 @@ func TestRender(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		// {name: "table 2X3",
-		// 	args: args{r: NewHtmlRenderer(),
-		// 		t: monadicParseTableData("subtitle1|32423|60%|\nsubtitle2|0|0%|\nsubtitle3|1.5|1.5%|\n"),
-		// 	},
-		// 	want:    "",
-		// 	wantErr: false,
-		// },
 		{name: "table 3X4 no merging",
 			args: args{r: NewHtmlRenderer(),
 				t: genTestTableData(tabr3c4),
@@ -152,6 +136,7 @@ func TestRender(t *testing.T) {
 		},
 	}
 	fileBuffer := &bytes.Buffer{}
+	trace := newTrace(on, nil)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := &bytes.Buffer{}
@@ -172,12 +157,10 @@ func TestRender(t *testing.T) {
 		})
 	}
 	if writeOut {
-		outFileName := path.Join(testDirName, testFileName+"."+testFileExt)
+		outFileName := path.Join(testDirName, "rendertest."+testFileExt)
 		if err := ioutil.WriteFile(outFileName, fileBuffer.Bytes(), 0644); err != nil {
 			t.Errorf("failed to write to file %s: %v", outFileName, err)
 		}
 		trace.Printf("Results saved to file://%s\n", outFileName)
 	}
 }
-
-///Users/salah/Dropbox/code/go/src/github.com/drgo/carpenter/test-files/rendertest.html

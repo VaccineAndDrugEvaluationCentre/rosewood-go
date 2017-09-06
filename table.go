@@ -21,6 +21,7 @@ func newTable() *table {
 }
 
 func (t *table) normalizeMergeRanges() (err error) {
+	trace := newTrace(on, nil)
 	for _, cmd := range t.cmdList {
 		if cmd.token != kwMerge {
 			continue

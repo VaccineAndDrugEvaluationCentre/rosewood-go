@@ -41,12 +41,12 @@ const (
 
 // CommandParser specialized parser for format commands
 type CommandParser struct {
-	trace    tracer
-	errors   *ErrorManager
-	lexer    *scanner.Scanner
-	settings *Settings
-	//	debug        bool
+	trace        tracer
+	errors       *ErrorManager
+	lexer        *scanner.Scanner
+	settings     *Settings
 	runMode      RunMode
+	position     scanner.Position
 	currentToken rune
 	tables       []*tableContents //list of all loaded tables
 }
@@ -74,10 +74,15 @@ func (p *CommandParser) Errors(index int) string {
 	return p.errors.Errors[index].Error() //intended: will panic if index out of range
 }
 
+func (p *CommandParser) Pos() scanner.Position {
+	p.position.Column = p.lexer.Pos().Column
+	return p.position
+}
+
 //nextToken advances the lexer and updates currentToken of CommandParser.
 func (p *CommandParser) nextToken() {
 	p.currentToken = p.lexer.Scan()
-	p.trace.Printf("in nextToken: %s, current token= %q\n", p.lexer.Pos(), p.currentWord())
+	//	p.trace.Printf("in nextToken: %s, current token= %q\n", p.Pos(), p.currentWord())
 }
 
 //nextNotNull like nextToken but returns an error if EOL or EOF
@@ -107,12 +112,12 @@ func (p *CommandParser) wrongToken(wantedText string) {
 	if strings.HasPrefix(wantedText, "*") {
 		wantedText = wantedText[1:] //do not print the *
 	}
-	p.errors.Add(NewError(ErrSyntaxError, p.lexer.Pos(), fmt.Sprintf("expected %s, found %s (%s)", wantedText, scanner.TokenString(p.currentToken), p.currentWord())))
+	p.errors.Add(NewError(ErrSyntaxError, p.Pos(), fmt.Sprintf("expected %s, found %s (%s)", wantedText, scanner.TokenString(p.currentToken), p.currentWord())))
 }
 
 //addSyntaxError adds an error into the parser's error list
 func (p *CommandParser) addSyntaxError(msg string, a ...interface{}) {
-	p.errors.Add(NewError(ErrSyntaxError, p.lexer.Pos(), fmt.Sprintf(msg, a...)))
+	p.errors.Add(NewError(ErrSyntaxError, p.Pos(), fmt.Sprintf(msg, a...)))
 }
 
 func (p *CommandParser) isToken(wantedTok rune, wantedText string) bool {
@@ -301,7 +306,6 @@ func (p *CommandParser) parseTableFormatCommand(cmd *Command) error {
 	}
 	//success
 	cmd.cellSpan = subSpansToSpan(cmd.spans)
-	p.trace.Printf("parsed: %v\n", cmd)
 	return nil
 }
 
@@ -324,8 +328,8 @@ func (p *CommandParser) init(r io.Reader) error {
 }
 
 //ParseCommandLines parses a list of strings into list of commands
-func (p *CommandParser) ParseCommandLines(Lines []string) ([]*Command, error) {
-	if len(Lines) == 0 {
+func (p *CommandParser) ParseCommandLines(s *section) ([]*Command, error) {
+	if len(s.lines) == 0 {
 		return nil, nil
 	}
 	isCommandLine := func(line string) bool {
@@ -336,10 +340,12 @@ func (p *CommandParser) ParseCommandLines(Lines []string) ([]*Command, error) {
 		return true
 	}
 	var cmd *Command
-	cmdList := make([]*Command, 0, len(Lines))
+	cmdList := make([]*Command, 0, len(s.lines))
 	p.errors.Reset()
-	for i, line := range Lines {
-		p.trace.Printf("src: :%v->", line)
+	p.position.Offset = s.offset
+	for i, line := range s.lines {
+		p.position.Line = i
+		p.trace.Printf("src[%d]: :%v->", i+s.offset, line)
 		if !isCommandLine(line) {
 			p.trace.Println("skipped")
 			continue
@@ -347,25 +353,27 @@ func (p *CommandParser) ParseCommandLines(Lines []string) ([]*Command, error) {
 		p.trace.Println("to be parsed")
 		p.init(strings.NewReader(line))
 		cmdName, cmdToken := p.acceptCommandName()
-		cmd = NewCommand(cmdName, cmdToken, scanner.Position{"", 0, i, 0}) //TODO: fix line numbers
+		cmd = NewCommand(cmdName, cmdToken, p.Pos())
 		switch cmdName {
 		case "set":
 			p.parseSetCommand(cmd)
 		default: //all other commands will be parsed as a formatting command
 			if err := p.parseTableFormatCommand(cmd); err != nil {
 				p.addSyntaxError(err.Error())
+				p.trace.Printf("parsing error: %s\n", err.Error())
 			}
 		}
 		if err := cmd.Validate(); err != nil {
 			p.addSyntaxError(err.Error())
 		}
+		p.trace.Printf("parsed: %v\n", cmd)
 		cmdList = append(cmdList, cmd)
 	}
 	if len(cmdList) == 0 {
-		return nil, NewError(ErrEmpty, scanner.Position{Line: -1, Column: -1}, "found no valid commands")
+		return nil, NewError(ErrEmpty, p.Pos(), "found no valid commands")
 	}
 	if p.errors.Count() > 0 {
-		return nil, NewError(ErrGeneric, scanner.Position{Line: -1, Column: -1}, "syntax errors")
+		return nil, NewError(ErrSyntaxError, p.Pos(), "syntax errors")
 	}
 	return cmdList, nil
 }

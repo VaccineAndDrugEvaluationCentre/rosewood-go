@@ -4,8 +4,8 @@ Reference implementation of RoseWood.
 Version 0.2.1 build dfe70a5-dirty on Mon Jul 24 22:19:58 CDT 2017
 
 ### Features
-- Support for both comments both line // and paragraph /*...*/
-- Support for parsing merge and style
+- Support for comment lines starting with // 
+- Support for parsing merge and style commands
 - Support for 2 set commands:
     - set rangeseparator "char" e.g., set rangeseparator '-' to allow merge row 1-1, default ":"
     - set mandatorycol "true" to make col required, default false.
@@ -23,13 +23,16 @@ Version 0.2.1 build dfe70a5-dirty on Mon Jul 24 22:19:58 CDT 2017
 ### Compile
 - MacOS
 -- cd to cmd/
--- type make (to run without building) or make build
+-- type make (to run without building) or make build to generate an executable file
 
 ### Issues
--- parsing or executing scripts from files not enabled
+--  
 
-### TODO
-- redesign error reporting to use a callback function
+### TODO:
 - add support for line continuation \\
--  
+- test use of multiple input files
+- ? add support for multiple output files
+- better html generation tests
+- complete support for style command
+
 
