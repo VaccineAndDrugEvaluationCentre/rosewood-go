@@ -18,6 +18,11 @@ func newBlankRow(colCount RwInt) *Row {
 	return &Row{cells}
 }
 
+//MakeRow for testing
+func MakeRow(cells ...*Cell) *Row {
+	return &Row{cells}
+}
+
 func (r *Row) String() string {
 	var b bytes.Buffer
 	for _, c := range r.cells {
@@ -41,9 +46,8 @@ const (
 )
 
 type Cell struct {
-	text     string
-	row, col RwInt
-	//	hidden           bool
+	text             string
+	row, col         RwInt
 	state            CellState
 	rowSpan, colSpan RwInt
 }
@@ -53,6 +57,13 @@ func NewCell(text string, row, col RwInt) *Cell {
 		text: text,
 		row:  row,
 		col:  col}
+}
+
+//MakeCell: create a new cell for testing
+func MakeCell(text string, row, col RwInt, state CellState, rowSpan, colSpan RwInt) *Cell {
+	return &Cell{
+		text: text, row: row, col: col,
+		state: state, rowSpan: rowSpan, colSpan: colSpan}
 }
 
 func (c *Cell) clone(src *Cell) *Cell {

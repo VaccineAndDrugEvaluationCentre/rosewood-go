@@ -17,7 +17,7 @@ func (args rwArgs) String() string {
 
 //Command is the AST for a Rosewood command.
 type Command struct {
-	token    int
+	token    RwKeyWord
 	name     string
 	cellSpan *Span
 	spans    []*Subspan
@@ -26,27 +26,22 @@ type Command struct {
 }
 
 //NewCommand return an empty RwCommand
-func NewCommand(name string, token int, pos scanner.Position) *Command {
-	return &Command{token: token, name: name, pos: pos, cellSpan: NewSpan()}
+func NewCommand(name string, token RwKeyWord, pos scanner.Position) *Command {
+	return &Command{token: token, name: name, pos: pos}
 }
 
 //formats command for printing; warning used for testing the parser
 func (c *Command) String() string {
-	switch c.token {
-	// case kwSet:
-	// 	return fmt.Sprintf("%s %s", c.name, c.args)
-	default:
-		buf := &bytes.Buffer{}
-		fmt.Fprintf(buf, "%s ", c.name)
-		for _, s := range c.spans {
-			fmt.Fprintf(buf, s.String())
-			fmt.Fprintf(buf, " ")
-		}
-		if len(c.args) > 0 {
-			fmt.Fprintf(buf, "%s", c.args)
-		}
-		return strings.TrimSpace(buf.String())
+	buf := &bytes.Buffer{}
+	fmt.Fprintf(buf, "%s ", c.name)
+	for _, s := range c.spans {
+		fmt.Fprintf(buf, s.String())
+		fmt.Fprintf(buf, " ")
 	}
+	if len(c.args) > 0 {
+		fmt.Fprintf(buf, "%s", c.args)
+	}
+	return strings.TrimSpace(buf.String())
 }
 
 func (c *Command) AddSubSpan(ss *Subspan) error {
@@ -79,18 +74,9 @@ func (c *Command) Arg(index int) string {
 	return ""
 }
 
-func (c *Command) Finalize() error {
-	c.cellSpan = SubSpansToSpan(c.spans)
-	return nil
-}
-
-// func (c *Command) validateMerge() error {
-
-// 	return nil
-// }
-
-//Validate checks command for errors
+//Validate creates a cell span and checks command for errors
 func (c *Command) Validate() error {
+	c.cellSpan = SubSpansToSpan(c.spans)
 	// var err error
 	// switch c.token {
 	// case kwSet:
@@ -109,9 +95,9 @@ func (c *Command) Validate() error {
 func createMergeRangeList(cmdList []*Command) (rList []Range, err error) {
 	var sList []*Span
 	for _, cmd := range cmdList {
-		// if cmd.token != kwMerge {
-		// 	continue
-		// }
+		if cmd.token != KwMerge {
+			continue
+		}
 		tmpList, err := cmd.cellSpan.ExpandSpan()
 		if err != nil {
 			return nil, err

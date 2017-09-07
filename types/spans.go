@@ -16,17 +16,17 @@ func NewSubSpan(kind string) Subspan {
 	return Subspan{kind: kind, Left: MissingRwInt, Right: MissingRwInt, By: MissingRwInt}
 }
 
-func (s *Subspan) String() string {
+func (ss *Subspan) String() string {
 	buf := &bytes.Buffer{}
-	fmt.Fprintf(buf, "%s ", s.kind)
-	if s.Left != MissingRwInt {
-		fmt.Fprintf(buf, "%s", formattedRwInt(s.Left))
-		if s.By != MissingRwInt {
-			fmt.Fprintf(buf, ":%s", formattedRwInt(s.By))
+	fmt.Fprintf(buf, "%s ", ss.kind)
+	if ss.Left != MissingRwInt {
+		fmt.Fprintf(buf, "%s", formattedRwInt(ss.Left))
+		if ss.By != MissingRwInt {
+			fmt.Fprintf(buf, ":%s", formattedRwInt(ss.By))
 		}
-		fmt.Fprintf(buf, ":%s", formattedRwInt(s.Right))
+		fmt.Fprintf(buf, ":%s", formattedRwInt(ss.Right))
 	}
-	for _, item := range s.List {
+	for _, item := range ss.List {
 		fmt.Fprintf(buf, "%s,", formattedRwInt(item))
 	}
 	//remove last comma if any
@@ -36,6 +36,7 @@ func (s *Subspan) String() string {
 	return buf.String()
 }
 
+//SubSpansToSpan converts two subspan into one span for ease of validation
 func SubSpansToSpan(SubSpans []*Subspan) *Span {
 	s := NewSpan()
 	for _, ss := range SubSpans {
@@ -96,6 +97,7 @@ func (s *Span) validate() error {
 	return nil
 }
 
+//Normalize replace missing values with values defined by rowCount and colCount
 func (cs *Span) Normalize(rowCount, colCount RwInt) {
 	if cs.r1 == MissingRwInt && cs.r2 == MissingRwInt {
 		cs.r1 = 1
@@ -119,6 +121,7 @@ func (cs *Span) Normalize(rowCount, colCount RwInt) {
 	}
 }
 
+//ExpandSpan convert by and comma list spans into simple spans
 func (cs *Span) ExpandSpan() (sList []*Span, err error) {
 	var rPoints, cPoints []RwInt
 	//if skipped span, generate Lists of all row and col points included
@@ -161,7 +164,7 @@ func (cs *Span) ExpandSpan() (sList []*Span, err error) {
 	return sList, nil
 }
 
-//returns deduplicated (unique r1,r2,c1,c2) span List
+//DeduplicateSpanList returns deduplicated (unique r1,r2,c1,c2) span List
 func DeduplicateSpanList(sList []*Span) []*Span {
 	set := make(map[string]*Span, len(sList))
 	i := 0

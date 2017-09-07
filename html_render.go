@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/drgo/rosewood/types"
 	"github.com/drgo/rosewood/utils"
@@ -15,6 +16,7 @@ const (
 <head>
 <meta charset="utf-8">
 <meta name="generator" content="Rosewood Carpenter %s" /> 
+<meta name="date-generated" content="%s" scheme="YYYY-MM-DD HH:MM:SS">
 <link rel="stylesheet" href="%s">
 </head>
 <body>
@@ -64,7 +66,8 @@ func (hr *HtmlRenderer) StartFile() error {
 	if cssFileName == "" {
 		cssFileName = "carpenter.css"
 	}
-	fmt.Fprintf(hr.bw, htmlHeader, VERSION, cssFileName)
+	t := time.Now()
+	fmt.Fprintf(hr.bw, htmlHeader, VERSION, t.Format("2006-01-02 15:04:05"), cssFileName)
 	return nil
 }
 

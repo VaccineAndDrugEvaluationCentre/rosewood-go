@@ -16,6 +16,7 @@ type Table struct {
 	CmdList    []*Command
 }
 
+//NewTable returns a new empty Table
 func NewTable() *Table {
 	return &Table{}
 }
@@ -23,9 +24,9 @@ func NewTable() *Table {
 func (t *Table) normalizeMergeRanges() (err error) {
 	//trace := utils.NewTrace(true, nil)
 	for _, cmd := range t.CmdList {
-		// if cmd.token != kwMerge {
-		// 	continue
-		// }
+		if cmd.token != KwMerge {
+			continue
+		}
 		cmd.cellSpan.Normalize(t.Contents.RowCount(), t.Contents.MaxFieldCount())
 		//trace.Printf("normalized: %v\n", cmd.cellSpan.TestString())
 	}

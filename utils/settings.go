@@ -12,15 +12,15 @@ package utils
 
 //Settings implements a simple configuration solution.
 type Settings struct {
-	RangeOperator int32
-	MandatoryCol  bool
-	StyleSheet    string
-	// TableFileName    string
-	// LogFileName      string
+	RangeOperator    int32
+	MandatoryCol     bool
+	StyleSheet       string
 	Debug            bool
 	TrimCellContents bool
-	//	RunMode          RunMode
-	// Report func(string, ReportStatus)
+	SectionSeparator string
+	ColumnSeparator  string
+	SectionsPerTable int
+	SectionCapacity  int
 }
 
 //NewSettings returns an empty Settings struct
@@ -31,6 +31,10 @@ func NewSettings() *Settings {
 //DefaultSettings returns default settings in case no settings were set.
 func DefaultSettings() *Settings {
 	settings := NewSettings()
+	settings.SectionsPerTable = 4
+	settings.SectionCapacity = 100
+	settings.SectionSeparator = "+++"
+	settings.ColumnSeparator = "|"
 	settings.RangeOperator = ':'
 	settings.TrimCellContents = false
 	return settings

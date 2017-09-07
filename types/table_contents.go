@@ -32,6 +32,7 @@ func (t *TableContents) String() string {
 	return b.String()
 }
 
+//MaxFieldCount returns the maximum number of cells in a row
 func (t *TableContents) MaxFieldCount() RwInt {
 	return t.maxFldCount
 }
@@ -59,15 +60,18 @@ func (t *TableContents) isValidCoordinate(row, col RwInt) bool {
 	return true
 }
 
-//row return the ith row (warning 1 based not zero based)
+//Row return the ith row (warning 1 based not zero based)
 func (t *TableContents) Row(i RwInt) *Row {
 	return t.rows[i-1]
 }
 
+//RowCount returns the number of rows in a table
 func (t *TableContents) RowCount() RwInt {
 	return RwInt(len(t.rows))
 }
 
+//Cell return the cell at row, col coordinates (warning 1 based not zero based)
+//returns nil if the coordinates are not valid
 func (t *TableContents) Cell(row, col RwInt) *Cell {
 	if !t.isValidCoordinate(row, col) {
 		return nil
@@ -75,6 +79,7 @@ func (t *TableContents) Cell(row, col RwInt) *Cell {
 	return t.cell(row, col)
 }
 
+//cell returns the cell at row, col coordinates; panics if coordinates are not valid
 func (t *TableContents) cell(row, col RwInt) *Cell {
 	return t.rows[row-1].cells[col-1]
 }
@@ -85,27 +90,15 @@ func (t *TableContents) validateRange(ra Range) (Range, error) {
 	}
 	for r := ra.TopLeft.Row; r <= ra.BottomRight.Row; r++ {
 		for c := ra.TopLeft.Col; c <= ra.BottomRight.Col; c++ {
-			//trace.Printf("r%d c%d \n", r, c)
 			if !t.isValidCoordinate(r, c) {
 
 			}
 		}
 	}
-	// normalize := func(value, Default RwInt) RwInt {
-	// 	if value < MinRwInt || value == MissingRwInt {
-	// 		return Default
-	// 	}
-	// 	return value
-	// }
-	// ra.TopLeft.Row = normalize(ra.TopLeft.Row, MinRwInt)
-	// ra.TopLeft.Col = normalize(ra.TopLeft.Col, MinRwInt)
-
-	// ra.BottomRight.Row = normalize(ra.BottomRight.Row, t.maxFldCount)
-	// ra.BottomRight.Col = normalize(ra.BottomRight.Col, t.maxFldCount)
-
 	return ra, nil
 }
 
+//NewTableContents parses a Rosewood table contents
 func NewTableContents(text string) (*TableContents, error) {
 	var (
 		line, offset          RwInt
@@ -156,37 +149,20 @@ func NewTableContents(text string) (*TableContents, error) {
 
 }
 
-func NewBlankTableContents(RowCount, colCount RwInt) *TableContents {
-	rows := make([]*Row, RowCount)
-	for i := RwInt(0); i < RowCount; i++ {
+//NewBlankTableContents creates an empty TableContents with Rowcount X colCount cells
+func NewBlankTableContents(rowCount, colCount RwInt) *TableContents {
+	rows := make([]*Row, rowCount)
+	for i := RwInt(0); i < rowCount; i++ {
 		rows[i] = newBlankRow(colCount)
 	}
-	//	trace.Printf("in newBlankTableContents %v\n", rows)
 	return &TableContents{rows: rows,
 		maxFldCount: colCount}
 }
 
-// func (t *TableContents) merge(ra Range) error {
-// 	var err error
-// 	if ra, err = t.validateRange(ra); err != nil {
-// 		return fmt.Errorf("merge failed: %s", err)
-// 	}
-// 	trace.Printf("ra=%s  %s tl=%s  br=%s\n", ra.testString(), ra, ra.TopLeft, ra.BottomRight)
-// 	for r := ra.TopLeft.Row; r <= ra.BottomRight.Row; r++ {
-// 		for c := ra.TopLeft.Col; c <= ra.BottomRight.Col; c++ {
-// 			trace.Printf("r%d c%d \n", r, c)
-// 			if t.Cell(r, c) != nil {
-// 				t.Cell(r, c).hidden = true
-// 			}
-// 		}
-// 	}
-// 	topleft := t.Cell(ra.TopLeft.Row, ra.TopLeft.Col)
-// 	if topleft == nil {
-// 		trace.Printf("topleft is nil, r%d c%d \n", ra.TopLeft.Row, ra.TopLeft.Col)
-// 	} else {
-// 		topleft.hidden = false
-// 		topleft.rowSpan = ra.BottomRight.Row - ra.TopLeft.Row
-// 		topleft.colSpan = ra.BottomRight.Col - ra.TopLeft.Col
-// 	}
-// 	return nil
-// }
+//MakeTableContents creates a TableContents from an array of Rows; use for testing only
+func MakeTableContents(rows []*Row, maxFldCount RwInt) *Table {
+	return &Table{Contents: &TableContents{
+		rows:        rows,
+		maxFldCount: maxFldCount,
+	}}
+}

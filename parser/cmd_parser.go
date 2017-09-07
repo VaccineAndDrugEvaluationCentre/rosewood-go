@@ -129,17 +129,17 @@ func (p *CommandParser) accept(wantedTok rune, wantedText string) {
 }
 
 //acceptCommandName: reads and validates a command name
-func (p *CommandParser) acceptCommandName() (string, int) {
+func (p *CommandParser) acceptCommandName() (string, types.RwKeyWord) {
 	p.nextToken()
 	cmdName := p.currentWord()
 	if p.currentToken != scanner.Ident {
 		p.wrongToken("command")
-		return cmdName, kwInvalid
+		return cmdName, types.KwInvalid
 	}
-	cmd, found := lookupKeyword(cmdName)
+	cmd, found := types.LookupKeyword(cmdName)
 	if !found {
 		p.addSyntaxError("unknown command %s", cmdName)
-		return cmdName, kwInvalid
+		return cmdName, types.KwInvalid
 	}
 	return cmdName, cmd
 }
@@ -192,7 +192,6 @@ func (p *CommandParser) parseCommaSepPoints(ss *types.Subspan) error {
 //parseRangePoints read a range of coordinate either left:right or left:skipby:right
 func (p *CommandParser) parseRangePoints(ss *types.Subspan) error {
 	var err error
-	//p.nextToken() //skip ":"
 	//read the right term of the range
 	if ss.Right, err = p.parsePoint(); err != nil {
 		return err
@@ -223,7 +222,6 @@ func (p *CommandParser) parseRowOrColSegment(cmd *types.Command, segment string)
 	if ss.Left, err = p.parsePoint(); err != nil {
 		return ss, err
 	}
-	//now parse either ":", ",", either "col"/"row", an argument list or EOF
 	p.nextToken()
 	switch p.currentToken {
 	case p.settings.RangeOperator:
@@ -288,7 +286,6 @@ func (p *CommandParser) parseTableFormatCommand(cmd *types.Command) error {
 		}
 	}
 	//success
-	cmd.Finalize()
 	return nil
 }
 
