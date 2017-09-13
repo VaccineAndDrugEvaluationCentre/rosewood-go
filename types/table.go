@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 	"io"
+	"sort"
 )
 
 //Table holds all the info needed to render a Table
@@ -21,6 +22,31 @@ func NewTable() *Table {
 	return &Table{}
 }
 
+func (t *Table) Run() error {
+	t.normalizeMergeRanges()
+	fmt.Println("after normalize")
+	mrlist, err := createMergeRangeList(t.CmdList)
+	fmt.Println("after merge")
+	if err != nil {
+		return err
+	}
+	t.grid, err = createMergedGridTable(t.Contents, mrlist)
+	return err
+}
+
+func (t *Table) Render(w io.Writer, hr Renderer) error {
+	hr.StartTable(t)
+	for _, row := range t.grid.rows {
+		hr.StartRow(row)
+		for _, cell := range row.cells {
+			hr.OutputCell(cell)
+		}
+		hr.EndRow(row)
+	}
+	hr.EndTable(t)
+	return nil
+}
+
 func (t *Table) normalizeMergeRanges() (err error) {
 	//trace := utils.NewTrace(true, nil)
 	for _, cmd := range t.CmdList {
@@ -33,7 +59,30 @@ func (t *Table) normalizeMergeRanges() (err error) {
 	return nil
 }
 
-func createGridTable(Contents *TableContents, mrlist []Range) (*TableContents, error) {
+func createMergeRangeList(cmdList []*Command) (rList []Range, err error) {
+	var sList []*Span
+	for _, cmd := range cmdList {
+		if cmd.token != KwMerge {
+			continue
+		}
+		tmpList, err := cmd.cellSpan.ExpandSpan()
+		if err != nil {
+			return nil, err
+		}
+		sList = append(sList, tmpList...)
+	}
+	sList = DeduplicateSpanList(sList)
+	for _, s := range sList {
+		rList = append(rList, SpanToRange(s))
+	}
+
+	sort.Slice(rList, func(i, j int) bool {
+		return rList[i].Less(rList[j])
+	})
+	return rList, nil
+}
+
+func createMergedGridTable(Contents *TableContents, mrlist []Range) (*TableContents, error) {
 	grid := NewBlankTableContents(Contents.RowCount(), Contents.MaxFieldCount())
 	for _, mr := range mrlist {
 		for i := mr.TopLeft.Row + 1; i <= mr.BottomRight.Row; i++ {
@@ -72,29 +121,6 @@ func createGridTable(Contents *TableContents, mrlist []Range) (*TableContents, e
 		}
 	}
 	return grid, nil
-}
-
-func (t *Table) Run() error {
-	t.normalizeMergeRanges()
-	mrlist, err := createMergeRangeList(t.CmdList)
-	if err != nil {
-		return err
-	}
-	t.grid, err = createGridTable(t.Contents, mrlist)
-	return err
-}
-
-func (t *Table) Render(w io.Writer, hr Renderer) error {
-	hr.StartTable(t)
-	for _, row := range t.grid.rows {
-		hr.StartRow(row)
-		for _, cell := range row.cells {
-			hr.OutputCell(cell)
-		}
-		hr.EndRow(row)
-	}
-	hr.EndTable(t)
-	return nil
 }
 
 // func searchMRListByRange(mrlist []Range, mr Range) (index int, found bool) {

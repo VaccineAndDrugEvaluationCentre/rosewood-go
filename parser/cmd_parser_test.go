@@ -16,6 +16,7 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		wantError bool
 		want      string
 	}{
+		//following should parse without errors
 		{"merge row 1,2  //same line comment", 1, false, "merge row 1,2"},
 		{"merge row 1,2", 1, false, "merge row 1,2"},
 		{"merge row 1,2,3,6", 1, false, "merge row 1,2,3,6"},
@@ -39,10 +40,21 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		{"style row 1:2:3 col 1:2:3 style1\n", 1, false, "style row 1:2:3 col 1:2:3 style1"},
 		{"style row 1,7 style1 \n", 1, false, "style row 1,7 style1"},
 		{"style row 1,7 col 1 style1 \n", 1, false, "style row 1,7 col 1:NA style1"},
+
+		{"merge row 1:2, 4", 1, false, "merge row 1:2, 4"},
+		{"merge row 1:2:3, 4", 1, false, "merge row 1:2:3, 4"},
+		{"merge row 1:2, 4,7", 1, false, "merge row 1:2, 4,7"},
+		{"merge row 1:2, 4 col 1", 1, false, "merge row 1:2, 4 col 1:NA"},
+		{"merge row 1:2:3, 4 col 1", 1, false, "merge row 1:2:3, 4 col 1:NA"},
+		{"merge row 1:2, 4,7 col 1:2", 1, false, "merge row 1:2, 4,7 col 1:2"},
+		{"merge row 1:2:3, 4,7 col 1:2", 1, false, "merge row 1:2:3, 4,7 col 1:2"},
+		//TODO: fix following errors
+		//TODO: end fix errors
 		{`set rangeseparator "-"
 			`, 1, false, "set rangeseparator,\"-\""}, //escaping " using \
 		{"merge col 1:2 row 1 ", 1, false, "merge col 1:2 row 1:NA"}, //switched row and col positions
-		// syntax errors, hence wantError=true
+
+		// following are all syntax errors, hence wantError=true
 		{"merge row 1:2 row 1:2 \n", 1, true, "duplicate row segments"},
 		{"merge cl 1:2 row 1 ", 1, true, "misspelled col"},
 		{"merge raw 1:2 col 1 ", 1, true, "misspelled row"},
@@ -58,9 +70,9 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		{"merge row 1:2 col 1;2 \n", 1, true, ": misstyped"},
 		{"merge row 1:2:", 1, true, "missing right range"},
 		{"merge row 1:2: col 1:2 \n", 1, true, "missing right range"},
-		//TODO: fix validation of number ranges
-		// {"merge row 3:1 col 1\n", 1, true, "row numbers invalid"},
-		// {"merge row 1:2 col 3:2\n", 1, true, "col numbers invalid"},
+		{"merge row 3:1 col 1\n", 1, true, "row numbers invalid"},
+		{"merge row 1:2 col 3:2\n", 1, true, "col numbers invalid"},
+		{"merge row 1,2, 3:4", 1, true, ": not allowed after a coordinate list"},
 		{"\n", 1, true, "empty line"},
 		{"\r\n", 1, true, "empty line Windows"},
 		{"\n\n\n", 1, true, "empty lines"},
@@ -80,11 +92,10 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 			got, err := p.ParseCommandLines(types.NewControlSection(ss))
 			//fmt.Println(tt.source)
 			if tt.wantError != (err != nil) {
-				t.Errorf("Error handling failed, wanted %t, got %t\n error: %s", tt.wantError, err != nil, p.errors.String())
+				t.Errorf("Error handling failed, wanted %t, got %t\n error: %s", tt.wantError, err != nil, p.ErrorText(-1))
 			}
 			if showErrorMessages && p.errors.Count() > 0 {
-				p.trace.Printf("%s: expected %s", strings.TrimSpace(tt.source), p.errors.String())
-
+				p.trace.Printf("faulty command %s --> %s\n", strings.TrimSpace(tt.source), p.ErrorText(-1))
 			}
 			if err != nil {
 				return //if error was correctly reported by the parser do not continue testing
@@ -130,7 +141,7 @@ func TestCommandParser_ParseMultiLineCommands(t *testing.T) {
 			//trace.Printf("%d %+q", len(ss), ss)
 			got, err := p.ParseCommandLines(types.NewControlSection(ss))
 			if tt.wantError != (err != nil) {
-				t.Errorf("Error handling failed, wanted %t, got %t \n errors %s:", tt.wantError, err != nil, p.errors.String())
+				t.Errorf("Error handling failed, wanted %t, got %t \n errors %s:", tt.wantError, err != nil, p.ErrorText(-1))
 			}
 			if err != nil {
 
@@ -186,7 +197,7 @@ func TestCommandParser_ParseFullScript(t *testing.T) {
 			got, err := p.ParseCommandLines(types.NewControlSection(strings.Split(tt.source, "\n")))
 			// fmt.Println(tt.source)
 			if tt.wantError != (err != nil) {
-				t.Errorf("Error handling failed, wanted %t, got %t \n errors %s:", tt.wantError, err != nil, p.errors.String())
+				t.Errorf("Error handling failed, wanted %t, got %t \n errors %s:", tt.wantError, err != nil, p.ErrorText(-1))
 			}
 			if err != nil {
 				return //if error was correctly reported by the parser do not continue testing

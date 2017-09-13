@@ -25,107 +25,145 @@ const (
 </body>
 </html>
 `
-	htmlOpenTable = `<table>
-	`
-	htmlCloseTable = `</table>
-	`
-	htmlOpenRow  = `<tr>`
-	htmlCloseRow = `</tr>
-	`
-	htmlPara  = "<p>"
-	htmlbreak = "<br>"
+	// htmlOpenTable = `<table>
+	// `
+	// htmlCloseTable = `</table>
+	// `
+	// htmlOpenRow  = `<tr>`
+	// htmlCloseRow = `</tr>
+	// `
+	htmlPara     = "<p>"
+	htmlbreak    = "<br>"
+	htmlOpenDiv  = "<div>"
+	htmlCloseDiv = "</div>"
 )
 
-type HtmlRenderer struct {
-	bw       io.Writer
-	settings *utils.Settings
-	tables   []*types.Table
+//htmlRenderer implements types.Renderer for HTML output
+type htmlRenderer struct {
+	bw        io.Writer
+	settings  *utils.Settings
+	tables    []*types.Table
+	htmlError error //tracks errors
 }
 
-func NewHtmlRenderer() *HtmlRenderer {
-	return &HtmlRenderer{}
+//NewHTMLRenderer create a new htmlRenderer and return a Renderer
+func NewHTMLRenderer() types.Renderer {
+	return &htmlRenderer{}
 }
 
-func (hr *HtmlRenderer) SetWriter(w io.Writer) error {
+func (hr *htmlRenderer) SetWriter(w io.Writer) error {
 	hr.bw = w
 	return nil
 }
 
-func (hr *HtmlRenderer) SetSettings(settings *utils.Settings) error {
+func (hr *htmlRenderer) SetSettings(settings *utils.Settings) error {
 	hr.settings = settings
 	return nil
 }
 
-func (hr *HtmlRenderer) SetTables(tables []*types.Table) error {
+func (hr *htmlRenderer) SetTables(tables []*types.Table) error {
 	hr.tables = tables
 	return nil
 }
 
-func (hr *HtmlRenderer) StartFile() error {
+func (hr *htmlRenderer) Err() error {
+	return hr.htmlError
+}
+
+//write does all the writing to the writer and handles errors but stopping any further writing
+func (hr *htmlRenderer) write(format string, a ...interface{}) error {
+	if hr.htmlError == nil {
+		_, hr.htmlError = fmt.Fprintf(hr.bw, format, a...)
+	}
+	return hr.htmlError
+}
+
+func (hr *htmlRenderer) StartFile() error {
 	cssFileName := hr.settings.StyleSheet
 	if cssFileName == "" {
 		cssFileName = "carpenter.css"
 	}
 	t := time.Now()
-	fmt.Fprintf(hr.bw, htmlHeader, VERSION, t.Format("2006-01-02 15:04:05"), cssFileName)
-	return nil
+	return hr.write(htmlHeader, VERSION, t.Format("2006-01-02 15:04:05"), cssFileName)
 }
 
-func (hr *HtmlRenderer) EndFile() error {
-	fmt.Fprintf(hr.bw, htmlFooter)
-	return nil
+func (hr *htmlRenderer) EndFile() error {
+	return hr.write(htmlFooter)
 }
 
-func (hr *HtmlRenderer) StartTable(t *types.Table) error {
-	fmt.Fprintf(hr.bw, htmlOpenTable)
+func (hr *htmlRenderer) StartTable(t *types.Table) error {
+	hr.write("<table>")
 	if t.Caption != nil {
-		fmt.Fprintf(hr.bw, "<caption>")
+		hr.write("<caption>")
 		for _, line := range t.Caption.Lines {
-			fmt.Fprintf(hr.bw, "%s%s\n", line, htmlbreak)
+			hr.write("%s%s\n", line, htmlbreak)
 		}
+		hr.write("</caption>") //added for completeness
 	}
-	return nil
+	return hr.Err()
 }
 
-func (hr *HtmlRenderer) EndTable(t *types.Table) error {
-	fmt.Fprintf(hr.bw, htmlCloseTable)
-	if t.Footnotes == nil {
-		return nil
+func (hr *htmlRenderer) EndTable(t *types.Table) error {
+	hr.write("</table>")
+	if t.Footnotes != nil {
+		hr.write(`<div class="footnotes">`)
+		for _, line := range t.Footnotes.Lines {
+			hr.write("%s%s\n", line, htmlbreak)
+		}
+		hr.write("</div>\n")
 	}
-	fmt.Fprintf(hr.bw, htmlPara)
-	for _, line := range t.Footnotes.Lines {
-		fmt.Fprintf(hr.bw, "%s%s\n", line, htmlbreak)
-	}
-	return nil
+	return hr.Err()
 }
 
-func (hr *HtmlRenderer) StartRow(r *types.Row) error {
-	fmt.Fprintf(hr.bw, htmlOpenRow)
-	return nil
+func (hr *htmlRenderer) StartRow(r *types.Row) error {
+	return hr.write(`<tr>`)
 }
 
-func (hr *HtmlRenderer) EndRow(r *types.Row) error {
-	fmt.Fprintf(hr.bw, htmlCloseRow)
-	return nil
+func (hr *htmlRenderer) EndRow(r *types.Row) error {
+	return hr.write("</tr>")
 }
-
-func (hr *HtmlRenderer) OutputCell(c *types.Cell) error {
+func (hr *htmlRenderer) OutputCell(c *types.Cell) error {
 	if c.State() == types.CsMerged {
 		return nil
 	}
-	fmt.Fprint(hr.bw, "<td")
+	hr.write("<td")
 	if c.RowSpan() > 1 {
-		fmt.Fprintf(hr.bw, ` rowspan="%d"`, c.RowSpan())
+		hr.write(` rowspan="%d"`, c.RowSpan())
 	}
 	if c.ColSpan() > 1 {
-		fmt.Fprintf(hr.bw, ` colspan="%d"`, c.ColSpan())
+		hr.write(` colspan="%d"`, c.ColSpan())
 	}
+	txt := escapeString(c.Text())
 	if hr.settings.TrimCellContents {
-		fmt.Fprint(hr.bw, ">", strings.TrimSpace(c.Text()), "</td>")
-	} else {
-		fmt.Fprint(hr.bw, ">", c.Text(), "</td>")
+		txt = strings.TrimSpace(txt)
 	}
-	return nil
+	hr.write("%s%s%s", ">", txt, "</td>")
+	return hr.Err()
+}
+
+//
+var htmlEscaper = strings.NewReplacer(
+	`&`, "&amp;",
+	`'`, "&#39;", // "&#39;" is shorter than "&apos;" and apos was not in HTML until HTML5.
+	`<=`, "&le;",
+	`<=`, "&le;",
+	`<`, "&lt;",
+	`>=`, "&ge;",
+	`=>`, "&ge;",
+	`>`, "&gt;",
+	`"`, "&#34;", // "&#34;" is shorter than "&quot;".
+
+	"and", `∧`, //LOGICAL AND
+	"or", `∨`, //LOGICAL OR
+	"cap", `∩`, //INTERSECTION
+	"cup", `∪`, //UNION
+
+)
+
+// escapeString escapes special characters like "<" to become "&lt;". It
+// modified from html.EscapeString to escape <, <=, >, >=,  &, ' and ".
+func escapeString(s string) string {
+	return htmlEscaper.Replace(s)
 }
 
 // func render(w io.Writer, r types.Renderer, settings *utils.Settings, tables ...*types.Table) error {

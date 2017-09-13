@@ -1,3 +1,4 @@
+//Package parser implements a Rosewood file and command parsers
 package parser
 
 import (
@@ -12,23 +13,23 @@ import (
 )
 
 // RunMode describes Parser's running mode
-type RunMode int
+// type RunMode int
 
-const (
-	Interactive RunMode = iota
-	ScriptRun
-)
+// const (
+// 	Interactive RunMode = iota
+// 	ScriptRun
+// )
 
 // CommandParser specialized parser for format commands
 type CommandParser struct {
 	trace        utils.Tracer
-	errors       *utils.ErrorManager
+	errors       utils.ErrorList
 	lexer        *scanner.Scanner
 	settings     *utils.Settings
-	runMode      RunMode
 	position     scanner.Position
 	currentToken rune
 	tables       []*types.TableContents //list of all loaded tables
+	//	runMode      RunMode
 }
 
 //NewCommandParser initializes and returns a CommandParser
@@ -36,7 +37,7 @@ func NewCommandParser(settings *utils.Settings) *CommandParser {
 	if settings == nil {
 		panic("nil settings passed to NewCommandParser")
 	}
-	p := CommandParser{errors: utils.NewErrorManager()}
+	p := CommandParser{errors: utils.NewErrorList(), lexer: new(scanner.Scanner)}
 	p.settings = settings
 	//	fmt.Println("trace is", p.settings.Debug)
 	p.trace = utils.NewTrace(false, nil) //writer to stderr
@@ -46,18 +47,20 @@ func NewCommandParser(settings *utils.Settings) *CommandParser {
 	return &p
 }
 
+//Errors returns a list of parsing errors
 func (p *CommandParser) Errors() []error {
-	return p.errors.Errors
+	return p.errors
 }
 
-//Errors returns a \n separated list of errors if index =-1, otherwise returns the indexth error;
+//ErrorText returns a \n separated list of errors if index =-1, otherwise returns the indexth error;
 func (p *CommandParser) ErrorText(index int) string {
 	if index < 0 {
-		return p.errors.String()
+		return p.errors.Error()
 	}
-	return p.errors.Errors[index].Error() //intended: will panic if index out of range
+	return p.errors[index].Error() //intended: will panic if index out of range
 }
 
+//Pos returns the current position in the source
 func (p *CommandParser) Pos() scanner.Position {
 	p.position.Column = p.lexer.Pos().Column
 	return p.position
@@ -66,6 +69,7 @@ func (p *CommandParser) Pos() scanner.Position {
 //nextToken advances the lexer and updates currentToken of CommandParser.
 func (p *CommandParser) nextToken() {
 	p.currentToken = p.lexer.Scan()
+	//check p.lexer.ErrorCount() ==
 	//	p.trace.Printf("in nextToken: %s, current token= %q\n", p.Pos(), p.currentWord())
 }
 
@@ -86,9 +90,13 @@ func (p *CommandParser) currentWord() string {
 	return strings.ToLower(p.lexer.TokenText())
 }
 
-//currentWord returns all-lower-case current token text.
+//exactCurrentWord returns the current token text or a description if no text.
 func (p *CommandParser) exactCurrentWord() string {
-	return p.lexer.TokenText()
+	s := strings.TrimSpace(p.lexer.TokenText())
+	if s == "" {
+		s = scanner.TokenString(p.currentToken)
+	}
+	return s
 }
 
 //wrongToken adds an error into the parser's error list
@@ -96,12 +104,12 @@ func (p *CommandParser) wrongToken(wantedText string) {
 	if strings.HasPrefix(wantedText, "*") {
 		wantedText = wantedText[1:] //do not print the *
 	}
-	p.errors.Add(utils.NewError(utils.ErrSyntaxError, p.Pos(), fmt.Sprintf("expected %s, found %s (%s)", wantedText, scanner.TokenString(p.currentToken), p.currentWord())))
+	p.errors.Add(NewError(ErrSyntaxError, p.Pos(), fmt.Sprintf("expected %s, found %s (%s)", wantedText, scanner.TokenString(p.currentToken), p.currentWord())))
 }
 
 //addSyntaxError adds an error into the parser's error list
 func (p *CommandParser) addSyntaxError(msg string, a ...interface{}) {
-	p.errors.Add(utils.NewError(utils.ErrSyntaxError, p.Pos(), fmt.Sprintf(msg, a...)))
+	p.errors.Add(NewError(ErrSyntaxError, p.Pos(), fmt.Sprintf(msg, a...)))
 }
 
 func (p *CommandParser) isToken(wantedTok rune, wantedText string) bool {
@@ -179,10 +187,8 @@ func (p *CommandParser) parseCommaSepPoints(ss *types.Subspan) error {
 		switch p.currentToken {
 		case ',':
 			continue
-		case p.settings.RangeOperator:
-			if err := p.parseRangePoints(ss); err != nil {
-				return err
-			}
+		case p.settings.RangeOperator: //range after a comma-list is not allowed
+			return fmt.Errorf("a ranger operator [:] is not allowed following a coordinate list")
 		default:
 			return nil
 		}
@@ -205,6 +211,11 @@ func (p *CommandParser) parseRangePoints(ss *types.Subspan) error {
 			return err
 		}
 		p.nextToken()
+		if p.currentToken == ',' {
+			if err := p.parseCommaSepPoints(ss); err != nil {
+				return err
+			}
+		}
 	case ',':
 		if err := p.parseCommaSepPoints(ss); err != nil {
 			return err
@@ -236,8 +247,9 @@ func (p *CommandParser) parseRowOrColSegment(cmd *types.Command, segment string)
 		}
 	case scanner.Ident, scanner.EOF: //either "col"/"row" or an argument list or EOF
 	default: //anything else is an error
-		return ss, fmt.Errorf("unexpected %s", p.exactCurrentWord())
+		return ss, fmt.Errorf("unexpected token: %s", p.exactCurrentWord())
 	}
+
 	return ss, nil
 }
 
@@ -300,10 +312,15 @@ func (p *CommandParser) parseSetCommand(cmd *types.Command) error {
 	return nil
 }
 
+func (p *CommandParser) scannerErrorHandler(s *scanner.Scanner, msg string) {
+	p.addSyntaxError(msg)
+}
+
 //initialize lexer and its settings
 func (p *CommandParser) init(r io.Reader) error {
-	p.lexer = new(scanner.Scanner).Init(r)
+	p.lexer = p.lexer.Init(r)
 	p.lexer.Whitespace = 1<<' ' | 1<<'\t' | 1<<'\r' //ignore spaces, tabs and CRs
+	p.lexer.Error = p.scannerErrorHandler
 	return nil
 }
 
@@ -319,10 +336,10 @@ func (p *CommandParser) ParseCommandLines(s *types.Section) ([]*types.Command, e
 		}
 		return true
 	}
-	var cmd *types.Command
 	cmdList := make([]*types.Command, 0, len(s.Lines))
 	p.errors.Reset()
 	p.position.Offset = s.Offset
+	var err error
 	for i, line := range s.Lines {
 		p.position.Line = i
 		p.trace.Printf("src[%d]: :%v->", i+s.Offset, line)
@@ -332,29 +349,34 @@ func (p *CommandParser) ParseCommandLines(s *types.Section) ([]*types.Command, e
 		}
 		p.trace.Println("to be parsed")
 		p.init(strings.NewReader(line))
+		errOffset := p.errors.Count()
 		cmdName, cmdToken := p.acceptCommandName()
-		cmd = types.NewCommand(cmdName, cmdToken, p.Pos())
+		cmd := types.NewCommand(cmdName, cmdToken, p.Pos())
 		switch cmdName {
 		case "set":
-			p.parseSetCommand(cmd)
+			err = p.parseSetCommand(cmd)
 		default: //all other commands will be parsed as a formatting command
-			if err := p.parseTableFormatCommand(cmd); err != nil {
-				p.addSyntaxError(err.Error())
-				p.trace.Printf("parsing error: %s\n", err.Error())
-			}
+			err = p.parseTableFormatCommand(cmd)
 		}
-		if err := cmd.Validate(); err != nil {
+		if err != nil {
 			p.addSyntaxError(err.Error())
+			p.trace.Printf("parsing error: %s\n", err.Error())
 		}
 		p.trace.Printf("parsed: %v\n", cmd)
+		if p.errors.Count() > errOffset { //errors were detected during parsing; stop here
+			continue
+		}
+		if err = cmd.Finalize(); err != nil {
+			p.addSyntaxError(err.Error())
+		}
 		cmdList = append(cmdList, cmd)
 	}
-	if len(cmdList) == 0 {
-		//		ss := types.NewSubSpan("")
-		return nil, utils.NewError(utils.ErrEmpty, p.Pos(), "found no valid commands")
-	}
+	//signal status to caller
 	if p.errors.Count() > 0 {
-		return nil, utils.NewError(utils.ErrSyntaxError, p.Pos(), "syntax errors")
+		return nil, NewError(ErrSyntaxError, unknownPos, "syntax errors")
+	}
+	if len(cmdList) == 0 {
+		return nil, NewError(ErrEmpty, unknownPos, "found no valid commands")
 	}
 	return cmdList, nil
 }

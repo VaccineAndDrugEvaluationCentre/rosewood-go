@@ -1,7 +1,6 @@
-// carpenter
-//  Reference implementation of RoseWood
-//  Copyright Salah Mahmud, 2017
+//  Copyright 2013 VDEC. All rights reserved.
 
+// package carpenter is reference implementation of the Rosewood language
 package main
 
 import (
@@ -21,14 +20,6 @@ var (
 	Build   string
 )
 
-const (
-	versionMessage = "Carpenter %s (%s)\nCopyRight VDEC 2017\n"
-	usageMessage   = `Usage: Carpenter [input Rosewood file] -vho
-	if -o output file is not specified, the output will be printed to standard output.
-	if one or more input files are not specified, input will be read from standard input <stdin>.
-	`
-)
-
 var (
 	verbose     bool
 	help        bool
@@ -37,16 +28,12 @@ var (
 )
 
 func init() {
-	const (
-		verboseDesc     = "Output debug information"
-		outFileNameDesc = "Output filename"
-	)
-	flag.BoolVar(&help, "h", false, "Print help screen")
-	flag.StringVar(&outFileName, "o", "", outFileNameDesc)
-	flag.StringVar(&outFileName, "output", "", outFileNameDesc)
-	flag.StringVar(&cssFileName, "css", "", "stylesheet file name")
-	flag.BoolVar(&verbose, "v", false, verboseDesc)
-	flag.BoolVar(&verbose, "verbose", false, verboseDesc)
+	flag.BoolVar(&help, "h", false, "")
+	flag.StringVar(&outFileName, "o", "", "")
+	flag.StringVar(&outFileName, "output", "", "")
+	flag.StringVar(&cssFileName, "css", "", "")
+	flag.BoolVar(&verbose, "v", false, "")
+	flag.BoolVar(&verbose, "verbose", false, "")
 }
 
 func main() {
@@ -80,9 +67,11 @@ func main() {
 		}
 	default:
 		for _, inFileName := range flag.Args() { //skip the command line name
+			fmt.Println(inFileName)
 			if err := run(inFileName, out, settings); err != nil {
 				os.Exit(1)
 			}
+			fmt.Println(inFileName, " done.")
 		}
 	}
 	os.Exit(0)
@@ -93,8 +82,8 @@ func run(inFileName string, out io.Writer, settings *rosewood.Settings) error {
 	Run := func(in io.Reader) error {
 		err := ri.Run(in, out)
 		if err != nil {
-			fmt.Printf("error running file [%s]\n", inFileName)
-			eList := ri.Errors(err)
+			fmt.Printf("error running file [%s]: %s\n", inFileName, err)
+			eList := ri.Errors()
 			//fmt.Println("eList:", eList)
 			for _, e := range eList {
 				fmt.Println(e)
@@ -118,7 +107,6 @@ func run(inFileName string, out io.Writer, settings *rosewood.Settings) error {
 func helpMessage() {
 	fmt.Fprintf(os.Stderr, versionMessage, Version, Build)
 	fmt.Fprintln(os.Stderr, usageMessage)
-	flag.PrintDefaults()
 }
 
 func usage(exitCode int) {

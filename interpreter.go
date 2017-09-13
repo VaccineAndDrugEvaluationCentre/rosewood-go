@@ -16,7 +16,7 @@ type Interpreter struct {
 	fileName string
 	settings *utils.Settings
 	tables   []*types.Table
-	file     *parser.RwFile
+	file     *parser.File
 }
 
 func NewInterpreter(settings *utils.Settings) *Interpreter {
@@ -34,18 +34,20 @@ func NewInterpreter(settings *utils.Settings) *Interpreter {
 }
 
 //Errors returns a list of rosewood.EmError
-func (ri *Interpreter) Errors(err error) (eList []error) {
+func (ri *Interpreter) Errors() (eList []error) {
 	//	fmt.Printf("%T\n", err)
-	return ri.file.Errors(err)
+	return ri.file.Errors()
 }
 
-//Parse takes an io.Reader containing RoseWood script and an optional script identifier and return an error
-func (ri *Interpreter) Parse(r io.Reader, scriptIdentifer string) error {
-	ri.file = parser.NewRwFile(scriptIdentifer, ri.settings)
+//parse takes an io.Reader containing RoseWood script and an optional script identifier and return an error
+func (ri *Interpreter) parse(r io.Reader, scriptIdentifer string) error {
+	ri.file = parser.NewFile(scriptIdentifer, ri.settings)
 	var err error
-	ri.tables, err = ri.file.Parse(r)
+	if ri.tables, err = ri.file.Parse(r); err != nil {
+		return fmt.Errorf("failed to run commands for table %s", err)
+	}
 	if len(ri.tables) == 0 {
-		//return utils.NewError(utils.ErrUnknown, , "unknown error in Interpreter.CreateTables()")
+		return fmt.Errorf("unknown error in Interpreter.CreateTables()")
 	}
 	return err
 }
@@ -55,14 +57,16 @@ func (ri *Interpreter) renderTables(w io.Writer, hr types.Renderer) error {
 	hr.SetWriter(w)
 	hr.SetSettings(ri.settings)
 	hr.SetTables(ri.tables)
-	hr.StartFile()
+	err = hr.StartFile()
 	for _, t := range ri.tables {
-		if err := t.Run(); err != nil {
+		if err = t.Run(); err != nil {
 			return fmt.Errorf("failed to run commands for table %s", err)
 		}
-		err = t.Render(w, hr)
+		if err = t.Render(w, hr); err != nil {
+			return fmt.Errorf("failed to render table %s", err)
+		}
 	}
-	hr.EndFile()
+	err = hr.EndFile()
 	return err
 }
 
@@ -70,10 +74,10 @@ func (ri *Interpreter) renderTables(w io.Writer, hr types.Renderer) error {
 //and an io.Writer to output the formatted text.
 func (ri *Interpreter) Run(src io.Reader, out io.Writer) error {
 	var err error
-	if err = ri.Parse(src, ""); err != nil {
+	if err = ri.parse(src, ""); err != nil {
 		return err
 	}
-	if err = ri.renderTables(out, NewHtmlRenderer()); err != nil {
+	if err = ri.renderTables(out, NewHTMLRenderer()); err != nil {
 		return err
 	}
 	return nil

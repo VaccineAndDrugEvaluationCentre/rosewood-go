@@ -25,6 +25,9 @@ func (ss *Subspan) String() string {
 			fmt.Fprintf(buf, ":%s", formattedRwInt(ss.By))
 		}
 		fmt.Fprintf(buf, ":%s", formattedRwInt(ss.Right))
+		if len(ss.List) > 0 {
+			fmt.Fprintf(buf, ", ") //add comma if we also have a comma separated list
+		}
 	}
 	for _, item := range ss.List {
 		fmt.Fprintf(buf, "%s,", formattedRwInt(item))
@@ -86,8 +89,8 @@ func (s Span) testString() string {
 		formattedRwInt(s.c1), formattedRwInt(s.c2), formattedRwInt(s.rby), formattedRwInt(s.cby), s.rcl, s.ccl)
 }
 
-//validate performs simple validation of the range coordinates
-func (s *Span) validate() error {
+//Validate performs simple validation of the range coordinates
+func (s *Span) Validate() error {
 	if s.r1 > s.r2 {
 		return fmt.Errorf("top row number (%d) must be smaller than bottom row number (%d)", s.r1, s.r2)
 	}

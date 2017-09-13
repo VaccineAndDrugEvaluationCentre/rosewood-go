@@ -11,11 +11,13 @@ Version 0.2.1 build dfe70a5-dirty on Mon Jul 24 22:19:58 CDT 2017
     - set mandatorycol "true" to make col required, default false.
 
 ### How to use
-#### Interactive (REPL) mode (for testing RoseWood syntax)
+#### Interactive (REPL) mode (not enabled in this version)
 - run Carpenter and type commands at the prompt. Currently only prints back the parsed form of the command.
 
-#### Run mode (not enabled in this version)
+#### Run mode
 - 
+- 
+
 ### Install
 - Windows: download cmd/carpenter.exe
 - MacOS: download cmd/carpenter

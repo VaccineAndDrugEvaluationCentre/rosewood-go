@@ -1,9 +1,9 @@
+//Package types implements data structures essential for parsing and rendering Rosewood tables and commands
 package types
 
 import (
 	"bytes"
 	"fmt"
-	"sort"
 	"strconv"
 	"strings"
 	"text/scanner"
@@ -74,43 +74,27 @@ func (c *Command) Arg(index int) string {
 	return ""
 }
 
-//Validate creates a cell span and checks command for errors
-func (c *Command) Validate() error {
-	c.cellSpan = SubSpansToSpan(c.spans)
-	// var err error
-	// switch c.token {
-	// case kwSet:
-	// 	if len(c.args) != 2 {
-	// 		return fmt.Errorf("expected 2 arguments, found %d arguments", len(c.args))
-	// 	}
-	// case kwMerge:
-	// 	return c.validateMerge()
-	// case kwStyle:
-	// 	return err
-	// default:
-	// }
+//TODO: should not validate an invalid command
+//Finalize creates a cell span and checks command for errors
+func (c *Command) Finalize() error {
+	checkCmd := func() error {
+		c.cellSpan = SubSpansToSpan(c.spans)
+		if err := c.cellSpan.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}
+	switch c.token {
+	case KwMerge:
+		return checkCmd()
+	case KwStyle:
+		return checkCmd()
+	case KwSet:
+		if len(c.args) != 2 {
+			return fmt.Errorf("expected 2 arguments, found %d arguments", len(c.args))
+		}
+	default:
+		panic(fmt.Sprintf("wrong token %d in command.finalize()", c.token))
+	}
 	return nil
-}
-
-func createMergeRangeList(cmdList []*Command) (rList []Range, err error) {
-	var sList []*Span
-	for _, cmd := range cmdList {
-		if cmd.token != KwMerge {
-			continue
-		}
-		tmpList, err := cmd.cellSpan.ExpandSpan()
-		if err != nil {
-			return nil, err
-		}
-		sList = append(sList, tmpList...)
-	}
-	sList = DeduplicateSpanList(sList)
-	for _, s := range sList {
-		rList = append(rList, SpanToRange(s))
-	}
-
-	sort.Slice(rList, func(i, j int) bool {
-		return rList[i].Less(rList[j])
-	})
-	return rList, nil
 }

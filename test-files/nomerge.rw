@@ -1,0 +1,34 @@
++++
+Car brands in 1978 America
++++
+          | Models |Average  price (US$)|
+AMC       |    3   |  4,215.67 |
+Audi      |    2   |  7,992.50 |
+BMW       |    1   |  9,735.00 |
+Buick     |    7   |  6,075.29 |
+Cad.      |    3   | 13,930.33 |
+Chev.     |    6   |  4,372.33 |
+Datsun    |    4   |  6,006.50 |
+Dodge     |    4   |  5,055.50 |
+Fiat      |    1   |  4,296.00 |
+Ford      |    2   |  4,288.00 |
+Honda     |    2   |  5,149.00 |
+Linc.     |    3   | 12,852.33 |
+Mazda     |    1   |  3,995.00 |
+Merc.     |    6   |  4,913.83 |
+Olds      |    7   |  6,050.86 |
+Peugeot   |    1   | 12,990.00 |
+Plym.     |    5   |  4,820.00 |
+Pont.     |    6   |  4,878.83 |
+Renault   |    1   |  3,895.00 |
+Subaru    |    1   |  3,798.00 |
+Toyota    |    3   |  5,122.00 |
+VW        |    4   |  6,021.00 |
+Volvo     |    1   | 11,995.00 |
++++
++++
+style row 1 col 1 header
+style row 1 col 2 header
+style row 2 col 2 header
+style row 2 col 3 header
++++
