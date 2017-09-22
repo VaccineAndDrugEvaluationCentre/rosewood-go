@@ -45,13 +45,16 @@ const (
 	CsMerged
 )
 
+//Cell holds information on each table cell
 type Cell struct {
 	text             string
 	row, col         RwInt
 	state            CellState
 	rowSpan, colSpan RwInt
+	styleList        []string
 }
 
+//NewCell returns a pointer to a new Cell
 func NewCell(text string, row, col RwInt) *Cell {
 	return &Cell{
 		text: text,
@@ -59,7 +62,7 @@ func NewCell(text string, row, col RwInt) *Cell {
 		col:  col}
 }
 
-//MakeCell: create a new cell for testing
+//MakeCell creates a new cell for testing
 func MakeCell(text string, row, col RwInt, state CellState, rowSpan, colSpan RwInt) *Cell {
 	return &Cell{
 		text: text, row: row, col: col,
@@ -81,6 +84,25 @@ func (c *Cell) RowSpan() RwInt {
 }
 func (c *Cell) ColSpan() RwInt {
 	return c.colSpan
+}
+
+func (c *Cell) Styles() []string {
+	return c.styleList
+}
+
+//AddStyle adds one or more style names if they do not already exist in the list
+//sufficiently efficient for short lists and avoids allocating a map
+func (c *Cell) AddStyle(styles ...string) error {
+outer:
+	for _, s := range styles {
+		for _, ss := range c.styleList { //skip s if it already exists in the list
+			if ss == s {
+				continue outer
+			}
+		}
+		c.styleList = append(c.styleList, s)
+	}
+	return nil
 }
 
 func (c *Cell) String() string {

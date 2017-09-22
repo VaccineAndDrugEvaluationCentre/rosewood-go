@@ -11,8 +11,15 @@ import (
 	"github.com/drgo/rosewood/utils"
 )
 
+type Position = scanner.Position
+
 var (
-	unknownPos = scanner.Position{"", -1, -1, -1}
+	unknownPos = Position{"", -1, -1, -1}
+)
+
+const (
+	SectionsPerTable = 4
+	RwMinFileSize    = SectionsPerTable * 3 // at least 3 separator chars per section
 )
 
 //File holds information on currently parsed Rosewood file
@@ -21,9 +28,10 @@ type File struct {
 	sections []*types.Section //holds raw lines
 	parser   *CommandParser
 	settings *utils.Settings
+	tables   []*types.Table //holds parsed tables and commands
 }
 
-//NewFile returns a File
+//NewFile returns a Rosewood File
 func NewFile(fileName string, settings *utils.Settings) *File {
 	return &File{FileName: fileName,
 		parser:   NewCommandParser(settings),
@@ -31,7 +39,7 @@ func NewFile(fileName string, settings *utils.Settings) *File {
 }
 
 //Parse parses an io.Reader streaming a Rosewood file and returns any found tables
-func (f *File) Parse(r io.Reader) ([]*types.Table, error) {
+func (f *File) Parse(r io.Reader) error {
 	// helper function
 	isSectionSeparatorLine := func(line string) bool {
 		return strings.HasPrefix(strings.TrimSpace(line), f.settings.SectionSeparator)
@@ -43,7 +51,7 @@ func (f *File) Parse(r io.Reader) ([]*types.Table, error) {
 	for {
 		more := scanner.Scan()
 		if !more && scanner.Err() == nil { //EOF reached first
-			return nil, NewError(ErrSyntaxError, unknownPos, "file is empty or does not start by a section separator: "+f.settings.SectionSeparator)
+			return NewError(ErrSyntaxError, unknownPos, "file is empty or does not start by a section separator: "+f.settings.SectionSeparator)
 		}
 		lineNum++
 		line := strings.TrimSpace(scanner.Text())
@@ -55,13 +63,13 @@ func (f *File) Parse(r io.Reader) ([]*types.Table, error) {
 			break                                                 //SectionSeparator was in the first valid line
 		}
 		//other text found
-		return nil, NewError(ErrSyntaxError, unknownPos, "file is empty or does not start by a section separator: "+f.settings.SectionSeparator)
+		return NewError(ErrSyntaxError, unknownPos, "file is empty or does not start by a section separator: "+f.settings.SectionSeparator)
 	}
 	//process the rest of the file
 	for scanner.Scan() {
 		lineNum++
 		line := scanner.Text()
-		fmt.Println(line)
+		//fmt.Println(line)
 		if isSectionSeparatorLine(line) { //start of a new section
 			if s != nil { //there is an active section, append it to the sections array
 				f.sections = append(f.sections, s)
@@ -73,13 +81,9 @@ func (f *File) Parse(r io.Reader) ([]*types.Table, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, NewError(ErrSyntaxError, unknownPos, err.Error())
+		return NewError(ErrSyntaxError, unknownPos, err.Error())
 	}
-	tables, err := f.createTables()
-	if err != nil {
-		return nil, NewError(ErrSyntaxError, unknownPos, err.Error())
-	}
-	return tables, nil
+	return f.createTables()
 }
 
 //SectionCount returns the number of sections found in the file
@@ -87,11 +91,12 @@ func (f *File) SectionCount() int {
 	return len(f.sections)
 }
 
-func (f *File) createTables() (tables []*types.Table, err error) {
+func (f *File) createTables() error {
 	if f.SectionCount() == 0 || f.SectionCount()%f.settings.SectionsPerTable != 0 {
-		return nil, fmt.Errorf("incorrect number of sections: %d", f.SectionCount())
+		return fmt.Errorf("incorrect number of sections: %d", f.SectionCount())
 	}
 	var t *types.Table
+	var err error
 	for i, s := range f.sections {
 		ii := i + 1 //i is zero-based, section numbers should be one-based
 		kind := types.SectionDescriptor(i%f.settings.SectionsPerTable + 1)
@@ -101,23 +106,38 @@ func (f *File) createTables() (tables []*types.Table, err error) {
 			t.Caption = s
 		case types.SectionBody:
 			if t.Contents, err = types.NewTableContents(s.String()); err != nil {
-				return nil, fmt.Errorf("error parsing table in section # %d: %s ", ii, err)
+				return NewError(ErrSyntaxError, unknownPos, fmt.Sprintf("error parsing table in section # %d: %s ", ii, err))
 			}
 		case types.SectionFootNotes:
 			t.Footnotes = s
 		case types.SectionControl:
 			if t.CmdList, err = f.parser.ParseCommandLines(s); err != nil {
-				return nil, err
+				return err
 			}
-			tables = append(tables, t)
+			f.tables = append(f.tables, t)
 		default:
-			panic(fmt.Sprintf("invalid switch case [%v] in RwFile.CreateTables()", kind))
+			panic(fmt.Sprintf("invalid switch case [%v] in File.CreateTables()", kind))
 		}
 	}
-	return tables, nil
+	return nil
+}
+
+//TableCount returns the number of prased tables in the file
+func (f *File) TableCount() int {
+	return len(f.tables)
+}
+
+//Tables returns an array of pointers to parsed Tables
+func (f *File) Tables() []*types.Table {
+	return f.tables
 }
 
 //Errors returns a list of parsing errors
 func (f *File) Errors() []error {
 	return f.parser.Errors()
+}
+
+//Err returns a list of parsing errors
+func (f *File) Err() error {
+	return f.parser.errors.Err()
 }

@@ -10,13 +10,13 @@ import (
 func Example() {
 	const filename = "test-files/correct2tabs.rw"
 	ri := rosewood.NewInterpreter(rosewood.DefaultSettings())
-	file, err := os.Open(filename)
+	f, err := os.Open(filename)
 	if err != nil {
-		fmt.Printf("failed to parse file %s\n", err)
+		fmt.Printf("failed to open file %s\n", err)
 		os.Exit(1)
 	}
-	defer file.Close()
-	if err := ri.Run(file, os.Stdout); err != nil {
+	defer f.Close()
+	if err := ri.Run(f, os.Stdout); err != nil {
 		fmt.Printf("error parsing file: %s\n", err)
 		os.Exit(1)
 	}

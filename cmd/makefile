@@ -37,4 +37,7 @@ testcover:
 	go tool cover -html=c.out -o coverage.html 
 	rm c.out	
 
-.PHONY: clean install doc testcover
+graph:
+	godepgraph "github.com/drgo/rosewood/cmd"  | dot -Tpng -o godepgraph.png	
+
+.PHONY: clean install doc testcover graph

@@ -1,5 +1,10 @@
 package utils
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 // type ReportStatus int
 
 // const (
@@ -12,15 +17,21 @@ package utils
 
 //Settings implements a simple configuration solution.
 type Settings struct {
-	RangeOperator    int32
-	MandatoryCol     bool
-	StyleSheet       string
-	Debug            bool
-	TrimCellContents bool
-	SectionSeparator string
-	ColumnSeparator  string
-	SectionsPerTable int
-	SectionCapacity  int
+	CheckSyntaxOnly     bool
+	ColumnSeparator     string
+	Debug               bool
+	ExecutableVersion   string
+	InputFileName       string
+	MandatoryCol        bool
+	OverWriteOutputFile bool
+	OutputFileName      string
+	RangeOperator       int32
+	ReportAllError      bool
+	SectionCapacity     int
+	SectionSeparator    string
+	SectionsPerTable    int
+	StyleSheetName      string
+	TrimCellContents    bool
 }
 
 //NewSettings returns an empty Settings struct
@@ -36,15 +47,22 @@ func DefaultSettings() *Settings {
 	settings.SectionSeparator = "+++"
 	settings.ColumnSeparator = "|"
 	settings.RangeOperator = ':'
-	settings.TrimCellContents = false
 	return settings
 }
 
-//debugSettings returns default settings for settings and setup tracing
+//DebugSettings returns default settings for settings and setup tracing
 func DebugSettings(Tracing bool) *Settings {
 	settings := DefaultSettings()
 	settings.Debug = Tracing
 	return settings
+}
+
+func (settings *Settings) String() string {
+	b, err := json.MarshalIndent(settings, "", "  ")
+	if err != nil {
+		return fmt.Sprintf("Error printing settings %s", err)
+	}
+	return string(b)
 }
 
 // func (s Settings) String() string {

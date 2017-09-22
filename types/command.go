@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"text/scanner"
 )
 
 type rwArgs []string
@@ -22,12 +21,12 @@ type Command struct {
 	cellSpan *Span
 	spans    []*Subspan
 	args     rwArgs
-	pos      scanner.Position
+	//	pos      Position
 }
 
 //NewCommand return an empty RwCommand
-func NewCommand(name string, token RwKeyWord, pos scanner.Position) *Command {
-	return &Command{token: token, name: name, pos: pos}
+func NewCommand(name string, token RwKeyWord) *Command {
+	return &Command{token: token, name: name}
 }
 
 //formats command for printing; warning used for testing the parser
@@ -63,6 +62,11 @@ func (c *Command) SubSpan(modifier string) *Subspan {
 	return nil
 }
 
+//Args returns a list of all arguments
+func (c *Command) Args() []string {
+	return c.args
+}
+
 //Arg returns the index-th argument as unquoted string
 func (c *Command) Arg(index int) string {
 	if index < 0 || index >= len(c.args) {
@@ -74,7 +78,6 @@ func (c *Command) Arg(index int) string {
 	return ""
 }
 
-//TODO: should not validate an invalid command
 //Finalize creates a cell span and checks command for errors
 func (c *Command) Finalize() error {
 	checkCmd := func() error {

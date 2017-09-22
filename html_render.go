@@ -79,12 +79,13 @@ func (hr *htmlRenderer) write(format string, a ...interface{}) error {
 }
 
 func (hr *htmlRenderer) StartFile() error {
-	cssFileName := hr.settings.StyleSheet
+	cssFileName := hr.settings.StyleSheetName
 	if cssFileName == "" {
 		cssFileName = "carpenter.css"
 	}
+	ExecutableVersion := fmt.Sprintf("Exe Version %s, Lib Version %s", hr.settings.ExecutableVersion, Version)
 	t := time.Now()
-	return hr.write(htmlHeader, VERSION, t.Format("2006-01-02 15:04:05"), cssFileName)
+	return hr.write(htmlHeader, ExecutableVersion, t.Format("2006-01-02 15:04:05"), cssFileName)
 }
 
 func (hr *htmlRenderer) EndFile() error {
@@ -127,6 +128,9 @@ func (hr *htmlRenderer) OutputCell(c *types.Cell) error {
 		return nil
 	}
 	hr.write("<td")
+	if len(c.Styles()) > 0 {
+		hr.write(` class="%s"`, strings.Join(c.Styles(), " "))
+	}
 	if c.RowSpan() > 1 {
 		hr.write(` rowspan="%d"`, c.RowSpan())
 	}
@@ -141,30 +145,23 @@ func (hr *htmlRenderer) OutputCell(c *types.Cell) error {
 	return hr.Err()
 }
 
-//
+// escapeString escapes special characters like "<" to become "&lt;". It
+// modified from html.EscapeString to escape <, <=, >, >=,  &, ' and ".
+func escapeString(s string) string {
+	return htmlEscaper.Replace(s)
+}
+
 var htmlEscaper = strings.NewReplacer(
 	`&`, "&amp;",
-	`'`, "&#39;", // "&#39;" is shorter than "&apos;" and apos was not in HTML until HTML5.
+	`'`, "&#39;",
 	`<=`, "&le;",
 	`<=`, "&le;",
 	`<`, "&lt;",
 	`>=`, "&ge;",
 	`=>`, "&ge;",
 	`>`, "&gt;",
-	`"`, "&#34;", // "&#34;" is shorter than "&quot;".
-
-	"and", `∧`, //LOGICAL AND
-	"or", `∨`, //LOGICAL OR
-	"cap", `∩`, //INTERSECTION
-	"cup", `∪`, //UNION
-
+	`"`, "&#34;",
 )
-
-// escapeString escapes special characters like "<" to become "&lt;". It
-// modified from html.EscapeString to escape <, <=, >, >=,  &, ' and ".
-func escapeString(s string) string {
-	return htmlEscaper.Replace(s)
-}
 
 // func render(w io.Writer, r types.Renderer, settings *utils.Settings, tables ...*types.Table) error {
 // 	//	trace.Printf("%#v", *t)

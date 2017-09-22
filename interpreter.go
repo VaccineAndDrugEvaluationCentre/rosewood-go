@@ -9,56 +9,71 @@ import (
 	"github.com/drgo/rosewood/utils"
 )
 
-//VERSION of this library
-const VERSION = "0.3.5"
+//Version of this library
+const Version = "0.4.0"
 
+//Interpreter holds the state of a Rosewood interpreter
 type Interpreter struct {
-	fileName string
+	// file     *parser.File
 	settings *utils.Settings
-	tables   []*types.Table
-	file     *parser.File
 }
 
+//NewInterpreter returns an initialized Rosewood interpreter
+//
 func NewInterpreter(settings *utils.Settings) *Interpreter {
 	ri := &Interpreter{}
 	//if no custom settings use default ones
 	if settings == nil {
 		ri.settings = utils.DefaultSettings()
-		if ri.settings == nil {
-			panic("Interpreter failed to load settings")
-		}
 	} else {
 		ri.settings = settings
 	}
 	return ri
 }
 
-//Errors returns a list of rosewood.EmError
-func (ri *Interpreter) Errors() (eList []error) {
-	//	fmt.Printf("%T\n", err)
-	return ri.file.Errors()
+//Run takes an io.Reader streaming the contents of one or more Rosewood scripts
+//and an io.Writer to output the formatted text.
+func (ri *Interpreter) Run(src io.Reader, out io.Writer) error {
+	file, err := ri.Parse(src, "")
+	if err != nil {
+		return err
+	}
+	if err = ri.RenderTables(out, file.Tables(), NewHTMLRenderer()); err != nil {
+		return err
+	}
+	return nil
 }
 
-//parse takes an io.Reader containing RoseWood script and an optional script identifier and return an error
-func (ri *Interpreter) parse(r io.Reader, scriptIdentifer string) error {
-	ri.file = parser.NewFile(scriptIdentifer, ri.settings)
-	var err error
-	if ri.tables, err = ri.file.Parse(r); err != nil {
-		return fmt.Errorf("failed to run commands for table %s", err)
+// //Errors returns a list of parsing and run errors
+// func (ri *Interpreter) Errors() (eList []error) {
+// 	return ri.file.Errors()
+// }
+
+// //Err returns a compact list of parsing and run errors
+// func (ri *Interpreter) Err() error {
+// 	return ri.file.Err()
+// }
+
+//Parse takes an io.Reader containing RoseWood script and an optional script identifier and returns parsed tables and an error
+func (ri *Interpreter) Parse(r io.Reader, scriptIdentifer string) (*parser.File, error) {
+	file := parser.NewFile(scriptIdentifer, ri.settings)
+	if err := file.Parse(r); err != nil {
+		return nil, err
 	}
-	if len(ri.tables) == 0 {
-		return fmt.Errorf("unknown error in Interpreter.CreateTables()")
-	}
-	return err
+	// if len(file.tables) == 0 {
+	// 	return nil, fmt.Errorf("unknown error in Interpreter.Parse()")
+	// }
+	return file, nil
 }
 
-func (ri *Interpreter) renderTables(w io.Writer, hr types.Renderer) error {
+//RenderTables renders 1 or more tables into a Writer using the passed Renderer
+func (ri *Interpreter) RenderTables(w io.Writer, tables []*types.Table, hr types.Renderer) error {
 	var err error
 	hr.SetWriter(w)
 	hr.SetSettings(ri.settings)
-	hr.SetTables(ri.tables)
+	hr.SetTables(tables)
 	err = hr.StartFile()
-	for _, t := range ri.tables {
+	for _, t := range tables {
 		if err = t.Run(); err != nil {
 			return fmt.Errorf("failed to run commands for table %s", err)
 		}
@@ -70,22 +85,15 @@ func (ri *Interpreter) renderTables(w io.Writer, hr types.Renderer) error {
 	return err
 }
 
-//Run takes an io.Reader streaming the contents of one or more Rosewood scripts
-//and an io.Writer to output the formatted text.
-func (ri *Interpreter) Run(src io.Reader, out io.Writer) error {
-	var err error
-	if err = ri.parse(src, ""); err != nil {
-		return err
-	}
-	if err = ri.renderTables(out, NewHTMLRenderer()); err != nil {
-		return err
-	}
-	return nil
+//Settings returns currently active interpreter settings
+func (ri *Interpreter) Settings() *utils.Settings {
+	return ri.settings
 }
 
-//Settings exported
+//Settings holds Rosewood settings
 type Settings = utils.Settings
 
+//DefaultSettings returns default settings
 func DefaultSettings() *utils.Settings {
 	return utils.DefaultSettings()
 }

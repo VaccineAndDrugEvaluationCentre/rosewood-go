@@ -21,7 +21,7 @@ func TestInterpreter_Run(t *testing.T) {
 		wantW       string
 		wantErr     bool
 	}{
-		{"correct1tab.rw", "correct1tab", utils.DebugSettings(true), "", false},
+		{"singletab.rw", "singletab", utils.DebugSettings(true), "", false},
 		{"wrong1tab.rw", "", utils.DebugSettings(true), "", true},
 	}
 	for _, tt := range tests {
@@ -33,18 +33,22 @@ func TestInterpreter_Run(t *testing.T) {
 				t.Fatalf("could not open file [%s]: %s", tt.srcFileName, err)
 			}
 			fmt.Println(strings.Repeat("*", 40))
-			w := &bytes.Buffer{}
-			err = ri.Run(r, w)
+			file, err := ri.Parse(r, tt.srcFileName)
 			if (err != nil) != tt.wantErr {
-				t.Fatalf("Interpreter.Run() error = %v, wantErr %v", err, tt.wantErr)
+				t.Fatalf("Interpreter.Parse() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if err != nil {
-				fmt.Printf("error running file [%s]: %s\n", tt.srcFileName, err)
+				fmt.Printf("error parsing file [%s]: %s\n", tt.srcFileName, err)
+				return
 			}
-			//fmt.Println(w.String())
-			// if gotW := w.String(); gotW != tt.wantW {
-			// 	t.Errorf("Interpreter.Run() = %v, want %v", gotW, tt.wantW)
-			// }
+			w := &bytes.Buffer{}
+			err = ri.RenderTables(w, file.Tables(), NewHTMLRenderer())
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("Interpreter.RenderTables() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if err != nil {
+				fmt.Printf("error rendering file [%s]: %s\n", tt.srcFileName, err)
+			}
 			if tt.outFileName != "" {
 				fn := path.Join(pathPrefix, tt.outFileName+"."+testFileExt)
 				if err := ioutil.WriteFile(fn, w.Bytes(), 0644); err != nil {

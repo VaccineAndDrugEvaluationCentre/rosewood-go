@@ -40,28 +40,48 @@ func (co Coordinates) String() string {
 type Range struct {
 	TopLeft     Coordinates
 	BottomRight Coordinates
+	styleList   []string
 }
 
 //newRange return an empty a range
 func newRange() Range {
-	return Range{Coordinates{MinRwInt, MinRwInt}, Coordinates{MissingRwInt, MissingRwInt}} //assume topleft =(1,1)
+	return Range{Coordinates{MinRwInt, MinRwInt}, Coordinates{MissingRwInt, MissingRwInt}, nil} //assume topleft =(1,1)
 }
 
 func makeRange(tlr, tlc, brr, brc RwInt) Range {
-	return Range{Coordinates{tlr, tlc}, Coordinates{brr, brc}}
+	return Range{Coordinates{tlr, tlc}, Coordinates{brr, brc}, nil}
 }
 
 func (r Range) String() string {
 	return fmt.Sprintf("topleft %s bottomright %s", r.TopLeft, r.BottomRight)
 
 }
-func (r Range) TestString() string {
+func (r Range) testString() string {
 	return fmt.Sprintf("row %s:%s col %s:%s", formattedRwInt(r.TopLeft.Row), formattedRwInt(r.BottomRight.Row),
 		formattedRwInt(r.TopLeft.Col), formattedRwInt(r.BottomRight.Col))
 }
 
-func (r Range) Less(s Range) bool {
+func (r *Range) less(s Range) bool {
 	return r.TopLeft.Row < s.TopLeft.Row || (r.TopLeft.Row == s.TopLeft.Row && r.TopLeft.Col < s.TopLeft.Col)
+}
+
+func (r *Range) styles() []string {
+	return r.styleList
+}
+
+//AddStyle adds one or more style names if they do not already exist in the list
+//sufficiently efficient for short lists and avoids allocating a map
+func (r *Range) addStyle(styles ...string) error {
+outer:
+	for _, s := range styles {
+		for _, ss := range r.styleList { //skip s if it already exists in the list
+			if ss == s {
+				continue outer
+			}
+		}
+		r.styleList = append(r.styleList, s)
+	}
+	return nil
 }
 
 //validate performs simple validation of the range coordinates

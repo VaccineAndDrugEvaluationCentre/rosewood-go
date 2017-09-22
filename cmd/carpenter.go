@@ -1,4 +1,4 @@
-//  Copyright 2013 VDEC. All rights reserved.
+//  Copyright 2017 VDEC. All rights reserved.
 
 // package carpenter is reference implementation of the Rosewood language
 package main
@@ -8,32 +8,42 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"os"
 
 	"github.com/drgo/rosewood"
+	"github.com/drgo/rosewood/utils"
 )
 
-//initialized in the Makefile
 var (
+	//Version holds the exe version initialized in the Makefile
 	Version string
-	Build   string
-)
-
-var (
-	verbose     bool
-	help        bool
-	outFileName string
-	cssFileName string
+	//Build holds the exe build number initialized in the Makefile
+	Build string
+	//initialized below
+	help     bool
+	settings *rosewood.Settings
 )
 
 func init() {
+	settings = rosewood.DefaultSettings()
+	settings.ExecutableVersion = Version
+	settings.InputFileName = "<stdin>" //default to stdin
+
 	flag.BoolVar(&help, "h", false, "")
-	flag.StringVar(&outFileName, "o", "", "")
-	flag.StringVar(&outFileName, "output", "", "")
-	flag.StringVar(&cssFileName, "css", "", "")
-	flag.BoolVar(&verbose, "v", false, "")
-	flag.BoolVar(&verbose, "verbose", false, "")
+
+	flag.StringVar(&settings.OutputFileName, "o", "", "")
+	flag.StringVar(&settings.OutputFileName, "output", "", "")
+
+	flag.StringVar(&settings.StyleSheetName, "css", "", "")
+
+	flag.BoolVar(&settings.Debug, "v", false, "")
+	flag.BoolVar(&settings.Debug, "verbose", false, "")
+
+	flag.BoolVar(&settings.OverWriteOutputFile, "r", false, "")
+	flag.BoolVar(&settings.OverWriteOutputFile, "replace", false, "")
+
+	flag.BoolVar(&settings.CheckSyntaxOnly, "c", false, "")
+	flag.BoolVar(&settings.CheckSyntaxOnly, "check", false, "")
 }
 
 func main() {
@@ -42,66 +52,168 @@ func main() {
 	if help {
 		usage(0)
 	}
-	//settings
-	settings := rosewood.DefaultSettings()
-	settings.Debug = verbose
-	settings.StyleSheet = cssFileName
+	if settings.Debug {
+		fmt.Printf("current settings:\n")
+		fmt.Printf("%s\n", settings)
+	}
+	var exitStatus int
+	switch flag.NArg() {
+	case 0: //input=stdin
+		if info, _ := os.Stdin.Stat(); info.Size() == 0 { //no input is being piped in
+			usage(1)
+		}
+		if err := runSingle(settings); err != nil {
+			crash("<stdin>", err)
+		}
+	case 1: //input=single file
+		settings.InputFileName = flag.Arg(0)
+		if err := runSingle(settings); err != nil {
+			crash(settings.InputFileName, err)
+		}
+	default: //input= > 1 file
+		switch settings.OutputFileName {
+		case "": //one outputfile for each input file
+			for _, settings.InputFileName = range flag.Args() {
+				if err := runSingle(settings); err != nil {
+					exitStatus = 1
+					continue
+				}
+			}
+		default: //all output goes into a single file
+			if err := runMulti(flag.Args(), settings); err != nil {
+				exitStatus = 1
+			}
+		}
+	}
+	os.Exit(exitStatus)
+}
 
-	//setup output
-	var err error
-	out := os.Stdout
-	if outFileName != "" {
-		if out, err = os.Create(outFileName); err != nil {
-			crash(outFileName, err)
+func runMulti(inFileNames []string, settings *rosewood.Settings) error {
+	var (
+		in          io.ReadCloser
+		out         io.WriteCloser
+		err, retErr error
+		minFileSize = settings.SectionsPerTable * len(settings.SectionSeparator)
+	)
+	//open output file if needed
+	if !settings.CheckSyntaxOnly {
+		if out, err = getOutputFile(settings.OutputFileName, settings.OverWriteOutputFile); err != nil {
+			return err
 		}
 		defer out.Close()
 	}
-	switch flag.NArg() {
-	case 0:
-		if info, _ := os.Stdin.Stat(); info.Size() > 0 { //input is being piped in
-			if err := run("<stdin>", out, settings); err != nil {
-				crash("<stdin>", err)
-			}
-		} else {
-			usage(1)
-		}
-	default:
-		for _, inFileName := range flag.Args() { //skip the command line name
-			fmt.Println(inFileName)
-			if err := run(inFileName, out, settings); err != nil {
-				os.Exit(1)
-			}
-			fmt.Println(inFileName, " done.")
-		}
-	}
-	os.Exit(0)
-}
-
-func run(inFileName string, out io.Writer, settings *rosewood.Settings) error {
 	ri := rosewood.NewInterpreter(settings)
-	Run := func(in io.Reader) error {
-		err := ri.Run(in, out)
+	for _, f := range inFileNames {
+		in, err = getInputFile(f, minFileSize)
 		if err != nil {
-			fmt.Printf("error running file [%s]: %s\n", inFileName, err)
-			eList := ri.Errors()
-			//fmt.Println("eList:", eList)
-			for _, e := range eList {
-				fmt.Println(e)
-			}
-		}
-		return err
-	}
-	switch inFileName {
-	case "<stdin>":
-		return Run(bufio.NewReader(os.Stdin))
-	default:
-		in, err := os.Open(inFileName)
-		if err != nil {
-			return fmt.Errorf("error opening input file %s: %s", inFileName, err)
+			fmt.Printf("error opening file %s: %s\n", f, err)
+			retErr = err
+			continue
 		}
 		defer in.Close()
-		return Run(in)
+		err = run(ri, in, out)
+		report(settings, err)
+		if err != nil {
+			retErr = err
+		}
 	}
+	return retErr
+}
+
+func runSingle(settings *rosewood.Settings) error {
+	var (
+		in          io.ReadCloser
+		out         io.WriteCloser
+		err         error
+		minFileSize = settings.SectionsPerTable * len(settings.SectionSeparator)
+	)
+	switch settings.InputFileName {
+	case "<stdin>":
+		in, _ = getInputFile("", minFileSize)
+		//output either stdout if outFileName=="" or outFileName
+		if !settings.CheckSyntaxOnly { //do not need an output
+			if out, err = getOutputFile(settings.OutputFileName, settings.OverWriteOutputFile); err != nil {
+				return err
+			}
+			defer out.Close()
+		}
+	default: //single file
+		if in, err = getInputFile(settings.InputFileName, minFileSize); err != nil {
+			return err
+		}
+		defer in.Close()
+		//output either outFileName or a new file =inFileName + "ext" if outFileName==""
+		if !settings.CheckSyntaxOnly { //do not need an output
+			if settings.OutputFileName == "" {
+				settings.OutputFileName = utils.ReplaceFileExt(settings.InputFileName, "html")
+			}
+			if out, err = getOutputFile(settings.OutputFileName, settings.OverWriteOutputFile); err != nil {
+				return err
+			}
+			defer out.Close()
+		}
+	}
+	ri := rosewood.NewInterpreter(settings)
+	err = run(ri, in, out)
+	report(settings, err)
+	return err
+}
+
+func report(settings *utils.Settings, err error) {
+	// if err != nil {
+	// 	fmt.Fprintf(os.Stderr, err.Error())
+	// }
+	if !settings.Debug {
+		return
+	}
+	out := settings.OutputFileName
+	if out == "" {
+		out = "<stdout>"
+	}
+	if err == nil {
+		fmt.Printf("File %s processed to %s\n", settings.InputFileName, out)
+	} else {
+		fmt.Printf("File %s failed\n", settings.InputFileName)
+	}
+}
+
+func run(ri *rosewood.Interpreter, in io.Reader, out io.Writer) error {
+	file, err := ri.Parse(bufio.NewReader(in), "")
+	if err != nil || ri.Settings().CheckSyntaxOnly {
+		return err
+	}
+	err = ri.RenderTables(out, file.Tables(), rosewood.NewHTMLRenderer())
+	return err
+}
+
+func getOutputFile(fileName string, overWrite bool) (*os.File, error) {
+	if fileName == "" || fileName == "<stdout>" {
+		return os.Stdout, nil
+	}
+	out, err := utils.CreateFile(fileName, overWrite)
+	if err != nil {
+		return nil, fmt.Errorf("error opening output file: %s", err)
+	}
+	return out, nil
+}
+
+func getInputFile(fileName string, minFileSize int) (*os.File, error) {
+	if fileName == "" || fileName == "<stdin>" {
+		return os.Stdin, nil
+	}
+	in, err := os.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+	if err = utils.CheckTextStream(in, minFileSize); err != nil {
+		return nil, err
+	}
+	//rewind file stream
+	_, err = in.Seek(0, 0)
+	if err != nil {
+		return nil, fmt.Errorf("error opening input file %s: %s", fileName, err)
+	}
+	return in, nil
 }
 
 func helpMessage() {
@@ -116,34 +228,14 @@ func usage(exitCode int) {
 	}
 }
 
-func crash(inFileName string, err error) {
-	log.Fatalf("error running file [%s]: %s", inFileName, err)
-}
-
-// func runPipe(in io.Reader, out io.Writer) error {
-// 	echo := func(s string) { //prints s to out followed by linefeed
-// 		io.WriteString(out, s)
-// 		io.WriteString(out, OSEOL)
-// 	}
-// 	p := rosewood.NewCommandParser(nil)
-// 	cmdList, err := p.ParseCommands(in)
-// 	if err != nil {
-// 		echo(p.Errors(-1)) //show all errors
-// 		return err
-// 	}
-// 	echo(cmdList[0].String())
-// 	//p.Run(cmdList)
-// 	if err != nil {
-// 		echo(p.Errors(-1)) //show all errors
-// 		return err
-// 	}
-// 	return nil
-// }
-
 const (
-	othercolor = "\x1b[39m"
-	redColor   = "\x1b[31m"
+	redColor = "\x1b[31m"
 )
+
+func crash(inFileName string, err error) {
+	fmt.Fprintf(os.Stderr, redColor+"error running file [%s]: %s\n", inFileName, err)
+	os.Exit(1)
+}
 
 func newecho(w *io.Writer, s string, color string) {
 	fmt.Printf("%s: %s", color, s)

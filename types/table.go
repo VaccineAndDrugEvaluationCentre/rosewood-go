@@ -22,18 +22,28 @@ func NewTable() *Table {
 	return &Table{}
 }
 
+//Run applies all commands to table contents. Must be called before rendering the table
 func (t *Table) Run() error {
-	t.normalizeMergeRanges()
-	fmt.Println("after normalize")
-	mrlist, err := createMergeRangeList(t.CmdList)
-	fmt.Println("after merge")
+	t.fixMissingRangeValues()
+	//create a list of merge ranges
+	mrlist, err := spanToRangeList(t.CmdList, KwMerge)
 	if err != nil {
 		return err
 	}
 	t.grid, err = createMergedGridTable(t.Contents, mrlist)
+	if err != nil {
+		return err
+	}
+	//create a list of style ranges
+	mrlist, err = spanToRangeList(t.CmdList, KwStyle)
+	if err != nil {
+		return err
+	}
+	t.grid, err = applyStyles(t.grid, mrlist)
 	return err
 }
 
+//Render use a types.Renderer to render table contents and write them to io.Writer
 func (t *Table) Render(w io.Writer, hr Renderer) error {
 	hr.StartTable(t)
 	for _, row := range t.grid.rows {
@@ -47,55 +57,56 @@ func (t *Table) Render(w io.Writer, hr Renderer) error {
 	return nil
 }
 
-func (t *Table) normalizeMergeRanges() (err error) {
-	//trace := utils.NewTrace(true, nil)
+//fixMissingRangeValues fixes missing coordinates with reference to this table's dimensions
+func (t *Table) fixMissingRangeValues() (err error) {
 	for _, cmd := range t.CmdList {
-		if cmd.token != KwMerge {
+		if !IsTableCommand(cmd.token) {
 			continue
 		}
 		cmd.cellSpan.Normalize(t.Contents.RowCount(), t.Contents.MaxFieldCount())
-		//trace.Printf("normalized: %v\n", cmd.cellSpan.TestString())
 	}
 	return nil
 }
 
-func createMergeRangeList(cmdList []*Command) (rList []Range, err error) {
-	var sList []*Span
+//spanToRangeList converts the spans specified in each command into a list of Type.Range ready for use
+func spanToRangeList(cmdList []*Command, cmdType RwKeyWord) (rList []Range, err error) {
 	for _, cmd := range cmdList {
-		if cmd.token != KwMerge {
+		if cmd.token != cmdType {
 			continue
 		}
-		tmpList, err := cmd.cellSpan.ExpandSpan()
+		sList, err := cmd.cellSpan.ExpandSpan()
 		if err != nil {
 			return nil, err
 		}
-		sList = append(sList, tmpList...)
+		for _, s := range sList {
+			r := SpanToRange(s)
+			if cmdType == KwStyle {
+				r.addStyle(cmd.Args()...) //attach styles to range
+			}
+			rList = append(rList, r)
+		}
 	}
-	sList = DeduplicateSpanList(sList)
-	for _, s := range sList {
-		rList = append(rList, SpanToRange(s))
-	}
-
 	sort.Slice(rList, func(i, j int) bool {
-		return rList[i].Less(rList[j])
+		return rList[i].less(rList[j])
 	})
 	return rList, nil
 }
 
+//createMergedGridTable creates the underlying grid table and applies merging ranges
 func createMergedGridTable(Contents *TableContents, mrlist []Range) (*TableContents, error) {
 	grid := NewBlankTableContents(Contents.RowCount(), Contents.MaxFieldCount())
 	for _, mr := range mrlist {
 		for i := mr.TopLeft.Row + 1; i <= mr.BottomRight.Row; i++ {
 			for j := mr.TopLeft.Col + 1; j <= mr.BottomRight.Col; j++ {
 				if grid.Cell(i, j).state == CsSpanned {
-					return nil, fmt.Errorf("invalid merge range [%s]: it hides a spanned cell [%s]", mr.TestString(), grid.Cell(i, j))
+					return nil, fmt.Errorf("invalid merge range [%s]: it hides a spanned cell [%s]", mr.testString(), grid.Cell(i, j))
 				}
 				grid.Cell(i, j).state = CsMerged //hide the other cells in the merge range
 			}
 		}
 		topleft := grid.Cell(mr.TopLeft.Row, mr.TopLeft.Col)
 		if topleft.state == CsMerged {
-			return nil, fmt.Errorf("invalid merge range [%s]: attempting to span a merged cell [%s]", mr.TestString(), topleft)
+			return nil, fmt.Errorf("invalid merge range [%s]: attempting to span a merged cell [%s]", mr.testString(), topleft)
 		}
 		topleft.state = CsSpanned
 		topleft.colSpan = mr.BottomRight.Col - mr.TopLeft.Col + 1
@@ -122,6 +133,40 @@ func createMergedGridTable(Contents *TableContents, mrlist []Range) (*TableConte
 	}
 	return grid, nil
 }
+
+func applyStyles(Contents *TableContents, mrlist []Range) (*TableContents, error) {
+	for _, mr := range mrlist {
+		for i := mr.TopLeft.Row; i <= mr.BottomRight.Row; i++ {
+			for j := mr.TopLeft.Col; j <= mr.BottomRight.Col; j++ {
+				Contents.Cell(i, j).AddStyle(mr.styles()...)
+			}
+		}
+	}
+	return Contents, nil
+}
+
+// //spanToRangeList converts the spans specified in each command into a list of Type.Range ready for use
+// func oldspanToRangeList(cmdList []*Command, cmdType RwKeyWord) (rList []Range, err error) {
+// 	var sList []*Span
+// 	for _, cmd := range cmdList {
+// 		if cmd.token != cmdType {
+// 			continue
+// 		}
+// 		tmpList, err := cmd.cellSpan.ExpandSpan()
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		sList = append(sList, tmpList...)
+// 	}
+// 	sList = DeduplicateSpanList(sList)
+// 	for _, s := range sList {
+// 		rList = append(rList, SpanToRange(s))
+// 	}
+// 	sort.Slice(rList, func(i, j int) bool {
+// 		return rList[i].less(rList[j])
+// 	})
+// 	return rList, nil
+// }
 
 // func searchMRListByRange(mrlist []Range, mr Range) (index int, found bool) {
 // 	index = sort.Search(len(mrlist), func(i int) bool { //see https://golang.org/pkg/sort/#Search
