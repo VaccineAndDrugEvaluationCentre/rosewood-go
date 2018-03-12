@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/drgo/rosewood/types"
-	"github.com/drgo/rosewood/utils"
+	"github.com/drgo/trace"
 )
 
 func (p *CommandParser) runSetCommand(cmd *types.Command) error {
@@ -30,7 +30,7 @@ func (p *CommandParser) runSetCommand(cmd *types.Command) error {
 
 	var s string
 	var err error
-	trace := utils.NewTrace(true, nil)
+	trace := trace.NewTrace(true, nil)
 	switch cmd.Arg(0) { //setting name
 	case "rangeseparator":
 		if s, err = getArgAsString(1, 1); err != nil {

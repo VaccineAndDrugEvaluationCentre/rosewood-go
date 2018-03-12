@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/drgo/rosewood/utils"
+	"github.com/drgo/trace"
 )
 
 func Test_genAllPossibleRangePoints(t *testing.T) {
@@ -50,7 +50,7 @@ func Test_ExpandSpan(t *testing.T) {
 		{Span{1, 6, 1, 6, na, na, []RwInt{1, 3, 5}, nil}, 3, Span{1, na, 1, 6, na, na, nil, nil}, false},
 		{Span{11, 16, 1, 6, 2, na, []RwInt{1, 3, 5}, nil}, 6, Span{11, na, 1, 6, na, na, nil, nil}, false},
 	}
-	trace := utils.NewTrace(showOutput, nil)
+	trace := trace.NewTrace(showOutput, nil)
 	for _, tt := range tests {
 		t.Run(tt.cs.testString(), func(t *testing.T) {
 			gotSList, err := tt.cs.ExpandSpan()
@@ -83,7 +83,7 @@ func Test_deduplicateSpanList(t *testing.T) {
 		{Span{11, 16, 1, 6, 2, na, []RwInt{1, 3, 5}, nil}, 6, Span{11, na, 1, 6, na, na, nil, nil}},
 		{Span{1, 6, 1, 6, 2, na, []RwInt{1, 3, 5}, nil}, 3, Span{11, na, 1, 6, na, na, nil, nil}},
 	}
-	trace := utils.NewTrace(showOutput, nil)
+	trace := trace.NewTrace(showOutput, nil)
 	for _, tt := range tests {
 		t.Run(tt.cs.testString(), func(t *testing.T) {
 			gotSList, err := tt.cs.ExpandSpan()

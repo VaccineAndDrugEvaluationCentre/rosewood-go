@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/drgo/rosewood/settings"
 	"github.com/drgo/rosewood/types"
-	"github.com/drgo/rosewood/utils"
 )
 
 const (
@@ -25,13 +25,6 @@ const (
 </body>
 </html>
 `
-	// htmlOpenTable = `<table>
-	// `
-	// htmlCloseTable = `</table>
-	// `
-	// htmlOpenRow  = `<tr>`
-	// htmlCloseRow = `</tr>
-	// `
 	htmlPara     = "<p>"
 	htmlbreak    = "<br>"
 	htmlOpenDiv  = "<div>"
@@ -41,12 +34,12 @@ const (
 //htmlRenderer implements types.Renderer for HTML output
 type htmlRenderer struct {
 	bw        io.Writer
-	settings  *utils.Settings
+	settings  *settings.Settings
 	tables    []*types.Table
 	htmlError error //tracks errors
 }
 
-//NewHTMLRenderer create a new htmlRenderer and return a Renderer
+//NewHTMLRenderer create a new htmlRenderer and return it as a Renderer
 func NewHTMLRenderer() types.Renderer {
 	return &htmlRenderer{}
 }
@@ -56,7 +49,7 @@ func (hr *htmlRenderer) SetWriter(w io.Writer) error {
 	return nil
 }
 
-func (hr *htmlRenderer) SetSettings(settings *utils.Settings) error {
+func (hr *htmlRenderer) SetSettings(settings *settings.Settings) error {
 	hr.settings = settings
 	return nil
 }
@@ -162,26 +155,3 @@ var htmlEscaper = strings.NewReplacer(
 	`>`, "&gt;",
 	`"`, "&#34;",
 )
-
-// func render(w io.Writer, r types.Renderer, settings *utils.Settings, tables ...*types.Table) error {
-// 	//	trace.Printf("%#v", *t)
-// 	bw := bufio.NewWriter(w)
-// 	r.SetWriter(bw)
-// 	r.SetSettings(settings)
-// 	r.SetTables(tables)
-// 	r.StartFile()
-// 	for _, t := range tables {
-// 		r.StartTable(t)
-// 		for _, row := range t.contents.rows {
-// 			r.StartRow(row)
-// 			for _, cell := range row.cells {
-// 				r.OutputCell(cell)
-// 			}
-// 			r.EndRow(row)
-// 		}
-// 		r.EndTable(t)
-// 	}
-// 	r.EndFile()
-// 	bw.Flush()
-// 	return nil
-// }

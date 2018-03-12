@@ -3,7 +3,7 @@ package types
 import (
 	"testing"
 
-	"github.com/drgo/rosewood/utils"
+	"github.com/drgo/trace"
 )
 
 func TestParseTableData(t *testing.T) {
@@ -99,7 +99,7 @@ func TestParseTableData(t *testing.T) {
 			wantErr: false,
 		},
 	}
-	trace := utils.NewTrace(true, nil)
+	trace := trace.NewTrace(true, nil)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewTableContents(tt.args)

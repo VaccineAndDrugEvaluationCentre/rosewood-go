@@ -3,14 +3,14 @@ package types
 import (
 	"io"
 
-	"github.com/drgo/rosewood/utils"
+	"github.com/drgo/rosewood/settings"
 )
 
 //Renderer is an interface that groups all functions needed for rendering a Rosewood table
 //see html_render.go for an implementation that renders tables into HTML
 type Renderer interface {
 	SetWriter(io.Writer) error
-	SetSettings(*utils.Settings) error
+	SetSettings(*settings.Settings) error
 	SetTables([]*Table) error
 	Err() error
 	StartFile() error

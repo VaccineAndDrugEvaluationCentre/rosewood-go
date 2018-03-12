@@ -7,10 +7,11 @@ import (
 	"strings"
 	"text/scanner"
 
+	"github.com/drgo/rosewood/settings"
 	"github.com/drgo/rosewood/types"
-	"github.com/drgo/rosewood/utils"
 )
 
+//Position is an alias of scanner.Position
 type Position = scanner.Position
 
 var (
@@ -18,8 +19,10 @@ var (
 )
 
 const (
+	//SectionsPerTable the number of section per table
 	SectionsPerTable = 4
-	RwMinFileSize    = SectionsPerTable * 3 // at least 3 separator chars per section
+	//RwMinFileSize the size of the smallest possible rosewood file
+	RwMinFileSize = SectionsPerTable * 3 // at least 3 separator chars per section
 )
 
 //File holds information on currently parsed Rosewood file
@@ -27,12 +30,12 @@ type File struct {
 	FileName string
 	sections []*types.Section //holds raw lines
 	parser   *CommandParser
-	settings *utils.Settings
+	settings *settings.Settings
 	tables   []*types.Table //holds parsed tables and commands
 }
 
 //NewFile returns a Rosewood File
-func NewFile(fileName string, settings *utils.Settings) *File {
+func NewFile(fileName string, settings *settings.Settings) *File {
 	return &File{FileName: fileName,
 		parser:   NewCommandParser(settings),
 		settings: settings}
