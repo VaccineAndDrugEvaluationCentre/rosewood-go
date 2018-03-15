@@ -1,6 +1,6 @@
 # EXE is binary name
 EXE=carpenter
-VERSION=0.3.0
+VERSION=0.3.1
 BUILD := $(shell git describe --always --long --dirty)
 BUILD_DATE=$(shell date)
 

@@ -21,7 +21,6 @@ type Command struct {
 	cellSpan *Span
 	spans    []*Subspan
 	args     rwArgs
-	//	pos      Position
 }
 
 //NewCommand return an empty RwCommand

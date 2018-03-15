@@ -36,8 +36,8 @@ func init() {
 	flag.BoolVar(&settings.Debug, "v", false, "")
 	flag.BoolVar(&settings.Debug, "verbose", false, "")
 
-	flag.StringVar(&settings.SectionSeparator, "s", "", "")
-	flag.StringVar(&settings.SectionSeparator, "sep", "", "")
+	flag.StringVar(&settings.SectionSeparator, "s", settings.SectionSeparator, "")
+	flag.StringVar(&settings.SectionSeparator, "sep", settings.SectionSeparator, "")
 
 	flag.BoolVar(&settings.OverWriteOutputFile, "r", false, "")
 	flag.BoolVar(&settings.OverWriteOutputFile, "replace", false, "")

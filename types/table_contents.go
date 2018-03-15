@@ -70,11 +70,11 @@ func (t *TableContents) RowCount() RwInt {
 	return RwInt(len(t.rows))
 }
 
-//Cell return the cell at row, col coordinates (warning 1 based not zero based)
-//returns nil if the coordinates are not valid
-func (t *TableContents) Cell(row, col RwInt) *Cell {
+//CellorPanic returns the cell at row, col coordinates (warning 1 based not zero based)
+//panics if the coordinates are not valid
+func (t *TableContents) CellorPanic(row, col RwInt) *Cell {
 	if !t.isValidCoordinate(row, col) {
-		return nil
+		panic(fmt.Sprintf("invalid cell coordinates, row=%d, col=%d", row, col))
 	}
 	return t.cell(row, col)
 }
@@ -84,18 +84,30 @@ func (t *TableContents) cell(row, col RwInt) *Cell {
 	return t.rows[row-1].cells[col-1]
 }
 
-func (t *TableContents) validateRange(ra Range) (Range, error) {
-	if err := ra.validate(); err != nil {
-		return ra, err
+//ValidateRanges takes a list of ranges and return an error if they are not valid coordinates within this table
+func (t *TableContents) ValidateRanges(rList []Range) error {
+	for _, r := range rList {
+		if err := t.validateRange(r); err != nil {
+			return err
+		}
 	}
+	return nil
+}
+
+func (t *TableContents) validateRange(ra Range) error {
+	//check that the range itself makes sense
+	if err := ra.validate(); err != nil {
+		return err
+	}
+	//check each coordinate against the table coordinates
 	for r := ra.TopLeft.Row; r <= ra.BottomRight.Row; r++ {
 		for c := ra.TopLeft.Col; c <= ra.BottomRight.Col; c++ {
 			if !t.isValidCoordinate(r, c) {
-
+				return fmt.Errorf("invalid coordinates: [%d,%d] ", r, c)
 			}
 		}
 	}
-	return ra, nil
+	return nil
 }
 
 //NewTableContents parses a Rosewood table contents
@@ -165,4 +177,15 @@ func MakeTableContents(rows []*Row, maxFldCount RwInt) *Table {
 		rows:        rows,
 		maxFldCount: maxFldCount,
 	}}
+}
+
+func (t *TableContents) DebugString() string {
+	var b bytes.Buffer
+	for rn, r := range t.rows {
+		for cn, _ := range r.cells {
+			b.WriteString(fmt.Sprintf("%d,%d |", rn, cn))
+		}
+		b.WriteString(OsEOL)
+	}
+	return b.String()
 }

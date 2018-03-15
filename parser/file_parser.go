@@ -103,6 +103,8 @@ func (f *File) createTables() error {
 	for i, s := range f.sections {
 		ii := i + 1 //i is zero-based, section numbers should be one-based
 		kind := types.SectionDescriptor(i%f.settings.SectionsPerTable + 1)
+		// fmt.Printf("kind: %d\n", kind)
+		// fmt.Printf("section: %s\n", s)
 		switch kind {
 		case types.SectionCaption:
 			t = types.NewTable()

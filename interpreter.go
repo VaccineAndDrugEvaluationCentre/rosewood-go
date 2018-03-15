@@ -46,6 +46,13 @@ func (ri *Interpreter) Parse(r io.Reader, scriptIdentifer string) (*parser.File,
 	if err := file.Parse(r); err != nil {
 		return nil, err
 	}
+	if ri.settings.Debug {
+		fmt.Printf("%d table(s) found\n", file.TableCount())
+		tables := file.Tables()
+		for i := 0; i < len(tables); i++ {
+			fmt.Printf("%v\n", tables[i])
+		}
+	}
 	return file, nil
 }
 
@@ -58,10 +65,10 @@ func (ri *Interpreter) RenderTables(w io.Writer, tables []*types.Table, hr types
 	err = hr.StartFile()
 	for _, t := range tables {
 		if err = t.Run(); err != nil {
-			return fmt.Errorf("failed to run commands for table %s", err)
+			return fmt.Errorf("failed to run one or more commands for table: %s", err)
 		}
 		if err = t.Render(w, hr); err != nil {
-			return fmt.Errorf("failed to render table %s", err)
+			return fmt.Errorf("failed to render table: %s", err)
 		}
 	}
 	err = hr.EndFile()
