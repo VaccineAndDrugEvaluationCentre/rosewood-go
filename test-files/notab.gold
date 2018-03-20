@@ -1,0 +1,14 @@
++++
+Definition of Autoimmune diseases
++++
++++
+1. Some footnote
+2. Some other footnote
++++
+merge row 1
+merge row 2:2 col 2:3
+merge row 2:3 col 1 
+merge row 2:3 col 4
+style row 1:3 header
+style row 1 header red
++++

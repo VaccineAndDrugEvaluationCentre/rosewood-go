@@ -111,7 +111,7 @@ func (f *File) createTables() error {
 			t.Caption = s
 		case types.SectionBody:
 			if t.Contents, err = types.NewTableContents(s.String()); err != nil {
-				return NewError(ErrSyntaxError, unknownPos, fmt.Sprintf("error parsing table in section # %d: %s ", ii, err))
+				return NewError(ErrSyntaxError, unknownPos, fmt.Sprintf("error parsing table in section #%d: %s ", ii, err))
 			}
 		case types.SectionFootNotes:
 			t.Footnotes = s

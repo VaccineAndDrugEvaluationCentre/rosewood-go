@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/drgo/errors"
 	"github.com/drgo/rosewood/parser"
 	"github.com/drgo/rosewood/settings"
 	"github.com/drgo/rosewood/types"
@@ -46,6 +47,7 @@ func (ri *Interpreter) Parse(r io.Reader, scriptIdentifer string) (*parser.File,
 	if err := file.Parse(r); err != nil {
 		return nil, err
 	}
+	//TODO: change to use tracer
 	if ri.settings.Debug {
 		fmt.Printf("%d table(s) found\n", file.TableCount())
 		tables := file.Tables()
@@ -73,6 +75,21 @@ func (ri *Interpreter) RenderTables(w io.Writer, tables []*types.Table, hr types
 	}
 	err = hr.EndFile()
 	return err
+}
+
+func (ri *Interpreter) ReportError(err error) error {
+	if !ri.settings.CheckSyntaxOnly {
+		return err
+	}
+	return errors.ErrorsToError(err)
+	// switch e := err.(type) {
+	// case errors.ErrorList:
+	// 	var w strings.Builder
+	// 	errors.PrintError(&w, e)
+	// 	return fmt.Errorf("%s", w.String())
+	// default:
+	// 	return e
+	// }
 }
 
 //Settings returns currently active interpreter settings

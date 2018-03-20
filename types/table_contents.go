@@ -129,12 +129,12 @@ func NewTableContents(text string) (*TableContents, error) {
 	for pos := 0; pos < len(text); pos++ {
 		switch text[pos] {
 		case '\r': //carriage return followed by linefeed as EOL sequence (Windows)
-			//TODO: \r must be preceded by |
+
 		case '\n': //linefeed for Linux and MacOs as EOL marker
-			//TODO: \n must be preceded by | or \r
-			if fldCount == 0 {
-				return nil, fmt.Errorf("row #%d has no cells", line)
-			}
+			//TODO: add option to prevent cells with no field separator
+			// if fldCount == 0 {
+			// 	return nil, fmt.Errorf("row #%d has no cells", line)
+			// }
 			if fldCount > maxFldCount {
 				maxFldCount = fldCount
 			}
@@ -150,6 +150,7 @@ func NewTableContents(text string) (*TableContents, error) {
 			offset = RwInt(pos + 1) //offset is now just after the separator
 		}
 	}
+	//TODO: fix situation where table has one field and no column separators
 	if maxFldCount == 0 {
 		return nil, fmt.Errorf("invalid data table: field count is 0")
 	}

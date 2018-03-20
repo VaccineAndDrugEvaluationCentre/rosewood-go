@@ -1,27 +1,39 @@
 package main
 
 const (
-	versionMessage = "Carpenter %s (%s)\nCopyRight VDEC 2017\n"
-	usageMessage   = `
-Carpenter is a tool to parse and render Rosewood tables as HTML
-	
-Usage: 
-	carpenter [options] [input Rosewood file ...] 
-	
-	if an input file is not specified, code will be read from standard input <stdin>.
-	if an output file is not specified (using -o), the output will be printed to 
-	standard output if the input was read from <stdin>, otherwise a file will be 
-	created with the same name as the input file and .html extension.
+	versionMessage   = "carpenter %s (%s) based on Rosewood version %s\nCopyRight Salah Mahmud 2017\n"
+	longUsageMessage = ` 
+Carpenter parses and renders Rosewood tables as HTML
+
+Usage:
+carpenter [global options] command [command options]
+
+Command:
+check     Parse one or more Rosewood files and print any errors
+run       Generate a printout using specified template and CCV xml files
+help      Shows a list of commands or help for one command
+version   Print executable version
+
+Global options:
+--verbose, -v     prints all errors messages and warnings (for debugging)
+ `
+	runUsageMessage = `
+run : prints the results of applying one or more templates to one or more CCV xml files.
+
+Usage:
+carpenter [global options] run rosewoodfilenames [command options]
+
+rosewoodfilenames      file name or path pattern that must at least match one Rosewood file
+
+if an input file is not specified, code will be read from standard input <stdin>.
+if an output file is not specified (using -o), the output will be printed to 
+standard output if the input was read from <stdin>, otherwise a file will be 
+created with the same name as the input file and .html extension.
 
 Options:
-	css         Style sheet file name
-	h           Print help screen
-	c, check	Only check for syntax errors, do not render the table
-	o, output   Output file name
-	r, replace  Overwrite output file
-	v, verbose  Output debug information
-
-Examples:
-	
-	`
+-sep, -S		  section separator used (default is +++)	
+-style, -s        Style sheet file name in css format
+-output, -o       path to output file or path pattern (in quotes) with * placeholder
+-replace, -r      if specified, any existing output files will be overwritten	
+`
 )
