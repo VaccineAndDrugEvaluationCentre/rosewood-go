@@ -21,8 +21,9 @@ type EmError struct {
 // EmError implements the error interface
 func (e EmError) Error() string {
 	formatPos := func(pos Position) string {
-		if pos.Offset > 0 && pos.Line > 0 {
-			return fmt.Sprintf("line:%d col %d:", e.Line+e.Offset, e.Column)
+		//fmt.Printf("%d %d\n", pos.Offset, pos.Line)
+		if pos.Offset > 0 && pos.Line > -1 {
+			return fmt.Sprintf("line #%d col #%d", e.Line+e.Offset, e.Column)
 		}
 		return ""
 	}

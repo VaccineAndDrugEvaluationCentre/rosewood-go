@@ -7,18 +7,22 @@ import (
 	"strings"
 )
 
-const (
-	redColor = "\x1b[31m"
-)
-
+//crash prints errors and exit with code 2. First line is printed in bold red
 func crash(err error) {
-	fmt.Fprintf(os.Stderr, redColor+"%s\n", err)
+	lines := strings.Split(err.Error(), "\n")
+	if len(lines) > 0 {
+		//"\033[31;1;4m turn color red and bold. \033[0m reset colors"
+		fmt.Fprintf(os.Stderr, "\033[31;1m%s\n\033[0m", lines[0])
+		for i := 1; i < len(lines); i++ {
+			fmt.Fprintf(os.Stderr, "%s\n", lines[i])
+		}
+	}
 	os.Exit(ExitWithError)
 }
 
 func crashf(format string, a ...interface{}) {
 	err := fmt.Sprintf(format, a...)
-	fmt.Fprintf(os.Stderr, redColor+"%s\n", err)
+	fmt.Fprintf(os.Stderr, "\033[31;1m%s\n\033[0m", err)
 	os.Exit(ExitWithError)
 }
 
@@ -31,6 +35,8 @@ func helpMessage(topics []string, versionMessage string) {
 	}
 	for _, topic := range topics {
 		switch strings.ToLower(strings.TrimSpace(topic)) {
+		case "check":
+			fmt.Fprintln(os.Stderr, checkUsageMessage)
 		case "run":
 			fmt.Fprintln(os.Stderr, runUsageMessage)
 		default:
@@ -77,6 +83,8 @@ func NewCommand(name string, args []Flag) *flag.FlagSet {
 			cmd.StringVar(p, arg.name, arg.value.(string), "")
 		case *bool:
 			cmd.BoolVar(p, arg.name, arg.value.(bool), "")
+		case *int:
+			cmd.IntVar(p, arg.name, arg.value.(int), "")
 		default:
 			continue
 		}
@@ -87,12 +95,7 @@ func NewCommand(name string, args []Flag) *flag.FlagSet {
 // ParseCommandLine parses command line arguments for the appropriate subcommandparses arguments.
 // The first command is the default command and can be nil.
 func ParseCommandLine(top *flag.FlagSet, subs ...*flag.FlagSet) (*flag.FlagSet, error) {
-	return ParseArguments(os.Args[1:], top, subs...)
-}
-
-// MustParseCommandLine like ParseCommandLine but exits program on error.
-func MustParseCommandLine(top *flag.FlagSet, subs ...*flag.FlagSet) (*flag.FlagSet, error) {
-	flg, err := ParseCommandLine(top, subs...)
+	flg, err := ParseArguments(os.Args[1:], top, subs...)
 	if err != nil {
 		s := err.Error()
 		switch {

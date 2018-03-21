@@ -15,7 +15,7 @@ help      Shows a list of commands or help for one command
 version   Print executable version
 
 Global options:
---verbose, -v     prints all errors messages and warnings (for debugging)
+--debug, -d     prints information useful for debugging: -d=0 errors only [default], 2 prints everything, 1 is in-between
  `
 	runUsageMessage = `
 run : prints the results of applying one or more templates to one or more CCV xml files.
@@ -35,5 +35,17 @@ Options:
 -style, -s        Style sheet file name in css format
 -output, -o       path to output file or path pattern (in quotes) with * placeholder
 -replace, -r      if specified, any existing output files will be overwritten	
+`
+	checkUsageMessage = `
+check : Parse one or more Rosewood files and print any errors
+
+Usage:
+carpenter [global options] check rosewoodfilenames [command options]
+
+rosewoodfilenames      file name or path pattern that must at least match one Rosewood file
+
+
+Options:
+-sep, -S		  section separator used (default is +++)	
 `
 )

@@ -32,7 +32,7 @@ func NewCommandParser(settings *settings.Settings) *CommandParser {
 	p := CommandParser{errors: errors.NewErrorList(), lexer: new(scanner.Scanner)}
 	p.settings = settings
 	p.trace = trace.NewTrace(false, nil) //writer to stderr
-	if p.settings.Debug {
+	if p.settings.Debug > 1 {
 		p.trace.On()
 	}
 	return &p
@@ -148,7 +148,7 @@ func (p *CommandParser) acceptCommandName() (string, types.RwKeyWord) {
 	}
 	cmd, found := types.LookupKeyword(cmdName)
 	if !found {
-		p.addSyntaxError("unknown command %s", cmdName)
+		p.errors.Add(NewError(ErrSyntaxError, p.Pos(), fmt.Sprintf("unknown command %s", cmdName)))
 		return cmdName, types.KwInvalid
 	}
 	return cmdName, cmd

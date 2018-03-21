@@ -37,16 +37,23 @@ func Test_run(t *testing.T) {
 		{"check-empty-File", "check %path/empty.gold", true, "stream is empty"},
 		{"run-empty-File", "run %path/notab.gold -r", true, "empty table"},
 		{"check-empty-File", "check %path/notab.gold", true, "empty table"},
-		{"run-sectionSepOnly", "run %path/sectionsepsonly.gold -r", true, "empty table"},
-		{"check-sectionSepOnly", "check %path/sectionsepsonly.gold", true, "empty table"},
-		{"check-commandOnly", "check %path/commandonly.gold", true, "empty table"},
+		{"run-section-Sep-Only", "run %path/sectionsepsonly.gold -r", true, "empty table"},
+		{"check-section-Sep-Only", "check %path/sectionsepsonly.gold", true, "empty table"},
+		{"check-command-Only", "check %path/commandonly.gold", true, "empty table"},
+		{"too-many-scections", "check %path/toomanyscections.gold", true, "incorrect number of sections"},
+
+		{"check-syntax-errors", "check %path/wrong1tab.gold", true, "unknown command xmerge"},
+		{"check-3-dash-sep", "check %path/oldsyntax.gold", true, "does not start by a section separator: +++"}, //fails because of --- separator
+		{"check-old-syntax", "check %path/oldsyntax.gold -S=---", true, "unknown command emphasize"},           //does not fail because of --- separator
 
 		//All acceptable
 		{"run-verysmalltab", "run %path/verysmalltab.gold -r", false, ""},
 		{"run-oneCorrectTable", "run %path/singletab.gold -r", false, ""},
 		{"run-typicalTable1", "run %path/TableT1A.gold -r", false, ""},
-		//		{"run-fileOutput", "run %path/TableT1A.rw -r", false, ""},
+		{"run-two-tables", "run %path/correct2tabs.gold -r", false, ""},
 
+		//crashes
+		{"run-typicalTable1", "run %path/crash1.gold -r", true, "invalid coordinates"}, //passes check but fails on rendering
 		// {"check-singleentryandcommandonly", "c", path + "singleentryandcommandonly.rw", false, "singleentryandcommandonly.rw]: file does not contain text"},
 		// {"check-oneWrongTable", "c", path + "wrong1tab.rw", true, "wrong1tab.rw]: syntax error : unknown command xmerge"},
 		// {"check-oneCorrectTable", "c", path + "singletab.rw", false, ""},

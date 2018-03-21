@@ -37,11 +37,11 @@ func RunApp() error {
 	settings.ExecutableVersion = Version
 	settings.InputFileName = "<stdin>" //default to stdin
 	flgSets, _ := setupCommandFlag(settings)
-	flg, err := MustParseCommandLine(flgSets[0], flgSets[1:]...)
+	flg, err := ParseCommandLine(flgSets[0], flgSets[1:]...)
 	if err != nil {
 		return err
 	}
-	if settings.Debug {
+	if settings.Debug > 0 {
 		fmt.Printf("current settings:\n%s\n", settings)
 	}
 	switch flg.Name() {
@@ -65,7 +65,7 @@ func RunApp() error {
 
 func setupCommandFlag(settings *rosewood.Settings) (flgSets []*flag.FlagSet, err error) {
 	globals := NewCommand("", []Flag{
-		{&settings.Debug, "verbose", "v", false},
+		{&settings.Debug, "debug", "d", 0},
 	})
 	cmdRun := NewCommand("run", []Flag{
 		{&settings.StyleSheetName, "style", "s", ""},
@@ -74,7 +74,7 @@ func setupCommandFlag(settings *rosewood.Settings) (flgSets []*flag.FlagSet, err
 		{&settings.SectionSeparator, "sep", "S", "+++"},
 	})
 	cmdCheck := NewCommand("check", []Flag{
-	//{&settings.TemplateFileArg, "template", "t", ""},
+		{&settings.SectionSeparator, "sep", "S", "+++"},
 	})
 	cmdHelp := NewCommand("help", []Flag{})
 	cmdVersion := NewCommand("version", []Flag{})
@@ -88,7 +88,9 @@ func setupCommandFlag(settings *rosewood.Settings) (flgSets []*flag.FlagSet, err
 
 //Run work-horse and main entry function
 func Run(settings *rosewood.Settings, args []string) error {
-	fmt.Println(len(args))
+	if settings.Debug > 0 {
+		fmt.Printf("Processing %d files\n", len(args))
+	}
 	switch len(args) {
 	case 0: //input=stdin
 		if info, _ := os.Stdin.Stat(); info.Size() == 0 {
@@ -122,6 +124,7 @@ func Run(settings *rosewood.Settings, args []string) error {
 	return nil
 }
 
+//runSingle parses and render (if in run mode) a single input file
 func runSingle(settings *rosewood.Settings) error {
 	var (
 		in          io.ReadCloser
@@ -133,7 +136,7 @@ func runSingle(settings *rosewood.Settings) error {
 		if err == nil {
 			return nil
 		}
-		return fmt.Errorf("error running file [%s]:\n%s", settings.InputFileName, err)
+		return fmt.Errorf("----------\nerror running file [%s]:\n%s", settings.InputFileName, err)
 	}
 	switch settings.InputFileName {
 	case "<stdin>":
