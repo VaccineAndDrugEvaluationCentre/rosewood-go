@@ -1,7 +1,7 @@
 # Carpenter
 Reference implementation of RoseWood. 
 
-Version 0.3.0 build 08ff577-dirty on Sat Oct  7 21:03:35 CDT 2017
+Version 0.3.5 build 95b0cae on Tue Mar 20 22:01:13 CDT 2018
 
 ### Install
 - Windows: download cmd/carpenter.exe
@@ -48,3 +48,4 @@ Examples:
 
 	`
 )
+

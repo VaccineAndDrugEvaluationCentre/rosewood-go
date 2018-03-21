@@ -25,7 +25,7 @@ carpenter [global options] run rosewoodfilenames [command options]
 
 rosewoodfilenames      file name or path pattern that must at least match one Rosewood file
 
-if an input file is not specified, code will be read from standard input <stdin>.
+if an input file is not specified, code will be read from standard input <stdin> (currently disabled).
 if an output file is not specified (using -o), the output will be printed to 
 standard output if the input was read from <stdin>, otherwise a file will be 
 created with the same name as the input file and .html extension.
