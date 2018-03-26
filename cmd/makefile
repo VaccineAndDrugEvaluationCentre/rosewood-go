@@ -1,11 +1,11 @@
 # EXE is binary name
 EXE=carpenter
-VERSION=0.3.5
+VERSION=0.4.0
 BUILD := $(shell git describe --always --long --dirty)
 BUILD_DATE=$(shell date)
 
 
-PKG := github.com/drgo/rosewood 
+#PKG := github.com/drgo/rosewood 
 #PKG_LIST := $(shell go list ${PKG}/... )
 #GO_FILES := $(shell find . -name '*.go' )
 
@@ -37,11 +37,14 @@ doc:
 	sed -e '1,/Usage/d' usage.go >> '${README}'
 
 
-testcover:
+cover:
 	cd ..
 	go test -cover -coverprofile=c.out  
 	go tool cover -html=c.out -o coverage.html 
 	rm c.out	
+
+showcover:	
+go test -coverprofile=c.out && go tool cover -html=c.out
 
 graph:
 	godepgraph "github.com/drgo/rosewood/cmd"  | dot -Tpng -o godepgraph.png	

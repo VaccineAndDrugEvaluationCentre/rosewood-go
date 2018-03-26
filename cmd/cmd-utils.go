@@ -1,3 +1,5 @@
+// Copyright 2017 Salah Mahmud and Colleagues. All rights reserved.
+
 package main
 
 import (

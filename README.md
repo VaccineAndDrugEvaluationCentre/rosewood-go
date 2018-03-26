@@ -6,16 +6,19 @@ Version 0.3.5 build 95b0cae on Tue Mar 20 22:01:13 CDT 2018
 ### Install
 - Windows: download cmd/carpenter.exe
 - MacOS: download cmd/carpenter
+- ensure that you are using the most recent version. Type carpenter version and compare output with version above.
 
 ### Compile
-- clone the repo and its dependencies 
-	"github.com/drgo/errors"
-	"github.com/drgo/fileutils"
+- clone the repo (all dependencies are in the cmd/vendor; see fig dep-graph.png)
 
-- MacOS
--- cd to cmd/
--- type make build to generate an executable file
--- type make buildwin to generate a Windows exe
+#### MacOS/linux
+- cd to cmd/
+- type make build to generate an executable file
+- type make buildwin to generate a Windows exe
+
+#### Windows
+- cd to cmd/
+- type make build to generate an executable file
 
 ### Issues
 --  

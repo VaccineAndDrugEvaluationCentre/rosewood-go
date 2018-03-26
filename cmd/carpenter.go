@@ -1,6 +1,6 @@
-//  Copyright 2017 Salah Mahmud. All rights reserved.
+// Copyright 2017 Salah Mahmud and Colleagues. All rights reserved.
 
-// package carpenter is reference implementation of the Rosewood language
+// carpenter is reference implementation of the Rosewood language
 package main
 
 import (
@@ -12,7 +12,8 @@ import (
 
 	"github.com/drgo/errors"
 	"github.com/drgo/fileutils"
-	"github.com/drgo/rosewood"
+	rosewood "github.com/drgo/rosewood/lib"
+	_ "github.com/drgo/rosewood/renderers/html" //include needed renderers
 )
 
 var (
@@ -173,7 +174,11 @@ func runFile(ri *rosewood.Interpreter, in io.Reader, out io.Writer) error {
 	if err != nil || ri.Settings().CheckSyntaxOnly {
 		return ri.ReportError(err)
 	}
-	return ri.ReportError(ri.RenderTables(out, file.Tables(), rosewood.NewHTMLRenderer()))
+	hr, err := rosewood.GetRendererByName("html")
+	if err != nil {
+		return err
+	}
+	return ri.ReportError(ri.Render(out, file, hr))
 }
 
 func runMulti(inFileNames []string, settings *rosewood.Settings) error {

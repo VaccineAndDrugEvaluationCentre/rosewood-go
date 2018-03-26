@@ -1,4 +1,6 @@
-//  Copyright 2017 VDEC. All rights reserved.
+// Copyright 2017 Salah Mahmud and Colleagues. All rights reserved.
+
+// Copyright 2017 Salah Mahmud and Colleagues. All rights reserved.
 
 package main
 
