@@ -30,6 +30,7 @@ Version 0.4.0 build 4463e45 on Mon Mar 26 02:29:15 CDT 2018
 - better html generation and html generation tests
 
 ### How to use
+```
 Carpenter parses and renders Rosewood tables as HTML
 
 Usage:
@@ -72,4 +73,4 @@ rosewoodfilenames      file name or path pattern that must at least match one Ro
 
 Options:
 -sep, -S		  section separator used (default is +++)	
-
+```
