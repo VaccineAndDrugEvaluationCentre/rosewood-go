@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"text/scanner"
 
-	"github.com/drgo/rosewood/lib/types"
+	"../types"
 )
 
 //parseTableFormatCommand: parses a command like command row col args

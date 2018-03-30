@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/drgo/rosewood/lib/settings"
-	"github.com/drgo/rosewood/lib/types"
+	"./settings"
+	"./types"
 )
 
 func TestCommandParser_ParseOneLineCommands(t *testing.T) {
@@ -85,7 +85,7 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		// {`set rangeseparator "-" "onemore"
 		// 	`, 1, true, "invalid # args to set"},
 	}
-	p := NewCommandParser(settings.DebugSettings(true)) //use default settings
+	p := NewCommandParser(settings.DebugSettings(1)) //use default settings
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
 			ss := strings.Split(tt.source, "\n")

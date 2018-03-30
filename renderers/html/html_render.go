@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	rosewood "github.com/drgo/rosewood/lib"
-	"github.com/drgo/rosewood/lib/settings"
-	"github.com/drgo/rosewood/lib/types"
+	rosewood "../../lib"
+	"../../lib/settings"
+	"../../lib/types"
 )
 
 const (

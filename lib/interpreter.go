@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"io"
 
+	"./parser"
+	"./settings"
+	"./types"
 	"github.com/drgo/errors"
-	"github.com/drgo/rosewood/lib/parser"
-	"github.com/drgo/rosewood/lib/settings"
-	"github.com/drgo/rosewood/lib/types"
 )
 
 //Version of this library

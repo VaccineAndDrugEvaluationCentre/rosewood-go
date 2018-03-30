@@ -5,7 +5,7 @@ package types
 import (
 	"io"
 
-	"github.com/drgo/rosewood/lib/settings"
+	"../settings"
 )
 
 //Renderer is an interface that groups all functions needed for rendering a Rosewood table

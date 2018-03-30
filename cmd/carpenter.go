@@ -10,10 +10,10 @@ import (
 	"io"
 	"os"
 
+	rosewood "../lib"
+	_ "../renderers/html" //include needed renderers
 	"github.com/drgo/errors"
 	"github.com/drgo/fileutils"
-	rosewood "github.com/drgo/rosewood/lib"
-	_ "github.com/drgo/rosewood/renderers/html" //include needed renderers
 )
 
 var (

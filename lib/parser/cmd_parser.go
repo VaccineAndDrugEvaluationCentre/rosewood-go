@@ -9,9 +9,9 @@ import (
 	"strings"
 	"text/scanner"
 
+	"../settings"
+	"../types"
 	"github.com/drgo/errors"
-	"github.com/drgo/rosewood/lib/settings"
-	"github.com/drgo/rosewood/lib/types"
 	"github.com/drgo/trace"
 )
 
@@ -71,6 +71,7 @@ func (p *CommandParser) ParseCommandLines(s *types.Section) ([]*types.Command, e
 		}
 		return true
 	}
+
 	cmdList := make([]*types.Command, 0, len(s.Lines))
 	p.errors.Reset()
 	p.position.Offset = s.Offset
