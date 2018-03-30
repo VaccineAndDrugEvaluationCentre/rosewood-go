@@ -25,8 +25,8 @@ buildwin:
 	GOOS=windows GOARCH=amd64 go build ${LDFLAGS} -o ${EXE}.exe	
 
 clean:
-	rm ${EXE}
-	rm ${EXE}.exe
+	rm -f ${EXE}
+	rm -f ${EXE}.exe
 
 doc: 
 #update README with version and build number in line 4 only and only if it had Version
