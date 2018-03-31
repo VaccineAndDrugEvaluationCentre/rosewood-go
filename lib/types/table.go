@@ -176,6 +176,13 @@ func createMergedGridTable(Contents *TableContents, mrlist []Range) (*TableConte
 }
 
 func applyStyles(Contents *TableContents, mrlist []Range) (*TableContents, error) {
+
+	grid := NewBlankTableContents(Contents.RowCount(), Contents.MaxFieldCount())
+	//validate the ranges with this respect to this table
+	if err := grid.ValidateRanges(mrlist); err != nil {
+		return nil, err
+	}
+
 	for _, mr := range mrlist {
 		for i := mr.TopLeft.Row; i <= mr.BottomRight.Row; i++ {
 			for j := mr.TopLeft.Col; j <= mr.BottomRight.Col; j++ {
