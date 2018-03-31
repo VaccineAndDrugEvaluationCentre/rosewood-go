@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"./types"
+	"github.com/drgo/rosewood/lib/types"
 )
 
 func Test_createGridTable(t *testing.T) {

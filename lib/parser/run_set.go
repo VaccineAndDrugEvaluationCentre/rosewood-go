@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"strconv"
 
-	"../types"
+	"github.com/drgo/rosewood/lib/types"
 	"github.com/drgo/trace"
 )
 

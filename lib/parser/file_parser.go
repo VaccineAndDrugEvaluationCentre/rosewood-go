@@ -9,8 +9,8 @@ import (
 	"strings"
 	"text/scanner"
 
-	"../settings"
-	"../types"
+	"github.com/drgo/rosewood/lib/settings"
+	"github.com/drgo/rosewood/lib/types"
 )
 
 //Position is an alias of scanner.Position

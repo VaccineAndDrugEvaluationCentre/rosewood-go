@@ -7,7 +7,7 @@ import (
 	"sort"
 	"sync"
 
-	"./types"
+	"github.com/drgo/rosewood/lib/types"
 )
 
 type Config struct {

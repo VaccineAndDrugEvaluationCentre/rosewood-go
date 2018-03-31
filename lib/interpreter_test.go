@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"./settings"
+	"github.com/drgo/rosewood/lib/settings"
 )
 
 func TestInterpreter_Run(t *testing.T) {
