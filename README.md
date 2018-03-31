@@ -12,13 +12,15 @@ Version 0.4.0 build 4463e45 on Mon Mar 26 02:29:15 CDT 2018
 
 - this software requires use of the strings.Builder class, and thus the minimum golang version must at least be v1.10 to compile
 
-- ensure all dependencies in the cmd/vendor can be seen from the GOPATH; see fig dep-graph.png
+- ensure all dependencies in the cmd/vendor can be seen from the GOPATH; at this time this includes the following:
 
-- clone a copy of the rosewood-go repo in VDEC into the GOPATH directory under "drgo", like so:
+  - github.com/drgo/errors
 
-```
-git clone https://github.com/VaccineAndDrugEvaluationCentre/rosewood-go /path/to/GOPATH/src/github.com/drgo/rosewood
-```
+  - github.com/drgo/fileutils
+
+  - github.com/drgo/trace
+
+  - see fig dep-graph.png for more information
 
 - clone the repo where you are currently developing
 
