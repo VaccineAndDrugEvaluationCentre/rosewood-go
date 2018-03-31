@@ -175,42 +175,8 @@ func createMergedGridTable(Contents *TableContents, mrlist []Range) (*TableConte
 	return grid, nil
 }
 
-// applyStyles ... read-in rosewood style calls into table CSS styles
 func applyStyles(Contents *TableContents, mrlist []Range) (*TableContents, error) {
 	for _, mr := range mrlist {
-
-		//
-		// TODO: consider placing the below if-statements into a validation function
-		//
-
-		// handle missing or zero values
-		if mr.BottomRight.Row < 1 || mr.BottomRight.Col < 1 {
-			return nil, fmt.Errorf("bottom-right is invalid: ", mr.BottomRight)
-
-		} else if mr.TopLeft.Row < 1 || mr.TopLeft.Col < 1 {
-			return nil, fmt.Errorf("top-left is invalid: ", mr.TopLeft)
-
-		} else if mr.BottomRight.Row == MissingRwInt && mr.BottomRight.Col == MissingRwInt {
-			return nil, fmt.Errorf("empty or missing bottom-right: ", mr.BottomRight)
-
-		} else if mr.TopLeft.Row == MissingRwInt && mr.TopLeft.Col == MissingRwInt {
-			return nil, fmt.Errorf("empty or missing top-left: ", mr.TopLeft)
-		}
-
-		// safety check, ensure 'not a number' values are handled intelligently for the bottom-right
-		if mr.BottomRight.Row == MissingRwInt && mr.BottomRight.Col != MissingRwInt {
-			mr.BottomRight.Row = mr.BottomRight.Col
-		} else if mr.BottomRight.Row != MissingRwInt && mr.BottomRight.Col == MissingRwInt {
-			mr.BottomRight.Col = mr.BottomRight.Row
-		}
-
-		// further safety check, ensure 'not a number' values are handled intelligently for the top-left
-		if mr.TopLeft.Row == MissingRwInt && mr.TopLeft.Col != MissingRwInt {
-			mr.TopLeft.Row = mr.TopLeft.Col
-		} else if mr.TopLeft.Row != MissingRwInt && mr.TopLeft.Col == MissingRwInt {
-			mr.TopLeft.Col = mr.TopLeft.Row
-		}
-
 		for i := mr.TopLeft.Row; i <= mr.BottomRight.Row; i++ {
 			for j := mr.TopLeft.Col; j <= mr.BottomRight.Col; j++ {
 				Contents.CellorPanic(i, j).AddStyle(mr.styles()...)
