@@ -152,18 +152,18 @@ func (cs *Span) ExpandSpan() (sList []*Span, err error) {
 	case len(rPoints) != 0 && len(cPoints) != 0:
 		for _, r := range rPoints {
 			for _, c := range cPoints {
-				sList = append(sList, MakeSpan(r, MissingRwInt, c, MissingRwInt))
+				sList = append(sList, MakeSpan(r, r, c, c))
 			}
 		}
 	//scenario 3: rows complex but cols simple
 	case rPoints != nil:
 		for _, r := range rPoints {
-			sList = append(sList, MakeSpan(r, MissingRwInt, cs.c1, cs.c2))
+			sList = append(sList, MakeSpan(r, r, cs.c1, cs.c2))
 		}
 	//scenario 4: rows simple but cols complex
 	case cPoints != nil:
 		for _, c := range cPoints {
-			sList = append(sList, MakeSpan(cs.r1, cs.r2, c, MissingRwInt))
+			sList = append(sList, MakeSpan(cs.r1, cs.r2, c, c))
 		}
 	}
 	return sList, nil
