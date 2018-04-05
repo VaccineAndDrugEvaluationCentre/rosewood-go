@@ -177,13 +177,26 @@ func createMergedGridTable(Contents *TableContents, mrlist []Range) (*TableConte
 
 func applyStyles(Contents *TableContents, mrlist []Range) (*TableContents, error) {
 
+	ranges := make([]Range, 0)
+
+	//
+	// Normalize the ranges, converting 'NA' to min or max.
+	//
+	// The table cells have already been normalized during merge, so the ranges used for style need to be normalized as well.
+	//
+	for _, mr := range mrlist {
+		mr.Normalize()
+		ranges = append(ranges, mr)
+	}
+
 	grid := NewBlankTableContents(Contents.RowCount(), Contents.MaxFieldCount())
+
 	//validate the ranges with this respect to this table
-	if err := grid.ValidateRanges(mrlist); err != nil {
+	if err := grid.ValidateRanges(ranges); err != nil {
 		return nil, err
 	}
 
-	for _, mr := range mrlist {
+	for _, mr := range ranges {
 		for i := mr.TopLeft.Row; i <= mr.BottomRight.Row; i++ {
 			for j := mr.TopLeft.Col; j <= mr.BottomRight.Col; j++ {
 				Contents.CellorPanic(i, j).AddStyle(mr.styles()...)

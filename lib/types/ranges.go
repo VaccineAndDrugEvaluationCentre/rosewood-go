@@ -71,6 +71,26 @@ func (r *Range) styles() []string {
 	return r.styleList
 }
 
+// Normalize ... place a min or max on the range, based on the row / col count of the intended table
+func (r *Range) Normalize() {
+
+	// cap rows
+	if r.TopLeft.Row == MissingRwInt {
+		r.TopLeft.Row = 1
+	}
+	if r.BottomRight.Row == MissingRwInt {
+		r.BottomRight.Row = r.TopLeft.Row
+	}
+
+	// cap columns
+	if r.TopLeft.Col == MissingRwInt {
+		r.TopLeft.Col = 1
+	}
+	if r.BottomRight.Col == MissingRwInt {
+		r.BottomRight.Col = r.TopLeft.Col
+	}
+}
+
 //AddStyle adds one or more style names if they do not already exist in the list
 //sufficiently efficient for short lists and avoids allocating a map
 func (r *Range) addStyle(styles ...string) error {
