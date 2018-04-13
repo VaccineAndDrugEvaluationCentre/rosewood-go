@@ -54,7 +54,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/drgo/rosewood/cmd/carpenter.go (61.9%)</option>
+				<option value="file0">github.com/drgo/rosewood/cmd/carpenter.go (62.1%)</option>
 				
 				<option value="file1">github.com/drgo/rosewood/cmd/cmd-utils.go (64.9%)</option>
 				
@@ -71,6 +71,7 @@
 		<div id="content">
 		
 		<pre class="file" id="file0" style="display: none">// Copyright 2017 Salah Mahmud and Colleagues. All rights reserved.
+
 // carpenter is reference implementation of the Rosewood language
 package main
 
@@ -84,6 +85,7 @@ import (
         "github.com/drgo/errors"
         "github.com/drgo/fileutils"
         rosewood "github.com/drgo/rosewood/lib"
+        _ "github.com/drgo/rosewood/renderers/html" //include needed renderers
 )
 
 var (
@@ -244,7 +246,11 @@ func runFile(ri *rosewood.Interpreter, in io.Reader, out io.Writer) error <span 
         if err != nil || ri.Settings().CheckSyntaxOnly </span><span class="cov8" title="1">{
                 return ri.ReportError(err)
         }</span>
-        <span class="cov8" title="1">return ri.ReportError(ri.RenderTables(out, file.Tables(), rosewood.NewHTMLRenderer()))</span>
+        <span class="cov8" title="1">hr, err := rosewood.GetRendererByName("html")
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return ri.ReportError(ri.Render(out, file, hr))</span>
 }
 
 func runMulti(inFileNames []string, settings *rosewood.Settings) error <span class="cov0" title="0">{
@@ -343,6 +349,7 @@ func getVersion() string <span class="cov8" title="1">{
 </pre>
 		
 		<pre class="file" id="file1" style="display: none">// Copyright 2017 Salah Mahmud and Colleagues. All rights reserved.
+
 package main
 
 import (
