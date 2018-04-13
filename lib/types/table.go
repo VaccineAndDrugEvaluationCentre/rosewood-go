@@ -94,12 +94,14 @@ func (t *Table) Render(w io.Writer, hr Renderer) error {
 
 //fixMissingRangeValues fixes missing coordinates with reference to this table's dimensions
 func (t *Table) fixMissingRangeValues() (err error) {
+
 	for _, cmd := range t.CmdList {
 		if !IsTableCommand(cmd.token) {
 			continue
 		}
 		cmd.cellSpan.Normalize(t.Contents.RowCount(), t.Contents.MaxFieldCount())
 	}
+
 	return nil
 }
 
@@ -114,6 +116,10 @@ func spanToRangeList(cmdList []*Command, cmdType RwKeyWord) (rList []Range, err 
 			return nil, err
 		}
 		for _, s := range sList {
+
+			// fit the expanded cell to the table dimensions
+			s.Normalize(s.rby, s.cby)
+
 			r := SpanToRange(s)
 			if cmdType == KwStyle {
 				r.addStyle(cmd.Args()...) //attach styles to range
@@ -177,26 +183,13 @@ func createMergedGridTable(Contents *TableContents, mrlist []Range) (*TableConte
 
 func applyStyles(Contents *TableContents, mrlist []Range) (*TableContents, error) {
 
-	ranges := make([]Range, 0)
-
-	//
-	// Normalize the ranges, converting 'NA' to min or max.
-	//
-	// The table cells have already been normalized during merge, so the ranges used for style need to be normalized as well.
-	//
-	for _, mr := range mrlist {
-		mr.Normalize()
-		ranges = append(ranges, mr)
-	}
-
 	grid := NewBlankTableContents(Contents.RowCount(), Contents.MaxFieldCount())
 
-	//validate the ranges with this respect to this table
-	if err := grid.ValidateRanges(ranges); err != nil {
+	if err := grid.ValidateRanges(mrlist); err != nil {
 		return nil, err
 	}
 
-	for _, mr := range ranges {
+	for _, mr := range mrlist {
 		for i := mr.TopLeft.Row; i <= mr.BottomRight.Row; i++ {
 			for j := mr.TopLeft.Col; j <= mr.BottomRight.Col; j++ {
 				Contents.CellorPanic(i, j).AddStyle(mr.styles()...)
