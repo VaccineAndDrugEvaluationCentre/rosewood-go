@@ -26,8 +26,10 @@ VW Scirocco         |   6,850  |   1,990  |    156   |
 Volvo 260           |  11,995  |   3,170  |    193   |
 +++
 +++
+merge row 7,8 col 3
 style row 1 col 1 header
 style row 1 col 2 header
 style row 1 col 3 header
 style row 1 col 4 header
+style row 2,4 col 2 header
 +++
