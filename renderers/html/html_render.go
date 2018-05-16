@@ -5,6 +5,7 @@ package html
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"strings"
 	"time"
 
@@ -20,7 +21,8 @@ const (
 <meta charset="utf-8">
 <meta name="generator" content="Rosewood Carpenter %s" /> 
 <meta name="date-generated" content="%s" scheme="YYYY-MM-DD HH:MM:SS">
-<link rel="stylesheet" href="%s">
+`
+	htmlHeaderClose = `	
 </head>
 <body>
 `
@@ -28,15 +30,15 @@ const (
 </body>
 </html>
 `
-	htmlPara     = "<p>"
-	htmlbreak    = "<br>"
-	htmlOpenDiv  = "<div>"
-	htmlCloseDiv = "</div>"
+	// htmlPara     = "<p>"
+	// htmlbreak    = "<br>"
+	// htmlOpenDiv  = "<div>"
+	// htmlCloseDiv = "</div>"
 )
 
 var defaultHTMLRenderer = NewHTMLRenderer()
 
-//Register HTML renderer with package renderer
+//Register HTML renderer
 func init() {
 	config := rosewood.Config{
 		Name:     "html",
@@ -77,7 +79,7 @@ func (hr *htmlRenderer) Err() error {
 	return hr.htmlError
 }
 
-//write does all the writing to the writer and handles errors but stopping any further writing
+//write does all the writing to the writer and handles errors by stopping any further writing
 func (hr *htmlRenderer) write(format string, a ...interface{}) error {
 	if hr.htmlError == nil {
 		_, hr.htmlError = fmt.Fprintf(hr.bw, format, a...)
@@ -86,13 +88,24 @@ func (hr *htmlRenderer) write(format string, a ...interface{}) error {
 }
 
 func (hr *htmlRenderer) StartFile() error {
+	ExecutableVersion := fmt.Sprintf("Exe Version %s, Lib Version %s", hr.settings.ExecutableVersion, hr.settings.LibVersion)
+	if err := hr.write(htmlHeader, ExecutableVersion, time.Now().Format("2006-01-02 15:04:05")); err != nil {
+		return err
+	}
 	cssFileName := hr.settings.StyleSheetName
 	if cssFileName == "" {
 		cssFileName = "carpenter.css"
 	}
-	ExecutableVersion := fmt.Sprintf("Exe Version %s, Lib Version %s", hr.settings.ExecutableVersion, hr.settings.LibVersion)
-	t := time.Now()
-	return hr.write(htmlHeader, ExecutableVersion, t.Format("2006-01-02 15:04:05"), cssFileName)
+	//TODO: experimental: insert css into html
+	css, err := ioutil.ReadFile(cssFileName)
+	if err != nil {
+		return err
+	}
+	hr.write("<style>\n")
+	hr.write(string(css))
+	hr.write("</style>\n")
+	hr.write(htmlHeaderClose)
+	return hr.Err()
 }
 
 func (hr *htmlRenderer) EndFile() error {
@@ -104,7 +117,7 @@ func (hr *htmlRenderer) StartTable(t *types.Table) error {
 	if t.Caption != nil {
 		hr.write("<caption>")
 		for _, line := range t.Caption.Lines {
-			hr.write("%s%s\n", line, htmlbreak)
+			hr.write("%s%s\n", line, "<br>")
 		}
 		hr.write("</caption>") //added for completeness
 	}
@@ -116,7 +129,7 @@ func (hr *htmlRenderer) EndTable(t *types.Table) error {
 	if t.Footnotes != nil {
 		hr.write(`<div class="footnotes">`)
 		for _, line := range t.Footnotes.Lines {
-			hr.write("%s%s\n", line, htmlbreak)
+			hr.write("%s%s\n", line, "<br>")
 		}
 		hr.write("</div>\n")
 	}
@@ -130,6 +143,7 @@ func (hr *htmlRenderer) StartRow(r *types.Row) error {
 func (hr *htmlRenderer) EndRow(r *types.Row) error {
 	return hr.write("</tr>")
 }
+
 func (hr *htmlRenderer) OutputCell(c *types.Cell) error {
 	if c.State() == types.CsMerged {
 		return nil
