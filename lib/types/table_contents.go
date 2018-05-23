@@ -185,8 +185,8 @@ func MakeTableContents(rows []*Row, maxFldCount RwInt) *Table {
 func (t *TableContents) DebugString() string {
 	var b bytes.Buffer
 	for rn, r := range t.rows {
-		for cn, _ := range r.cells {
-			b.WriteString(fmt.Sprintf("%d,%d |", rn, cn))
+		for cn, c := range r.cells {
+			b.WriteString(fmt.Sprintf("%d,%d (%s) |", rn+1, cn+1, CellStateLabel[c.State()]))
 		}
 		b.WriteString(OsEOL)
 	}

@@ -3,9 +3,7 @@
 package types
 
 import (
-	"fmt"
 	"io"
-	"sort"
 	"strings"
 )
 
@@ -28,7 +26,7 @@ func NewTable() *Table {
 //TODO: add debugstringer interface with debugString() and title() functions to use for debugPrint
 func (t Table) String() string {
 	var s strings.Builder
-	s.Grow(1000) //arbitary size to avoid reallocation
+	s.Grow(1024 * 4) //arbitary size to avoid reallocation
 	if t.Caption != nil {
 		s.WriteString("caption: " + t.Caption.String() + "\n")
 	}
@@ -101,78 +99,6 @@ func (t *Table) fixMissingRangeValues() (err error) {
 		cmd.cellSpan.Normalize(t.Contents.RowCount(), t.Contents.MaxFieldCount())
 	}
 	return nil
-}
-
-//spanToRangeList converts the spans specified in each command into a list of Type.Range ready for use
-func spanToRangeList(cmdList []*Command, cmdType RwKeyWord) (rList []Range, err error) {
-	for _, cmd := range cmdList {
-		if cmd.token != cmdType {
-			continue
-		}
-		sList, err := cmd.cellSpan.ExpandSpan()
-		if err != nil {
-			return nil, err
-		}
-		for _, s := range sList {
-			r := SpanToRange(s)
-			if cmdType == KwStyle {
-				r.addStyle(cmd.Args()...) //attach styles to range
-			}
-			rList = append(rList, r)
-		}
-	}
-	sort.Slice(rList, func(i, j int) bool {
-		return rList[i].less(rList[j])
-	})
-	return rList, nil
-}
-
-//createMergedGridTable creates the underlying grid table and applies merging ranges
-func createMergedGridTable(Contents *TableContents, mrlist []Range) (*TableContents, error) {
-	grid := NewBlankTableContents(Contents.RowCount(), Contents.MaxFieldCount())
-	//validate the ranges with this respect to this table
-	if err := grid.ValidateRanges(mrlist); err != nil {
-		return nil, err
-	}
-	fmt.Printf("%+v\n", grid.DebugString())
-	for _, mr := range mrlist {
-		fmt.Printf("%+v\n", mr)
-		for i := mr.TopLeft.Row + 1; i <= mr.BottomRight.Row; i++ {
-			for j := mr.TopLeft.Col + 1; j <= mr.BottomRight.Col; j++ {
-				if grid.CellorPanic(i, j).state == CsSpanned {
-					return nil, fmt.Errorf("invalid merge range [%s]: it hides a spanned cell [%s]", mr.testString(), grid.CellorPanic(i, j))
-				}
-				grid.CellorPanic(i, j).state = CsMerged //hide the other cells in the merge range
-			}
-		}
-		topleft := grid.CellorPanic(mr.TopLeft.Row, mr.TopLeft.Col)
-		if topleft.state == CsMerged {
-			return nil, fmt.Errorf("invalid merge range [%s]: attempting to span a merged cell [%s]", mr.testString(), topleft)
-		}
-		topleft.state = CsSpanned
-		topleft.colSpan = mr.BottomRight.Col - mr.TopLeft.Col + 1
-		topleft.rowSpan = mr.BottomRight.Row - mr.TopLeft.Row + 1
-	}
-	//now copy Contents to unmerged cells
-	for i := RwInt(1); i <= Contents.RowCount(); i++ {
-		r := Contents.Row(i)
-		//trace.Printf("in createGridTable i=%d, cellcount=%d\n", i, r.cellCount())
-		for j := RwInt(1); j <= r.cellCount(); {
-			if Contents.cell(i, j).state != CsMerged {
-				grid.cell(i, j).text = Contents.cell(i, j).text
-				j++
-				continue
-			}
-			for ; Contents.cell(i, j).state == CsMerged && j <= grid.Row(i).cellCount(); j++ {
-				//skip merged cells
-			}
-			if j <= grid.Row(i).cellCount() {
-				grid.cell(i, j).text = Contents.cell(i, j).text
-				j++
-			}
-		}
-	}
-	return grid, nil
 }
 
 func applyStyles(Contents *TableContents, mrlist []Range) (*TableContents, error) {

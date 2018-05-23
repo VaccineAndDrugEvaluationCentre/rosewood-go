@@ -1,3 +1,7 @@
+## 0.4.5
+- changed algorithm for merging cells to address an unforeseen corner case (needs testing).
+- 
+
 ## 0.4.0
 - Refactored so now a renderer can be provided by an external package (e.g., package html).
 - cleaned up old code.
@@ -14,5 +18,5 @@
 - streamlined error messages and error reporting
 
 ## 0.3.1
--	Crash due to invalid cell coordinates in a merge or style command
--	Default section separator did not default to +++
+- Crash due to invalid cell coordinates in a merge or style command
+- Default section separator did not default to +++

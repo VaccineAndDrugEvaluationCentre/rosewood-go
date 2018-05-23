@@ -18,11 +18,11 @@ func (args rwArgs) String() string {
 
 //Command is the AST for a Rosewood command.
 type Command struct {
-	token    RwKeyWord
-	name     string
-	cellSpan *Span
-	spans    []*Subspan
-	args     rwArgs
+	token    RwKeyWord  //command token
+	name     string     //command name
+	cellSpan *Span      //? depricated
+	spans    []*Subspan //list of the table segments that the command applies to.
+	args     rwArgs     //additional arguments passed to the command
 }
 
 //NewCommand return an empty RwCommand

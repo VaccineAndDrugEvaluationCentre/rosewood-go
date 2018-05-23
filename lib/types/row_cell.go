@@ -41,11 +41,12 @@ func (t *Row) cellCount() RwInt {
 type CellState int
 
 const (
-	CsUndefined CellState = iota
-	CsNormal
+	CsNormal CellState = iota
 	CsSpanned
 	CsMerged
 )
+
+var CellStateLabel = []string{"normal", "spanned", "merged"}
 
 //Cell holds information on each table cell
 type Cell struct {
@@ -109,4 +110,8 @@ outer:
 
 func (c *Cell) String() string {
 	return fmt.Sprintf("r%d c%d: %s", c.row, c.col, c.text)
+}
+
+func (c *Cell) DebugString() string {
+	return fmt.Sprintf("r:%d-c:%d=%s-> %s", c.row, c.col, CellStateLabel[c.state], c.text)
 }

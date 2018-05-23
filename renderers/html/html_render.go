@@ -103,7 +103,7 @@ func (hr *htmlRenderer) StartFile() error {
 	}
 	hr.write("<style>\n")
 	hr.write(string(css))
-	hr.write("</style>\n")
+	hr.write("\n</style>\n")
 	hr.write(htmlHeaderClose)
 	return hr.Err()
 }
@@ -113,21 +113,21 @@ func (hr *htmlRenderer) EndFile() error {
 }
 
 func (hr *htmlRenderer) StartTable(t *types.Table) error {
-	hr.write("<table>")
+	hr.write("<table>\n")
 	if t.Caption != nil {
 		hr.write("<caption>")
 		for _, line := range t.Caption.Lines {
 			hr.write("%s%s\n", line, "<br>")
 		}
-		hr.write("</caption>") //added for completeness
+		hr.write("</caption>\n") //added for completeness
 	}
 	return hr.Err()
 }
 
 func (hr *htmlRenderer) EndTable(t *types.Table) error {
-	hr.write("</table>")
+	hr.write("</table>\n")
 	if t.Footnotes != nil {
-		hr.write(`<div class="footnotes">`)
+		hr.write(`<div class="footnotes">%s`, "\n")
 		for _, line := range t.Footnotes.Lines {
 			hr.write("%s%s\n", line, "<br>")
 		}
@@ -137,21 +137,23 @@ func (hr *htmlRenderer) EndTable(t *types.Table) error {
 }
 
 func (hr *htmlRenderer) StartRow(r *types.Row) error {
-	return hr.write(`<tr>`)
+	return hr.write(`<tr class="rw-row">%s`, "\n")
 }
 
 func (hr *htmlRenderer) EndRow(r *types.Row) error {
-	return hr.write("</tr>")
+	return hr.write("</tr>\n")
 }
 
 func (hr *htmlRenderer) OutputCell(c *types.Cell) error {
+	//TODO: not working; merged cells are still printed
+	fmt.Printf("%s\n", c.DebugString()) //DEBUG
 	if c.State() == types.CsMerged {
 		return nil
 	}
 	hr.write("<td")
-	if len(c.Styles()) > 0 {
-		hr.write(` class="%s"`, strings.Join(c.Styles(), " "))
-	}
+	//EXPERIMENTAL: add base cell style rw-cell
+	hr.write(` class="rw-cell %s"`, strings.Join(c.Styles(), " "))
+
 	if c.RowSpan() > 1 {
 		hr.write(` rowspan="%d"`, c.RowSpan())
 	}
@@ -159,10 +161,10 @@ func (hr *htmlRenderer) OutputCell(c *types.Cell) error {
 		hr.write(` colspan="%d"`, c.ColSpan())
 	}
 	txt := escapeString(c.Text())
-	if hr.settings.TrimCellContents {
-		txt = strings.TrimSpace(txt)
-	}
-	hr.write("%s%s%s", ">", txt, "</td>")
+	//	if hr.settings.TrimCellContents {
+	txt = strings.TrimSpace(txt)
+	//	}
+	hr.write(">%s</td>\n", txt)
 	return hr.Err()
 }
 

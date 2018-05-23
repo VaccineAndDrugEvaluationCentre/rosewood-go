@@ -8,7 +8,7 @@ import (
 )
 
 type Subspan struct {
-	kind        string
+	kind        string //
 	Left, Right RwInt
 	By          RwInt
 	List        []RwInt
