@@ -22,6 +22,7 @@ type Coordinates struct {
 	Row, Col RwInt
 }
 
+//TODO: optimize
 func formattedRwInt(value RwInt) []byte { //return byte array for ease of concatenating with other text
 	var buf []byte
 	if value == MissingRwInt {
@@ -32,6 +33,7 @@ func formattedRwInt(value RwInt) []byte { //return byte array for ease of concat
 	return buf
 }
 
+//TODO: optimize
 func (co Coordinates) String() string {
 	buf := formattedRwInt(co.Row)
 	buf = append(buf, ':')

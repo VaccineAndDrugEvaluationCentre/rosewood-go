@@ -16,7 +16,7 @@ merge row 2:2 col 2:3
 merge row 2:3 col 1 
 merge row 2:3 col 4
 style row 1:3 header
-style row 1 header 
-merge row 1:0:5 
-style row 1:2:5 col 1,2,4 red
+style row 1 red 
+//merge row 1:2:5 
+//style row 1:2:5 col 1,2,4 red
 +++

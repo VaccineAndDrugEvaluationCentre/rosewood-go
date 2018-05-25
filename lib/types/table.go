@@ -49,7 +49,7 @@ func (t Table) String() string {
 func (t *Table) Run() error {
 	t.fixMissingRangeValues()
 	//create a list of merge ranges
-	mrlist, err := spanToRangeList(t.CmdList, KwMerge)
+	mrlist, err := getAllRanges(t.CmdList, KwMerge)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (t *Table) Run() error {
 		return err
 	}
 	//create a list of style ranges
-	mrlist, err = spanToRangeList(t.CmdList, KwStyle)
+	mrlist, err = getAllRanges(t.CmdList, KwStyle)
 	if err != nil {
 		return err
 	}
@@ -115,6 +115,7 @@ func applyStyles(Contents *TableContents, mrlist []Range) (*TableContents, error
 	return Contents, nil
 }
 
+//TODO: remove unused code
 // //spanToRangeList converts the spans specified in each command into a list of Type.Range ready for use
 // func oldspanToRangeList(cmdList []*Command, cmdType RwKeyWord) (rList []Range, err error) {
 // 	var sList []*Span
