@@ -26,7 +26,7 @@ func NewTable() *Table {
 //TODO: add debugstringer interface with debugString() and title() functions to use for debugPrint
 func (t Table) String() string {
 	var s strings.Builder
-	s.Grow(1024 * 4) //arbitary size to avoid reallocation
+	s.Grow(1024 * 8) //arbitrary size to avoid reallocation
 	if t.Caption != nil {
 		s.WriteString("caption: " + t.Caption.String() + "\n")
 	}

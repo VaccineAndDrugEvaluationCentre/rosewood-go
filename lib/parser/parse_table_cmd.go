@@ -16,7 +16,7 @@ func (p *CommandParser) parseTableFormatCommand(cmd *types.Command) error {
 	parseSegment := func(segment string) error {
 		ss, err := p.parseRowOrColSegment(cmd, segment)
 		if err == nil {
-			cmd.AddSubSpan(&ss)
+			cmd.AddSpanSegment(&ss)
 		}
 		return err
 	}
@@ -37,7 +37,7 @@ func (p *CommandParser) parseTableFormatCommand(cmd *types.Command) error {
 	case scanner.Ident:
 		switch p.currentWord() {
 		case "col", "row":
-			if cmd.SubSpan(p.currentWord()) != nil { //already parsed
+			if cmd.SpanSegment(p.currentWord()) != nil { //already parsed
 				return fmt.Errorf("duplicate %s", p.exactCurrentWord())
 			}
 			if err := parseSegment(p.currentWord()); err != nil {
@@ -58,9 +58,9 @@ func (p *CommandParser) parseTableFormatCommand(cmd *types.Command) error {
 	return nil
 }
 
-func (p *CommandParser) parseRowOrColSegment(cmd *types.Command, segment string) (types.Subspan, error) {
+func (p *CommandParser) parseRowOrColSegment(cmd *types.Command, segment string) (types.SpanSegment, error) {
 	var err error
-	ss := types.NewSubSpan(segment)
+	ss := types.NewSpanSegment(segment)
 
 	if ss.Left, err = p.parsePoint(); err != nil {
 		return ss, err
@@ -85,8 +85,8 @@ func (p *CommandParser) parseRowOrColSegment(cmd *types.Command, segment string)
 	return ss, nil
 }
 
-//parseRangePoints read a range of coordinate either left:right or left:skipby:right
-func (p *CommandParser) parseRangePoints(ss *types.Subspan) error {
+//parseRangePoints read a range of coordinate either left:right or left:skip by:right
+func (p *CommandParser) parseRangePoints(ss *types.SpanSegment) error {
 	var err error
 	//read the right term of the range
 	if ss.Right, err = p.parsePoint(); err != nil {
@@ -117,7 +117,7 @@ func (p *CommandParser) parseRangePoints(ss *types.Subspan) error {
 }
 
 //parseCommaSepPoints reads a list of coordinates points in the form x,y,z
-func (p *CommandParser) parseCommaSepPoints(ss *types.Subspan) error {
+func (p *CommandParser) parseCommaSepPoints(ss *types.SpanSegment) error {
 	for {
 		//parser is on a comma, read a coordinate point
 		point, err := p.parsePoint()

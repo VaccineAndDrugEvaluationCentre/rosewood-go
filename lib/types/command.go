@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+//rwArgs holds command arguments
 type rwArgs []string
 
 func (args rwArgs) String() string {
@@ -18,11 +19,11 @@ func (args rwArgs) String() string {
 
 //Command is the AST for a Rosewood command.
 type Command struct {
-	token    RwKeyWord  //command token
-	name     string     //command name
-	cellSpan *Span      //? depricated
-	spans    []*Subspan //list of the table segments that the command applies to.
-	args     rwArgs     //additional arguments passed to the command
+	token        RwKeyWord      //command token
+	name         string         //command name
+	cellSpan     *Span          //holds the complete valid description of the span that the command applies to
+	spanSegments []*SpanSegment //row and/or col table spanSegments that the command applies to.
+	args         rwArgs         //additional arguments passed to the command
 }
 
 //NewCommand return an empty RwCommand
@@ -30,11 +31,11 @@ func NewCommand(name string, token RwKeyWord) *Command {
 	return &Command{token: token, name: name}
 }
 
-//formats command for printing; warning used for testing the parser
+//formats command for printing; Warning: used for testing the parser, changing it will break tests
 func (c *Command) String() string {
 	buf := &bytes.Buffer{}
 	fmt.Fprintf(buf, "%s ", c.name)
-	for _, s := range c.spans {
+	for _, s := range c.spanSegments {
 		fmt.Fprintf(buf, s.String())
 		fmt.Fprintf(buf, " ")
 	}
@@ -44,20 +45,24 @@ func (c *Command) String() string {
 	return strings.TrimSpace(buf.String())
 }
 
-func (c *Command) AddSubSpan(ss *Subspan) error {
-	c.spans = append(c.spans, ss)
+//AddSpanSegment adds a SpanSegment to the command
+func (c *Command) AddSpanSegment(segment *SpanSegment) error {
+	//TODO: ensure only valid SpanSegments are added and no duplicates
+	c.spanSegments = append(c.spanSegments, segment)
 	return nil
 }
 
+//AddArg adds one or more arguments to the command
 func (c *Command) AddArg(arg ...string) error {
 	c.args = append(c.args, arg...)
 	return nil
 }
 
-func (c *Command) SubSpan(modifier string) *Subspan {
-	for _, ss := range c.spans {
-		if ss.kind == modifier {
-			return ss
+//SpanSegment returns a SpanSegment corresponding to the specified kind: row or col
+func (c *Command) SpanSegment(kind string) *SpanSegment {
+	for _, segment := range c.spanSegments {
+		if segment.kind == kind {
+			return segment
 		}
 	}
 	return nil
@@ -80,9 +85,10 @@ func (c *Command) Arg(index int) string {
 }
 
 //Finalize creates a cell span and checks command for errors
+//TODO:
 func (c *Command) Finalize() error {
 	checkCmd := func() error {
-		c.cellSpan = SubSpansToSpan(c.spans)
+		c.cellSpan = NewSpanFromSpanSegments(c.spanSegments)
 		if err := c.cellSpan.Validate(); err != nil {
 			return err
 		}
