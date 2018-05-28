@@ -63,10 +63,10 @@ func (p *CommandParser) parseRowOrColSegment(cmd *types.Command, modifier string
 	var err error
 	ss := types.NewSpanSegment(modifier)
 
-	if ss.Left, err = p.parsePoint(); err != nil {
+	if ss.Left, err = p.parsePoint(false /*unsigned int wanted*/); err != nil {
 		return ss, err
 	}
-	if ss.Left == types.MaxRwInt {
+	if ss.Left == types.RwMax {
 		return ss, fmt.Errorf("max is not allowed in this position")
 	}
 	p.nextToken()
@@ -77,7 +77,7 @@ func (p *CommandParser) parseRowOrColSegment(cmd *types.Command, modifier string
 		}
 	case ',':
 		ss.List = append(ss.List, ss.Left) //list has just begun
-		ss.Left = types.MissingRwInt
+		ss.Left = types.RwMissing
 		if err := p.parseCommaSepPoints(&ss); err != nil {
 			return ss, err
 		}
@@ -92,37 +92,46 @@ func (p *CommandParser) parseRowOrColSegment(cmd *types.Command, modifier string
 //parseRangePoints read a range of coordinate either left:right or left:skip step:right
 func (p *CommandParser) parseRangePoints(ss *types.SpanSegment) error {
 	var err error
+	parseRightCoord := func() error {
+		if ss.Right == types.RwMax { //comma not allowed after a max
+			return fmt.Errorf("max is not allowed in this position")
+		}
+		return p.parseCommaSepPoints(ss)
+	}
+	validateStep := func(p1, step, p2 int) error {
+		if step == 0 {
+			return fmt.Errorf("a range step cannot be zero")
+		}
+		if step > 0 && step > p2-p1 ||
+			step < 0 && -1*step > p2-p1 {
+			return fmt.Errorf("the step increase/decrease [%d] cannot be larger than difference between the range coordinates", step)
+		}
+		return nil
+	}
 	//read the right term of the range
-	if ss.Right, err = p.parsePoint(); err != nil {
+	if ss.Right, err = p.parsePoint(true /*allow signed int */); err != nil {
 		return err
 	}
 	p.nextToken()
 	switch p.currentToken {
 	case p.settings.RangeOperator: //another :, so this a skipped range l:step:r
-		if ss.Right == types.MaxRwInt {
+		if ss.Right == types.RwMax {
 			return fmt.Errorf("max is not allowed in this position")
 		}
 		ss.By = ss.Right //what we thought was the right coordinate is actually a step
 		//read the right term of the range
-		if ss.Right, err = p.parsePoint(); err != nil {
+		if ss.Right, err = p.parsePoint(false /*unsigned int wanted*/); err != nil {
 			return err
 		}
 		p.nextToken()
 		if p.currentToken == ',' {
-			if ss.Right == types.MaxRwInt { //comma not allowed after a max
-				return fmt.Errorf("max is not allowed in this position")
-			}
-			if err := p.parseCommaSepPoints(ss); err != nil {
-				return err
-			}
+			return parseRightCoord()
 		}
-	case ',':
-		if ss.Right == types.MaxRwInt { //comma not allowed after a max
-			return fmt.Errorf("max is not allowed in this position")
-		}
-		if err := p.parseCommaSepPoints(ss); err != nil {
+		if err := validateStep(ss.Left, ss.By, ss.Right); err != nil {
 			return err
 		}
+	case ',':
+		return parseRightCoord()
 	default:
 		return nil
 	}
@@ -133,11 +142,11 @@ func (p *CommandParser) parseRangePoints(ss *types.SpanSegment) error {
 func (p *CommandParser) parseCommaSepPoints(ss *types.SpanSegment) error {
 	for {
 		//parser is on a comma, read a coordinate point
-		point, err := p.parsePoint()
+		point, err := p.parsePoint(false /*unsigned int wanted*/)
 		if err != nil {
 			return err
 		}
-		if point == types.MaxRwInt {
+		if point == types.RwMax {
 			return fmt.Errorf("max is not allowed in this position")
 		}
 		ss.List = append(ss.List, point)
@@ -162,19 +171,28 @@ func (p *CommandParser) acceptArg(token rune) string {
 //parsePoint: reads and validates a row/cell coordinate
 func (p *CommandParser) parsePoint(signed bool) (int, error) {
 	if err := p.nextNotNull(); err != nil {
-		return types.MissingRwInt, err
+		return types.RwMissing, err
 	}
 	if p.currentWord() == "max" {
-		return types.MaxRwInt, nil
-
+		return types.RwMax, nil
+	}
+	var sign rune
+	if p.currentToken == '-' || p.currentToken == '+' {
+		sign = p.currentToken
+		if err := p.nextNotNull(); err != nil {
+			return types.RwMissing, err
+		}
 	}
 	if p.currentToken != scanner.Int {
-		return types.MissingRwInt, fmt.Errorf("expected col or row number, found %s", p.exactCurrentWord())
+		return types.RwMissing, fmt.Errorf("expected col or row number, found %s", p.exactCurrentWord())
 	}
 	coordinate, _ := strconv.Atoi(p.currentWord()) //no error check as we know it must be an int
+	if sign == '-' {
+		coordinate = -1 * coordinate
+	}
 	if !signed && coordinate < 1 {
 		p.addSyntaxError("wanted row/col number > 0; found %s", p.exactCurrentWord()) //keep parsing
-		return types.MissingRwInt, nil
+		return types.RwMissing, nil
 	}
-	return types.RwInt(coordinate), nil
+	return coordinate, nil
 }

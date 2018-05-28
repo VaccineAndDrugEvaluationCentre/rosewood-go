@@ -9,32 +9,32 @@ import (
 //as specified in a Rosewood command. Should be translated to one or more spans
 //in the physical table
 type SpanSegment struct {
-	kind        string  // row or col
-	Left, Right RwInt   // e.g., row 1:2
-	By          RwInt   // holds the step in eg row 1:2:6
-	List        []RwInt // holds list of row/col numbers eg row 1,2,3,4
+	kind        string // row or col
+	Left, Right int    // e.g., row 1:2
+	By          int    // holds the step in eg row 1:2:6
+	List        []int  // holds list of row/col numbers eg row 1,2,3,4
 }
 
 //NewSpanSegment returns a segment of certain kind
 func NewSpanSegment(kind string) SpanSegment {
-	return SpanSegment{kind: kind, Left: MissingRwInt, Right: MissingRwInt, By: MissingRwInt}
+	return SpanSegment{kind: kind, Left: RwMissing, Right: RwMissing, By: RwMissing}
 }
 
 func (ss *SpanSegment) String() string {
 	buf := &bytes.Buffer{}
 	fmt.Fprintf(buf, "%s ", ss.kind)
-	if ss.Left != MissingRwInt {
-		fmt.Fprintf(buf, "%s", formattedRwInt(ss.Left))
-		if ss.By != MissingRwInt {
-			fmt.Fprintf(buf, ":%s", formattedRwInt(ss.By))
+	if ss.Left != RwMissing {
+		fmt.Fprintf(buf, "%s", formattedCellCoord(ss.Left))
+		if ss.By != RwMissing {
+			fmt.Fprintf(buf, ":%s", formattedCellCoord(ss.By))
 		}
-		fmt.Fprintf(buf, ":%s", formattedRwInt(ss.Right))
+		fmt.Fprintf(buf, ":%s", formattedCellCoord(ss.Right))
 		if len(ss.List) > 0 {
 			fmt.Fprintf(buf, ", ") //add comma if we also have a comma separated list
 		}
 	}
 	for _, item := range ss.List {
-		fmt.Fprintf(buf, "%s,", formattedRwInt(item))
+		fmt.Fprintf(buf, "%s,", formattedCellCoord(item))
 	}
 	//remove last comma if any
 	if bytes.HasSuffix(buf.Bytes(), []byte{','}) {

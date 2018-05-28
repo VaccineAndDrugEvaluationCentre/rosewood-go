@@ -40,6 +40,7 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		{"merge row 1:2:3 col 1:2 \n", 1, false, "merge row 1:2:3 col 1:2"},
 		{"merge row 1:2:3 col 1:2:3 \n", 1, false, "merge row 1:2:3 col 1:2:3"},
 		{"style row 1:2:3 col 1:2:3 style1\n", 1, false, "style row 1:2:3 col 1:2:3 style1"},
+		{"merge row 1:-2:3", 1, false, "merge row 1:-2:3"},
 		{"style row 1,7 style1 \n", 1, false, "style row 1,7 style1"},
 		{"style row 1,7 col 1 style1 \n", 1, false, "style row 1,7 col 1:NA style1"},
 
@@ -77,6 +78,7 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		{"merge row 3:1 col 1\n", 1, true, "row numbers invalid"},
 		{"merge row 1:2 col 3:2\n", 1, true, "col numbers invalid"},
 		{"merge row 1,2, 3:4", 1, true, ": not allowed after a coordinate list"},
+		{"merge row 1:0:10", 1, true, "zero not allowed as a step"},
 		{"merge row max:1", 1, true, "max not allowed in a left coordinate"},
 		{"merge row 1:max:10", 1, true, "max not allowed as a step"},
 		{"merge row 1,2,3, max", 1, true, "max not allowed after a range"},
@@ -174,7 +176,7 @@ func TestCommandParser_ParseMultiLineCommands(t *testing.T) {
 
 const script1 = `
 //*following commands should parse without error*/
-merge row 1:2 col 1
+merge row 1 col 1:2
 merge row 1:2 col 1
 merge row 1:2 col 1:2   //another comment
 merge row 1 col 1 

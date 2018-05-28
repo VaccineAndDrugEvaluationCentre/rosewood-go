@@ -63,8 +63,8 @@ func createMergedGridTable(Contents *TableContents, mrlist []Range) (*TableConte
 	*/
 	//now copy the text of each cell in contents to the corresponding cell in grid
 	//skipping any merged cells
-	for i := RwInt(1); i <= Contents.RowCount(); i++ {
-		for j := RwInt(1); j <= Contents.Row(i).cellCount(); j++ {
+	for i := 1; i <= Contents.RowCount(); i++ {
+		for j := 1; j <= Contents.Row(i).cellCount(); j++ {
 			if strings.TrimSpace(Contents.cell(i, j).text) == "" {
 				continue
 			}
