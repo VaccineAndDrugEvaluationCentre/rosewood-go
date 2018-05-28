@@ -25,9 +25,12 @@ type Coordinates struct {
 //TODO: optimize
 func formattedRwInt(value RwInt) []byte { //return byte array for ease of concatenating with other text
 	var buf []byte
-	if value == MissingRwInt {
+	switch value {
+	case MissingRwInt:
 		buf = append(buf, 'N', 'A') //use NA for missing
-	} else {
+	case MaxRwInt:
+		buf = append(buf, 'm', 'a', 'x') //use max for missing
+	default:
 		buf = strconv.AppendUint(buf, uint64(value), 10)
 	}
 	return buf

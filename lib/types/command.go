@@ -31,7 +31,7 @@ func NewCommand(name string, token RwKeyWord) *Command {
 	return &Command{token: token, name: name}
 }
 
-//formats command for printing; Warning: used for testing the parser, changing it will break tests
+//formats command for printing; Warning: used for testing the parser, changing it might break some tests
 func (c *Command) String() string {
 	buf := &bytes.Buffer{}
 	fmt.Fprintf(buf, "%s ", c.name)

@@ -75,24 +75,32 @@ func (s *Span) Validate() error {
 
 //Normalize replace missing values with values defined by rowCount and colCount
 func (s *Span) Normalize(rowCount, colCount RwInt) {
-	if s.r1 == MissingRwInt && s.r2 == MissingRwInt { //span includes all rows
+	if s.r2 == MaxRwInt { //eg style 1:2:max; max is converted to MissingRwInt
+		s.r2 = MissingRwInt
+	}
+	if s.c2 == MaxRwInt {
+		s.c2 = MissingRwInt
+	}
+	if s.r1 == MissingRwInt && s.r2 == MissingRwInt { //span includes all rows eg style col 1
 		s.r1 = 1
 		s.r2 = rowCount
 	}
-	if s.c1 == MissingRwInt && s.c2 == MissingRwInt { //span includes all cols
+	if s.c1 == MissingRwInt && s.c2 == MissingRwInt { //span includes all cols eg style row 1
 		s.c1 = 1
 		s.c2 = colCount
 	}
-	if s.r1 == MissingRwInt { // row x is equivalent to row x:x
+	//TODO: verify need for this
+	if s.r1 == MissingRwInt { // row x is equivalent to row x:x,
 		s.r1 = s.r2
 	}
-	if s.r2 == MissingRwInt { // row x is equivalent to row x:x
+	if s.r2 == MissingRwInt { // row x is equivalent to row x:x, eg style row 1 col 1,3
 		s.r2 = s.r1
 	}
+	//TODO: verify need for this
 	if s.c1 == MissingRwInt { // col x is equivalent to col x:x
 		s.c1 = s.c2
 	}
-	if s.c2 == MissingRwInt { // col x is equivalent to col x:x
+	if s.c2 == MissingRwInt { // col x is equivalent to col x:x, eg style row 1,3 col 1
 		s.c2 = s.c1
 	}
 }
@@ -202,62 +210,62 @@ func getAllRanges(cmdList []*Command, cmdType RwKeyWord) (allRangesList []Range,
 
 //TODO: remove OLD CODE
 //deduplicateSpanList returns deduplicated (unique r1,r2,c1,c2) span List
-func deduplicateSpanList(sList []*Span) []*Span {
-	set := make(map[string]*Span, len(sList))
-	i := 0
-	for _, s := range sList {
-		if _, exists := set[s.String()]; exists {
-			continue
-		}
-		set[s.String()] = s
-		sList[i] = s
-		i++
-	}
-	return sList[:i]
-}
+// func deduplicateSpanList(sList []*Span) []*Span {
+// 	set := make(map[string]*Span, len(sList))
+// 	i := 0
+// 	for _, s := range sList {
+// 		if _, exists := set[s.String()]; exists {
+// 			continue
+// 		}
+// 		set[s.String()] = s
+// 		sList[i] = s
+// 		i++
+// 	}
+// 	return sList[:i]
+// }
 
-//ExpandSpan convert by and comma list spans into simple (topleft, bottomright only) spans
-func (s *Span) ExpandSpan() (sList []*Span, err error) {
-	var rPoints, cPoints []RwInt
-	//if skipped span (eg 1:2:10), generate Lists of all row and col points included
-	if s.rby != MissingRwInt {
-		if rPoints = genAllPossibleRangePoints(s.r1, s.r2, s.rby); rPoints == nil {
-			return nil, fmt.Errorf("invalid span %s", s)
-		}
-	}
-	if s.cby != MissingRwInt {
-		if cPoints = genAllPossibleRangePoints(s.c1, s.c2, s.cby); cPoints == nil {
-			return nil, fmt.Errorf("invalid span %s", s)
-		}
-	}
-	//if comma-separated, add to above Lists (which could be empty)
-	rPoints = append(rPoints, s.rcl...)
-	cPoints = append(cPoints, s.ccl...)
+// //ExpandSpan convert by and comma list spans into simple (topleft, bottomright only) spans
+// func (s *Span) ExpandSpan() (sList []*Span, err error) {
+// 	var rPoints, cPoints []RwInt
+// 	//if skipped span (eg 1:2:10), generate Lists of all row and col points included
+// 	if s.rby != MissingRwInt {
+// 		if rPoints = genAllPossibleRangePoints(s.r1, s.r2, s.rby); rPoints == nil {
+// 			return nil, fmt.Errorf("invalid span %s", s)
+// 		}
+// 	}
+// 	if s.cby != MissingRwInt {
+// 		if cPoints = genAllPossibleRangePoints(s.c1, s.c2, s.cby); cPoints == nil {
+// 			return nil, fmt.Errorf("invalid span %s", s)
+// 		}
+// 	}
+// 	//if comma-separated, add to above Lists (which could be empty)
+// 	rPoints = append(rPoints, s.rcl...)
+// 	cPoints = append(cPoints, s.ccl...)
 
-	switch {
-	//scenario 1: simple (no steps or comma list) span, eg style row 1:3 col 1:2, return it
-	case len(rPoints) == 0 && len(cPoints) == 0:
-		sList = append(sList, s)
-	//scenario 2: both columns and rows are complex, create a span for each affected row and col combination
-	//eg style row 1:2:6 col 1:2:6 --> row 1:1 col 1:1; row 3:3 col 1:1; row 5:5 col 1:1, repeat for col 3:3 & 5:5
-	case len(rPoints) != 0 && len(cPoints) != 0:
-		for _, r := range rPoints {
-			for _, c := range cPoints {
-				sList = append(sList, MakeSpan(r, r, c, c))
-			}
-		}
-	//scenario 3: rows complex but cols simple, create a span for each affected row
-	//eg style row 1:2:6 col 1:1 --> row 1:1 col 1:1; row 3:3 col 1:1; row 5:5 col 1:1
-	case rPoints != nil:
-		for _, r := range rPoints {
-			sList = append(sList, MakeSpan(r, r, s.c1, s.c2))
-		}
-	//scenario 4: rows simple but cols complex, create a span for each affected col
-	//eg row 1:1 col 1:2:6 --> row 1:1 col 1:1; row 1:1 col 3:3; row 1:1 col 5:5
-	case cPoints != nil:
-		for _, c := range cPoints {
-			sList = append(sList, MakeSpan(s.r1, s.r2, c, c))
-		}
-	}
-	return deduplicateSpanList(sList), nil
-}
+// 	switch {
+// 	//scenario 1: simple (no steps or comma list) span, eg style row 1:3 col 1:2, return it
+// 	case len(rPoints) == 0 && len(cPoints) == 0:
+// 		sList = append(sList, s)
+// 	//scenario 2: both columns and rows are complex, create a span for each affected row and col combination
+// 	//eg style row 1:2:6 col 1:2:6 --> row 1:1 col 1:1; row 3:3 col 1:1; row 5:5 col 1:1, repeat for col 3:3 & 5:5
+// 	case len(rPoints) != 0 && len(cPoints) != 0:
+// 		for _, r := range rPoints {
+// 			for _, c := range cPoints {
+// 				sList = append(sList, MakeSpan(r, r, c, c))
+// 			}
+// 		}
+// 	//scenario 3: rows complex but cols simple, create a span for each affected row
+// 	//eg style row 1:2:6 col 1:1 --> row 1:1 col 1:1; row 3:3 col 1:1; row 5:5 col 1:1
+// 	case rPoints != nil:
+// 		for _, r := range rPoints {
+// 			sList = append(sList, MakeSpan(r, r, s.c1, s.c2))
+// 		}
+// 	//scenario 4: rows simple but cols complex, create a span for each affected col
+// 	//eg row 1:1 col 1:2:6 --> row 1:1 col 1:1; row 1:1 col 3:3; row 1:1 col 5:5
+// 	case cPoints != nil:
+// 		for _, c := range cPoints {
+// 			sList = append(sList, MakeSpan(s.r1, s.r2, c, c))
+// 		}
+// 	}
+// 	return deduplicateSpanList(sList), nil
+// }

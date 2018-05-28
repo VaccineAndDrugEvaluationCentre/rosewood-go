@@ -50,12 +50,14 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		{"merge row 1:2:3, 4 col 1", 1, false, "merge row 1:2:3, 4 col 1:NA"},
 		{"merge row 1:2, 4,7 col 1:2", 1, false, "merge row 1:2, 4,7 col 1:2"},
 		{"merge row 1:2:3, 4,7 col 1:2", 1, false, "merge row 1:2:3, 4,7 col 1:2"},
-		//TODO: fix following errors
-		//TODO: end fix errors
+
+		{"merge row 1:max col 2:max", 1, false, "merge row 1:max col 2:max"},
+		{"merge row 1:2:max col 2:2: max", 1, false, "merge row 1:2:max col 2:2:max"},
 		{`set rangeseparator "-"
 			`, 1, false, "set rangeseparator,\"-\""}, //escaping " using \
 		{"merge col 1:2 row 1 ", 1, false, "merge col 1:2 row 1:NA"}, //switched row and col positions
-
+		//TODO: fix following errors until end fix errors
+		//TODO: end fix errors
 		// following are all syntax errors, hence wantError=true
 		{"merge row 1:2 row 1:2 \n", 1, true, "duplicate row segments"},
 		{"merge cl 1:2 row 1 ", 1, true, "misspelled col"},
@@ -75,6 +77,10 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		{"merge row 3:1 col 1\n", 1, true, "row numbers invalid"},
 		{"merge row 1:2 col 3:2\n", 1, true, "col numbers invalid"},
 		{"merge row 1,2, 3:4", 1, true, ": not allowed after a coordinate list"},
+		{"merge row max:1", 1, true, "max not allowed in a left coordinate"},
+		{"merge row 1:max:10", 1, true, "max not allowed as a step"},
+		{"merge row 1,2,3, max", 1, true, "max not allowed after a range"},
+		{"merge row 1,2,3, max, 4, 5", 1, true, "max not allowed in a range"},
 		{"\n", 1, true, "empty line"},
 		{"\r\n", 1, true, "empty line Windows"},
 		{"\n\n\n", 1, true, "empty lines"},
@@ -85,7 +91,7 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		// {`set rangeseparator "-" "onemore"
 		// 	`, 1, true, "invalid # args to set"},
 	}
-	p := NewCommandParser(settings.DebugSettings(true)) //use default settings
+	p := NewCommandParser(settings.DebugSettings(2)) //use default settings
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
 			ss := strings.Split(tt.source, "\n")
