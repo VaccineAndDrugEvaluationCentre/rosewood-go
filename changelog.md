@@ -1,9 +1,14 @@
+## 0.5.0
+- added support for processing Rosewood v0.1 source files. 
+- added command v1tov2 to convert from v0.1 to v0.2
+- updated to be consistent with new specs.
+
 ## 0.4.5
 - changed algorithm for merging cells to address an unforeseen corner case (needs testing).
-- 
+- added support for inlining css to permit conversion to docx files.
 
 ## 0.4.0
-- Refactored so now a renderer can be provided by an external package (e.g., package html).
+- refactored so now a renderer can be provided by an external package (e.g., package html).
 - cleaned up old code.
 - added draft documentation.
 

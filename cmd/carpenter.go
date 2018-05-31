@@ -23,6 +23,11 @@ var (
 	Build string
 )
 
+//TODO:
+// remove # from syntax error syntax error line #39 col #23: expected row, col or an argument, found 1
+// allow quoted argument in style command
+// change version strings into constants eg v0.1 Version0_1
+
 func main() {
 	if err := RunApp(); err != nil {
 		crash(err)
@@ -50,9 +55,13 @@ func RunApp() error {
 		settings.CheckSyntaxOnly = true
 		fallthrough
 	case "run":
+		//TODO: remove if stmt
 		if err := Run(settings, flg.Args()); err != nil {
 			return err
 		}
+	case "v1tov2":
+		settings.ConvertFromVersion = "v0.1"
+		err = V1toV2(settings, flg.Args())
 	case "version":
 		fmt.Println(getVersion())
 	case "help":
@@ -72,14 +81,20 @@ func setupCommandFlag(settings *rosewood.Settings) (flgSets []*flag.FlagSet, err
 		{&settings.StyleSheetName, "style", "s", ""},
 		{&settings.OutputFileName, "output", "o", ""},
 		{&settings.OverWriteOutputFile, "replace", "r", false},
+		{&settings.DoNotInlineCSS, "no-inlined-css", "", false},
 		{&settings.SectionSeparator, "sep", "S", "+++"},
+		{&settings.ConvertFromVersion, "rosewood-version", "rv", ""},
 	})
 	cmdCheck := NewCommand("check", []Flag{
 		{&settings.SectionSeparator, "sep", "S", "+++"},
 	})
+	cmdV1tov2 := NewCommand("v1tov2", []Flag{
+		{&settings.ConvertFromVersion, "rosewood-version", "rv", ""},
+		{&settings.OverWriteOutputFile, "replace", "r", false},
+	})
 	cmdHelp := NewCommand("help", []Flag{})
 	cmdVersion := NewCommand("version", []Flag{})
-	flgSets = append(flgSets, globals, cmdRun, cmdCheck, cmdHelp, cmdVersion)
+	flgSets = append(flgSets, globals, cmdRun, cmdCheck, cmdV1tov2, cmdHelp, cmdVersion)
 	for _, fs := range flgSets {
 		fs.Usage = func() {}    //disable internal usage function
 		fs.SetOutput(devNull{}) //suppress output from package flag
@@ -99,12 +114,12 @@ func Run(settings *rosewood.Settings, args []string) error {
 		}
 		settings.InputFileName = "<stdin>"
 		if err := runSingle(settings); err != nil {
-			return err //fmt.Errorf(ErrRunningFile, "<stdin>", err)
+			return err
 		}
 	case 1: //input=single file
 		settings.InputFileName = args[0]
 		if err := runSingle(settings); err != nil {
-			return err // fmt.Errorf(ErrRunningFile, settings.InputFileName, err)
+			return err
 		}
 	default: //input= > 1 file
 		switch settings.OutputFileName {
@@ -128,30 +143,24 @@ func Run(settings *rosewood.Settings, args []string) error {
 //runSingle parses and render (if in run mode) a single input file
 func runSingle(settings *rosewood.Settings) error {
 	var (
-		in          io.ReadCloser
-		out         io.WriteCloser
-		err         error
-		minFileSize = settings.SectionsPerTable * len(settings.SectionSeparator)
+		in  io.ReadCloser
+		out io.WriteCloser
+		err error
 	)
-	annotateError := func(err error) error {
-		if err == nil {
-			return nil
-		}
-		return fmt.Errorf("----------\nerror running file [%s]:\n%s", settings.InputFileName, err)
-	}
+	iDesc := DefaultRwInputDescriptor(settings)
 	switch settings.InputFileName {
 	case "<stdin>":
-		in, _ = getInputFile("", minFileSize)
+		in, _ = getValidInputReader(iDesc.SetFileName("")) //setFileName called for consistency and clarity
 		//output either stdout if outFileName=="" or outFileName
 		if !settings.CheckSyntaxOnly { //do not need an output for only checking syntax
 			if out, err = getOutputFile(settings.OutputFileName, settings.OverWriteOutputFile); err != nil {
-				return annotateError(err)
+				return annotateError(settings.InputFileName, err)
 			}
 			defer out.Close()
 		}
 	default: //single file
-		if in, err = getInputFile(settings.InputFileName, minFileSize); err != nil {
-			return annotateError(err)
+		if in, err = getValidInputReader(iDesc.SetFileName(settings.InputFileName)); err != nil {
+			return annotateError(settings.InputFileName, err)
 		}
 		defer in.Close()
 		//output either outFileName or a new file =inFileName + "ext" if outFileName==""
@@ -160,13 +169,13 @@ func runSingle(settings *rosewood.Settings) error {
 				settings.OutputFileName = fileutils.ReplaceFileExt(settings.InputFileName, "html")
 			}
 			if out, err = getOutputFile(settings.OutputFileName, settings.OverWriteOutputFile); err != nil {
-				return annotateError(err)
+				return annotateError(settings.InputFileName, err)
 			}
 			defer out.Close()
 		}
 	}
 	ri := rosewood.NewInterpreter(settings)
-	return annotateError(runFile(ri, in, out))
+	return annotateError(settings.InputFileName, runFile(ri, in, out))
 }
 
 func runFile(ri *rosewood.Interpreter, in io.Reader, out io.Writer) error {
@@ -183,9 +192,8 @@ func runFile(ri *rosewood.Interpreter, in io.Reader, out io.Writer) error {
 
 func runMulti(inFileNames []string, settings *rosewood.Settings) error {
 	var (
-		out         io.WriteCloser
-		err         error
-		minFileSize = settings.SectionsPerTable * len(settings.SectionSeparator)
+		out io.WriteCloser
+		err error
 	)
 	//open output file if needed
 	if !settings.CheckSyntaxOnly {
@@ -196,8 +204,9 @@ func runMulti(inFileNames []string, settings *rosewood.Settings) error {
 	}
 	ri := rosewood.NewInterpreter(settings)
 	errs := errors.NewErrorList()
+	iDesc := DefaultRwInputDescriptor(settings)
 	for _, f := range inFileNames {
-		in, err := getInputFile(f, minFileSize)
+		in, err := getValidInputReader(iDesc.SetFileName(f))
 		if err != nil {
 			errs.Add(err)
 			continue
@@ -208,38 +217,6 @@ func runMulti(inFileNames []string, settings *rosewood.Settings) error {
 		}
 	}
 	return errs
-}
-
-func getOutputFile(fileName string, overWrite bool) (*os.File, error) {
-	if fileName == "" || fileName == "<stdout>" {
-		return os.Stdout, nil
-	}
-	out, err := fileutils.CreateFile(fileName, overWrite)
-	if err != nil {
-		return nil, fmt.Errorf(ErrOpenOutFile, fileName, err)
-	}
-	return out, nil
-}
-
-func getInputFile(fileName string, minFileSize int) (*os.File, error) {
-	if fileName == "" || fileName == "<stdin>" {
-		return os.Stdin, nil
-	}
-	in, err := os.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-	//this check here rather than in the interpreter because we need access to *File to rewind it
-	//where as the interpreter uses io.Reader which does not have a stream
-	if err = fileutils.CheckTextStream(in, minFileSize); err != nil {
-		return nil, err
-	}
-	//rewind file stream
-	_, err = in.Seek(0, 0)
-	if err != nil {
-		return nil, fmt.Errorf(ErrOpenInFile, fileName, err)
-	}
-	return in, nil
 }
 
 func getVersion() string {

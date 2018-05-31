@@ -8,6 +8,8 @@ import (
 	"testing"
 )
 
+//TODO: fix tests for empty and binary files: returned text is different than specified in tests
+//TODO: add tests for rw v0.1
 func Test_run(t *testing.T) {
 	const (
 		path = "../test-files" //all test files used below are stored here

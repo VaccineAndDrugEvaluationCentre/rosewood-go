@@ -5,6 +5,7 @@ package rosewood
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/drgo/errors"
 	"github.com/drgo/rosewood/lib/parser"
@@ -80,6 +81,41 @@ func (ri *Interpreter) Render(w io.Writer, file *parser.File, hr types.Renderer)
 	return err
 }
 
+func (ri *Interpreter) ReportError(err error) error {
+	return errors.ErrorsToError(err)
+}
+
+//Settings returns currently active interpreter settings
+func (ri *Interpreter) Settings() *settings.Settings {
+	return ri.settings
+}
+
+//DefaultSettings returns a pointer to an initialized settings object
+func DefaultSettings() *Settings {
+	return settings.DefaultSettings()
+}
+
+func ConvertToCurrentVersion(settings *settings.Settings, in io.Reader) (newCode []string, err error) {
+	switch settings.ConvertFromVersion {
+	case "v0.1":
+		return parser.ConvertToCurrentVersion(settings, parser.RWSyntaxV1, in)
+	}
+	return nil, fmt.Errorf("invalid version number: %s", settings.ConvertFromVersion)
+}
+
+//GetFileVersion returns Rosewood file version based on header info
+func GetFileVersion(header string) string {
+	switch strings.TrimSpace(header) {
+	case "---":
+		return "v0.1"
+	case "+++":
+		return "v0.2"
+	default:
+		return "unknown"
+	}
+}
+
+//TODO: remove old code
 // //RenderTables renders 1 or more tables into a Writer using the passed Renderer
 // func (ri *Interpreter) RenderTables(w io.Writer, tables []*types.Table, hr types.Renderer) error {
 // 	var err error
@@ -98,17 +134,3 @@ func (ri *Interpreter) Render(w io.Writer, file *parser.File, hr types.Renderer)
 // 	err = hr.EndFile()
 // 	return err
 // }
-
-func (ri *Interpreter) ReportError(err error) error {
-	return errors.ErrorsToError(err)
-}
-
-//Settings returns currently active interpreter settings
-func (ri *Interpreter) Settings() *settings.Settings {
-	return ri.settings
-}
-
-//DefaultSettings returns a pointer to an initialized settings object
-func DefaultSettings() *Settings {
-	return settings.DefaultSettings()
-}

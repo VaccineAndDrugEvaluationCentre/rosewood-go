@@ -52,6 +52,7 @@ func (f *File) Parse(r io.Reader) error {
 	var s *types.Section
 	lineNum := 0
 	scanner := bufio.NewScanner(r)
+	//TODO: the first line must start with a section separator, simplify the following
 	//find a line that starts with a SectionSeparator
 	for {
 		more := scanner.Scan()
@@ -68,6 +69,7 @@ func (f *File) Parse(r io.Reader) error {
 			break                                                 //SectionSeparator was in the first valid line
 		}
 		//other text found
+		fmt.Println("//EOF reached first") //DEBUG
 		return NewError(ErrSyntaxError, unknownPos, "file is empty or does not start by a section separator: "+f.settings.SectionSeparator)
 	}
 	//process the rest of the file

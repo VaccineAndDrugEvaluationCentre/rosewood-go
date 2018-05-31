@@ -11,7 +11,9 @@ import (
 type Settings struct {
 	CheckSyntaxOnly     bool
 	ColumnSeparator     string
+	ConvertFromVersion  string
 	Debug               int
+	DoNotInlineCSS      bool
 	ExecutableVersion   string
 	LibVersion          string
 	InputFileName       string
