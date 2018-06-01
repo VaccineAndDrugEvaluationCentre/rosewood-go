@@ -44,12 +44,9 @@ cover:
 	rm c.out	
 
 showcover:	
-go test -coverprofile=c.out && go tool cover -html=c.out
+	go test -coverprofile=c.out && go tool cover -html=c.out
 
 graph:
 	godepgraph "github.com/drgo/rosewood/cmd"  | dot -Tpng -o godepgraph.png	
 
 .PHONY: clean install doc testcover graph
-
-
-
