@@ -4,7 +4,6 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"io"
@@ -27,6 +26,11 @@ var (
 // remove # from syntax error syntax error line #39 col #23: expected row, col or an argument, found 1
 // allow quoted argument in style command
 // change version strings into constants eg v0.1 Version0_1
+// remove blank line in top of rendered html
+// add support to inlined-markdown.
+// use settings.Debug to control printing debug info; add no-warning default false
+// move all utilities to appropriate packages
+// refresh vendor packages
 
 func main() {
 	if err := RunApp(); err != nil {
@@ -76,13 +80,15 @@ func RunApp() error {
 func setupCommandFlag(settings *rosewood.Settings) (flgSets []*flag.FlagSet, err error) {
 	globals := NewCommand("", []Flag{
 		{&settings.Debug, "debug", "d", 0},
+		{&settings.OverWriteOutputFile, "replace", "r", false}, //ignored by some commands
 	})
 	cmdRun := NewCommand("run", []Flag{
-		{&settings.StyleSheetName, "style", "s", ""},
-		{&settings.OutputFileName, "output", "o", ""},
-		{&settings.OverWriteOutputFile, "replace", "r", false},
+		{&settings.ConvertOldVersions, "convert-old", "co", false},
 		{&settings.DoNotInlineCSS, "no-inlined-css", "", false},
+		{&settings.OutputFileName, "output", "o", ""},
+		{&settings.SaveConvertedFile, "save-converted", "sc", false},
 		{&settings.SectionSeparator, "sep", "S", "+++"},
+		{&settings.StyleSheetName, "style", "s", ""},
 		{&settings.ConvertFromVersion, "rosewood-version", "rv", ""},
 	})
 	cmdCheck := NewCommand("check", []Flag{
@@ -90,7 +96,6 @@ func setupCommandFlag(settings *rosewood.Settings) (flgSets []*flag.FlagSet, err
 	})
 	cmdV1tov2 := NewCommand("v1tov2", []Flag{
 		{&settings.ConvertFromVersion, "rosewood-version", "rv", ""},
-		{&settings.OverWriteOutputFile, "replace", "r", false},
 	})
 	cmdHelp := NewCommand("help", []Flag{})
 	cmdVersion := NewCommand("version", []Flag{})
@@ -143,8 +148,8 @@ func Run(settings *rosewood.Settings, args []string) error {
 //runSingle parses and render (if in run mode) a single input file
 func runSingle(settings *rosewood.Settings) error {
 	var (
-		in  io.ReadCloser
-		out io.WriteCloser
+		in  *os.File
+		out *os.File
 		err error
 	)
 	iDesc := DefaultRwInputDescriptor(settings)
@@ -174,13 +179,13 @@ func runSingle(settings *rosewood.Settings) error {
 			defer out.Close()
 		}
 	}
-	ri := rosewood.NewInterpreter(settings)
+	ri := rosewood.NewInterpreter(settings).SetScriptIdentifer(settings.InputFileName)
 	return annotateError(settings.InputFileName, runFile(ri, in, out))
 }
 
-func runFile(ri *rosewood.Interpreter, in io.Reader, out io.Writer) error {
-	file, err := ri.Parse(bufio.NewReader(in), "")
-	if err != nil || ri.Settings().CheckSyntaxOnly {
+func runFile(ri *rosewood.Interpreter, in io.ReadSeeker, out io.Writer) error {
+	file, err := ri.Parse(in, ri.ScriptIdentifer())
+	if err != nil || ri.Setting().CheckSyntaxOnly {
 		return ri.ReportError(err)
 	}
 	hr, err := rosewood.GetRendererByName("html")

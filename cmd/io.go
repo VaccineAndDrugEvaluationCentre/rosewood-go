@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -11,7 +10,7 @@ import (
 	rosewood "github.com/drgo/rosewood/lib"
 )
 
-//TODO: move to fileUtils
+//TODO: move to fileUtils; replace with generic file descriptors
 type RwInputDescriptor struct {
 	FileName           string
 	MinFileSize        int
@@ -38,55 +37,27 @@ func (iDesc *RwInputDescriptor) SetConvertFromVersion(convertFromVersion string)
 	return iDesc
 }
 
-//TODO: fix errors in tests due to returning "------"
 //TODO: move to Rosewood lib
 func getValidInputReader(iDesc *RwInputDescriptor) (*os.File, error) {
 	//TODO: stop supporting piped-in ?
 	if iDesc.FileName == "" || iDesc.FileName == "<stdin>" {
 		return os.Stdin, nil
 	}
-	in, err := os.Open(iDesc.FileName)
-	if err != nil {
-		return nil, err
-	}
-	//this check here rather than in the interpreter because we need access to *File to rewind it
-	//where as the interpreter uses io.Reader which does not support seek
-	//TODO: change pass acceptable type(s) as a parameter
-	if err = fileutils.CheckTextStream(in, iDesc.MinFileSize); err != nil {
-		return nil, err
-	}
-	//TODO: clean up extra-check
-	if err != nil {
-		return nil, fmt.Errorf(ErrOpenInFile, iDesc.FileName, err)
-	}
-	return in, nil
-}
-
-func CheckFileVersion(r io.ReadSeeker) (version string, err error) {
-	first3Bytes := make([]byte, 3)
-	n, err := r.Read(first3Bytes)
-	defer func() { //defer rewinding the file stream
-		_, serr := r.Seek(0, 0)
-		if err != nil {
-			err = serr
-		}
-	}()
-	switch {
-	case err != nil && err != io.EOF:
-		return "", err
-	case n < 3:
-		return "", fmt.Errorf("stream is empty or does not contain sufficient data, size=%d", n)
-	default:
-		//TODO: replace with GetFileVersion
-		switch string(first3Bytes) {
-		case "---":
-			return "v0.1", nil
-		case "+++":
-			return "v0.2", nil
-		default:
-			return "unknown", nil
-		}
-	}
+	return os.Open(iDesc.FileName)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// //this check here rather than in the interpreter because we need access to *File to rewind it
+	// //where as the interpreter uses io.Reader which does not support seek
+	// //TODO: change pass acceptable type(s) as a parameter; "" means do not check
+	// if err = fileutils.CheckTextStream(in, iDesc.MinFileSize); err != nil {
+	// 	return nil, err
+	// }
+	// //TODO: clean up extra-check
+	// if err != nil {
+	// 	return nil, fmt.Errorf(ErrOpenInFile, iDesc.FileName, err)
+	// }
+	// return in, nil
 }
 
 //TODO: replace with temp file to prevent creating output file when run fails

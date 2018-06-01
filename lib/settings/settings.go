@@ -11,6 +11,7 @@ import (
 type Settings struct {
 	CheckSyntaxOnly     bool
 	ColumnSeparator     string
+	ConvertOldVersions  bool
 	ConvertFromVersion  string
 	Debug               int
 	DoNotInlineCSS      bool
@@ -22,6 +23,7 @@ type Settings struct {
 	OutputFileName      string
 	RangeOperator       int32
 	ReportAllError      bool
+	SaveConvertedFile   bool
 	SectionCapacity     int
 	SectionSeparator    string
 	SectionsPerTable    int

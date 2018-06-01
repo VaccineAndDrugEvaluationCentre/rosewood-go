@@ -4,11 +4,13 @@ package parser
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"strings"
 	"text/scanner"
 
+	"github.com/drgo/fileutils"
 	"github.com/drgo/rosewood/lib/settings"
 	"github.com/drgo/rosewood/lib/types"
 )
@@ -43,41 +45,42 @@ func NewFile(fileName string, settings *settings.Settings) *File {
 		settings: settings}
 }
 
-//Parse parses an io.Reader streaming a Rosewood file and returns any found tables
-func (f *File) Parse(r io.Reader) error {
-	// helper function
-	isSectionSeparatorLine := func(line string) bool {
-		return strings.HasPrefix(strings.TrimSpace(line), f.settings.SectionSeparator)
-	}
-	var s *types.Section
-	lineNum := 0
+//Parse parses an io.ReadSeeker streaming a Rosewood file and returns any found tables
+func (f *File) Parse(r io.ReadSeeker) error {
+	//TODO: add a test file that starts with empty space or other stuff
+	var (
+		s       *types.Section
+		lineNum int
+	)
 	scanner := bufio.NewScanner(r)
-	//TODO: the first line must start with a section separator, simplify the following
-	//find a line that starts with a SectionSeparator
-	for {
-		more := scanner.Scan()
-		if !more && scanner.Err() == nil { //EOF reached first
-			return NewError(ErrSyntaxError, unknownPos, "file is empty or does not start by a section separator: "+f.settings.SectionSeparator)
+	//check file version
+	if !scanner.Scan() {
+		return NewError(ErrSyntaxError, unknownPos, scanner.Err().Error())
+	}
+	lineNum++ //we found a line
+	//fmt.Println(line)  //DEBUG
+	switch GetFileVersion(strings.TrimSpace(scanner.Text())) {
+	case "unknown":
+		return NewError(ErrSyntaxError, unknownPos, "file does not start by a valid section separator")
+	case "v0.1":
+		if !f.settings.ConvertOldVersions {
+			return NewError(ErrSyntaxError, unknownPos, "possibly version 0.1 file")
 		}
-		lineNum++
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "//") {
-			continue //skip comments and empty lines
+		buf, err := f.convertFromVersionZero1(r)
+		if err != nil {
+			return NewError(ErrSyntaxError, unknownPos, err.Error())
 		}
-		if strings.HasPrefix(line, f.settings.SectionSeparator) {
-			s = types.NewSection(types.SectionUnknown, lineNum+1) //found the first section
-			break                                                 //SectionSeparator was in the first valid line
-		}
-		//other text found
-		fmt.Println("//EOF reached first") //DEBUG
-		return NewError(ErrSyntaxError, unknownPos, "file is empty or does not start by a section separator: "+f.settings.SectionSeparator)
+		scanner = bufio.NewScanner(bufio.NewReader(buf))    //rest the scanner to using the modified buffer
+		scanner.Scan()                                      //skip the first section separator
+		s = types.NewSection(types.SectionUnknown, lineNum) //found the first section
+	case "v0.2":
+		s = types.NewSection(types.SectionUnknown, lineNum) //found the first section
 	}
 	//process the rest of the file
 	for scanner.Scan() {
 		lineNum++
 		line := scanner.Text()
-		//fmt.Println(line)
-		if isSectionSeparatorLine(line) { //start of a new section
+		if f.isSectionSeparatorLine(line) { //start of a new section
 			if s != nil { //there is an active section, append it to the sections array
 				f.sections = append(f.sections, s)
 			}
@@ -86,11 +89,38 @@ func (f *File) Parse(r io.Reader) error {
 			s.Lines = append(s.Lines, line)
 		}
 	}
-
+	//check for any scanning errors
 	if err := scanner.Err(); err != nil {
 		return NewError(ErrSyntaxError, unknownPos, err.Error())
 	}
 	return f.createTables()
+}
+
+func (f *File) isSectionSeparatorLine(line string) bool {
+	return strings.HasPrefix(strings.TrimSpace(line), f.settings.SectionSeparator)
+}
+
+func (f *File) convertFromVersionZero1(r io.ReadSeeker) (*bytes.Buffer, error) {
+	var buf bytes.Buffer //buffer to hold converted code
+	buf.Grow(100 * 1024)
+	r.Seek(0, 0) //rewind the stream
+	if err := ConvertToCurrentVersion(RWSyntaxVdotzero1, r, &buf); err != nil {
+		return nil, NewError(ErrSyntaxError, unknownPos, err.Error())
+	}
+	if f.settings.SaveConvertedFile {
+		v2FileName := fileutils.ConstructFileName(f.FileName, "rw", "", "-autogen")
+		out, err := fileutils.CreateFile(v2FileName, f.settings.OverWriteOutputFile)
+		if err != nil {
+			return nil, fmt.Errorf("unable to create converted v0.2 file [%s]: %s", v2FileName, err)
+		}
+		if _, err := out.Write(buf.Bytes()); err != nil {
+			return nil, err
+		}
+		if err := out.Close(); err != nil {
+			return nil, err
+		}
+	}
+	return &buf, nil
 }
 
 //SectionCount returns the number of sections found in the file
@@ -150,3 +180,25 @@ func (f *File) Errors() []error {
 func (f *File) Err() error {
 	return f.parser.errors.Err()
 }
+
+// removed to force the first line to be always a section separator
+// find a line that starts with a SectionSeparator
+// for {
+// 	more := scanner.Scan()
+// 	if !more && scanner.Err() == nil { //EOF reached before a SectionSeparator was found
+// 		return NewError(ErrSyntaxError, unknownPos, "file is empty or does not start by a section separator: "+f.settings.SectionSeparator)
+// 	}
+// 	lineNum++
+// 	line := strings.TrimSpace(scanner.Text())
+// 	if line == "" || strings.HasPrefix(line, "//") {
+// 		continue //skip comments and empty lines
+// 	}
+
+// 	if strings.HasPrefix(line, f.settings.SectionSeparator) {
+// 		s = types.NewSection(types.SectionUnknown, lineNum+1) //found the first section
+// 		break                                                 //SectionSeparator was in the first valid line
+// 	}
+// 	//other text found
+// 	fmt.Println("//EOF reached first") //DEBUG
+// 	return NewError(ErrSyntaxError, unknownPos, "file is empty or does not start by a section separator: "+f.settings.SectionSeparator)
+// }
