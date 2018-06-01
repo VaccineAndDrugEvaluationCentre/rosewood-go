@@ -7,35 +7,40 @@ import (
 	"strconv"
 )
 
-//RwInt used for all table cell coordinates
-type RwInt uint
+//int used for all table cell coordinates
+//type int uint
 
-//Missing, min and max values for RwInt
+//Missing, min and max values for int
 const (
-	MissingRwInt = ^RwInt(0)        //flip bits of zero to all 1s to get max uint for use as a sentinel for missing values
-	MaxRwInt     = MissingRwInt - 1 //use this as the MaxUnit
-	MinRwInt     = 1
+	RwMissing = 1<<63 - 1     //get the max int64 for use as a sentinel for missing values
+	RwMax     = RwMissing - 1 //use this as the Maxint
+	RwMin     = 1
 )
 
 //Coordinates holds the row, col of a table cell
 type Coordinates struct {
-	Row, Col RwInt
+	Row, Col int
 }
 
-func formattedRwInt(value RwInt) []byte { //return byte array for ease of concatenating with other text
+//TODO: optimize
+func formattedCellCoord(value int) []byte { //return byte array for ease of concatenating with other text
 	var buf []byte
-	if value == MissingRwInt {
+	switch value {
+	case RwMissing:
 		buf = append(buf, 'N', 'A') //use NA for missing
-	} else {
-		buf = strconv.AppendUint(buf, uint64(value), 10)
+	case RwMax:
+		buf = append(buf, 'm', 'a', 'x') //use max for missing
+	default:
+		buf = strconv.AppendInt(buf, int64(value), 10)
 	}
 	return buf
 }
 
+//TODO: optimize
 func (co Coordinates) String() string {
-	buf := formattedRwInt(co.Row)
+	buf := formattedCellCoord(co.Row)
 	buf = append(buf, ':')
-	buf = append(buf, formattedRwInt(co.Col)...)
+	buf = append(buf, formattedCellCoord(co.Col)...)
 	return string(buf)
 }
 
@@ -47,10 +52,10 @@ type Range struct {
 
 //newRange return an empty a range
 func newRange() Range {
-	return Range{Coordinates{MinRwInt, MinRwInt}, Coordinates{MissingRwInt, MissingRwInt}, nil} //assume topleft =(1,1)
+	return Range{Coordinates{RwMin, RwMin}, Coordinates{RwMissing, RwMissing}, nil} //assume topleft =(1,1)
 }
 
-func makeRange(tlr, tlc, brr, brc RwInt) Range {
+func makeRange(tlr, tlc, brr, brc int) Range {
 	return Range{Coordinates{tlr, tlc}, Coordinates{brr, brc}, nil}
 }
 
@@ -59,8 +64,8 @@ func (r Range) String() string {
 
 }
 func (r Range) testString() string {
-	return fmt.Sprintf("row %s:%s col %s:%s", formattedRwInt(r.TopLeft.Row), formattedRwInt(r.BottomRight.Row),
-		formattedRwInt(r.TopLeft.Col), formattedRwInt(r.BottomRight.Col))
+	return fmt.Sprintf("row %s:%s col %s:%s", formattedCellCoord(r.TopLeft.Row), formattedCellCoord(r.BottomRight.Row),
+		formattedCellCoord(r.TopLeft.Col), formattedCellCoord(r.BottomRight.Col))
 }
 
 func (r *Range) less(s Range) bool {

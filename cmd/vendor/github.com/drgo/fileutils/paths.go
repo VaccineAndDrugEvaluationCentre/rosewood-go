@@ -55,19 +55,26 @@ func CreateFile(fileName string, overWrite bool) (out *os.File, err error) {
 }
 
 //CheckTextStream returns an error if r does contain text otherwise return nil
-func CheckTextStream(r io.Reader, streamMinSize int) error {
+func CheckTextStream(r io.ReadSeeker, streamMinSize int) (err error) {
 	first512Bytes := make([]byte, 512)
+	defer func() { //defer rewinding the file stream
+		_, serr := r.Seek(0, 0)
+		if err != nil {
+			err = serr
+		}
+	}()
 	n, err := r.Read(first512Bytes)
 	switch {
 	case err != nil && err != io.EOF:
-		return err
+		//return err at the bottom of the func
 	case n < streamMinSize:
-		return fmt.Errorf("stream is empty or does not contain sufficient data, size=%d", n)
+		err = fmt.Errorf("stream is empty or does not contain sufficient data, size=%d", n)
 	case !strings.Contains(http.DetectContentType(first512Bytes[0:n]), "text"):
-		return fmt.Errorf("file does not contain text (possibly a binary file)")
+		err = fmt.Errorf("file does not contain text (possibly a binary file)")
 	default:
-		return nil
+		//return err at the bottom of the func
 	}
+	return err
 }
 
 // func FileCompare(file1, file2 string) (error, bool) {

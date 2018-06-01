@@ -20,7 +20,8 @@ type Settings = settings.Settings
 
 //Interpreter holds the state of a Rosewood interpreter
 type Interpreter struct {
-	settings *Settings
+	settings        *Settings
+	scriptIdentifer string
 }
 
 //NewInterpreter returns an initialized Rosewood interpreter
@@ -30,7 +31,7 @@ func NewInterpreter(settings *settings.Settings) *Interpreter {
 	if settings == nil {
 		settings = DefaultSettings()
 	}
-	return &Interpreter{settings}
+	return &Interpreter{settings, ""}
 }
 
 // //Run takes an io.Reader streaming the contents of one or more Rosewood scripts
@@ -44,13 +45,13 @@ func NewInterpreter(settings *settings.Settings) *Interpreter {
 // }
 
 //Parse takes an io.Reader containing RoseWood script and an optional script identifier and returns parsed tables and an error
-func (ri *Interpreter) Parse(r io.Reader, scriptIdentifer string) (*parser.File, error) {
+func (ri *Interpreter) Parse(r io.ReadSeeker, scriptIdentifer string) (*parser.File, error) {
 	file := parser.NewFile(scriptIdentifer, ri.settings)
 	if err := file.Parse(r); err != nil {
 		return nil, err
 	}
 	//TODO: change to use tracer
-	if ri.settings.Debug > 1 {
+	if ri.settings.Debug > 1 { //DEBUG
 		fmt.Printf("%d table(s) found\n", file.TableCount())
 		tables := file.Tables()
 		for i := 0; i < len(tables); i++ {
@@ -80,6 +81,40 @@ func (ri *Interpreter) Render(w io.Writer, file *parser.File, hr types.Renderer)
 	return err
 }
 
+func (ri *Interpreter) ReportError(err error) error {
+	return errors.ErrorsToError(err)
+}
+
+//ScriptIdentifer returns currently processed ScriptIdentifer
+func (ri *Interpreter) ScriptIdentifer() string {
+	return ri.scriptIdentifer
+}
+
+func (ri *Interpreter) SetScriptIdentifer(scriptIdentifer string) *Interpreter {
+	ri.scriptIdentifer = scriptIdentifer
+	return ri
+}
+
+//Settings returns currently active interpreter settings
+func (ri *Interpreter) Setting() *settings.Settings {
+	return ri.settings
+}
+
+//DefaultSettings returns a pointer to an initialized settings object
+func DefaultSettings() *Settings {
+	return settings.DefaultSettings()
+}
+
+//ConvertToCurrentVersion utility to convert older versions of Rosewood to current version
+func ConvertToCurrentVersion(settings *settings.Settings, in io.Reader, out io.Writer) error {
+	switch settings.ConvertFromVersion {
+	case "v0.1":
+		return parser.ConvertToCurrentVersion(parser.RWSyntaxVdotzero1, in, out)
+	}
+	return fmt.Errorf("invalid version number: %s", settings.ConvertFromVersion)
+}
+
+//TODO: remove old code
 // //RenderTables renders 1 or more tables into a Writer using the passed Renderer
 // func (ri *Interpreter) RenderTables(w io.Writer, tables []*types.Table, hr types.Renderer) error {
 // 	var err error
@@ -98,17 +133,3 @@ func (ri *Interpreter) Render(w io.Writer, file *parser.File, hr types.Renderer)
 // 	err = hr.EndFile()
 // 	return err
 // }
-
-func (ri *Interpreter) ReportError(err error) error {
-	return errors.ErrorsToError(err)
-}
-
-//Settings returns currently active interpreter settings
-func (ri *Interpreter) Settings() *settings.Settings {
-	return ri.settings
-}
-
-//DefaultSettings returns a pointer to an initialized settings object
-func DefaultSettings() *Settings {
-	return settings.DefaultSettings()
-}

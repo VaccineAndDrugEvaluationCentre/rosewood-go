@@ -67,6 +67,7 @@ func (p ErrorList) Error() string {
 	case 1:
 		return p[0].Error()
 	}
+	//TODO: change to default:
 	return fmt.Sprintf("%s (and %d more errors)", p[0], len(p)-1)
 }
 
@@ -93,7 +94,7 @@ func PrintError(w io.Writer, err error) {
 	}
 }
 
-//ErrorsToError converts list of error into one error string
+//ErrorsToError converts list of error into one error
 func ErrorsToError(err error) error {
 	switch e := err.(type) {
 	case ErrorList:
@@ -102,5 +103,17 @@ func ErrorsToError(err error) error {
 		return fmt.Errorf("%s", w.String())
 	default:
 		return e
+	}
+}
+
+//ErrorsToString converts list of error into one error
+func ErrorsToString(err error) string {
+	switch e := err.(type) {
+	case ErrorList:
+		var w strings.Builder
+		PrintError(&w, e)
+		return w.String()
+	default:
+		return e.Error()
 	}
 }

@@ -22,7 +22,7 @@ func init() {
 
 type TableContents struct {
 	rows        []*Row
-	maxFldCount RwInt
+	maxFldCount int
 }
 
 func (t *TableContents) String() string {
@@ -35,7 +35,7 @@ func (t *TableContents) String() string {
 }
 
 //MaxFieldCount returns the maximum number of cells in a row
-func (t *TableContents) MaxFieldCount() RwInt {
+func (t *TableContents) MaxFieldCount() int {
 	return t.maxFldCount
 }
 
@@ -52,7 +52,7 @@ func (t *TableContents) forEachCell(f cellFunc) error {
 	return nil
 }
 
-func (t *TableContents) isValidCoordinate(row, col RwInt) bool {
+func (t *TableContents) isValidCoordinate(row, col int) bool {
 	if row < 1 || row > t.RowCount() {
 		return false
 	}
@@ -63,18 +63,18 @@ func (t *TableContents) isValidCoordinate(row, col RwInt) bool {
 }
 
 //Row return the ith row (warning 1 based not zero based)
-func (t *TableContents) Row(i RwInt) *Row {
+func (t *TableContents) Row(i int) *Row {
 	return t.rows[i-1]
 }
 
 //RowCount returns the number of rows in a table
-func (t *TableContents) RowCount() RwInt {
-	return RwInt(len(t.rows))
+func (t *TableContents) RowCount() int {
+	return len(t.rows)
 }
 
 //CellorPanic returns the cell at row, col coordinates (warning 1 based not zero based)
 //panics if the coordinates are not valid
-func (t *TableContents) CellorPanic(row, col RwInt) *Cell {
+func (t *TableContents) CellorPanic(row, col int) *Cell {
 	if !t.isValidCoordinate(row, col) {
 		panic(fmt.Sprintf("invalid cell coordinates, row=%d, col=%d", row, col))
 	}
@@ -82,7 +82,7 @@ func (t *TableContents) CellorPanic(row, col RwInt) *Cell {
 }
 
 //cell returns the cell at row, col coordinates; panics if coordinates are not valid
-func (t *TableContents) cell(row, col RwInt) *Cell {
+func (t *TableContents) cell(row, col int) *Cell {
 	return t.rows[row-1].cells[col-1]
 }
 
@@ -115,8 +115,8 @@ func (t *TableContents) validateRange(ra Range) error {
 //NewTableContents parses a Rosewood table contents
 func NewTableContents(text string) (*TableContents, error) {
 	var (
-		line, offset          RwInt
-		fldCount, maxFldCount RwInt
+		line, offset          int
+		fldCount, maxFldCount int
 		cells                 []*Cell
 		rows                  []*Row
 	)
@@ -142,14 +142,14 @@ func NewTableContents(text string) (*TableContents, error) {
 			}
 			rows = append(rows, &Row{cells: cells}) //create a row with currents cells and append to rows
 			line++
-			offset = RwInt(pos + 1) //offset is now just after the \n
-			fldCount = 0            //reset fldcount
-			cells = nil             //emtpy the cell slice
+			offset = pos + 1 //offset is now just after the \n
+			fldCount = 0     //reset fldcount
+			cells = nil      //emtpy the cell slice
 		case '|':
 			fldCount++
 			cell := NewCell(text[offset:pos], line, fldCount) //text from last offset to just before the separator
 			cells = append(cells, cell)
-			offset = RwInt(pos + 1) //offset is now just after the separator
+			offset = pos + 1 //offset is now just after the separator
 		}
 	}
 	//TODO: fix situation where table has one field and no column separators
@@ -165,9 +165,9 @@ func NewTableContents(text string) (*TableContents, error) {
 }
 
 //NewBlankTableContents creates an empty TableContents with Rowcount X colCount cells
-func NewBlankTableContents(rowCount, colCount RwInt) *TableContents {
+func NewBlankTableContents(rowCount, colCount int) *TableContents {
 	rows := make([]*Row, rowCount)
-	for i := RwInt(0); i < rowCount; i++ {
+	for i := 0; i < rowCount; i++ {
 		rows[i] = newBlankRow(colCount)
 	}
 	return &TableContents{rows: rows,
@@ -175,7 +175,7 @@ func NewBlankTableContents(rowCount, colCount RwInt) *TableContents {
 }
 
 //MakeTableContents creates a TableContents from an array of Rows; use for testing only
-func MakeTableContents(rows []*Row, maxFldCount RwInt) *Table {
+func MakeTableContents(rows []*Row, maxFldCount int) *Table {
 	return &Table{Contents: &TableContents{
 		rows:        rows,
 		maxFldCount: maxFldCount,

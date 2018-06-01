@@ -11,9 +11,9 @@ type Row struct {
 	cells []*Cell
 }
 
-func newBlankRow(colCount RwInt) *Row {
+func newBlankRow(colCount int) *Row {
 	cells := make([]*Cell, colCount)
-	for i := RwInt(0); i < colCount; i++ {
+	for i := 0; i < colCount; i++ {
 		cells[i] = &Cell{}
 	}
 	//	trace.Printf("in newBlankRow %v\n", cells)
@@ -34,8 +34,8 @@ func (r *Row) String() string {
 	return b.String()
 }
 
-func (t *Row) cellCount() RwInt {
-	return RwInt(len(t.cells))
+func (t *Row) cellCount() int {
+	return len(t.cells)
 }
 
 type CellState int
@@ -51,14 +51,14 @@ var CellStateLabel = []string{"normal", "spanned", "merged"}
 //Cell holds information on each table cell
 type Cell struct {
 	text             string
-	row, col         RwInt
+	row, col         int
 	state            CellState
-	rowSpan, colSpan RwInt
+	rowSpan, colSpan int
 	styleList        []string
 }
 
 //NewCell returns a pointer to a new Cell
-func NewCell(text string, row, col RwInt) *Cell {
+func NewCell(text string, row, col int) *Cell {
 	return &Cell{
 		text: text,
 		row:  row,
@@ -66,7 +66,7 @@ func NewCell(text string, row, col RwInt) *Cell {
 }
 
 //MakeCell creates a new cell for testing
-func MakeCell(text string, row, col RwInt, state CellState, rowSpan, colSpan RwInt) *Cell {
+func MakeCell(text string, row, col int, state CellState, rowSpan, colSpan int) *Cell {
 	return &Cell{
 		text: text, row: row, col: col,
 		state: state, rowSpan: rowSpan, colSpan: colSpan}
@@ -82,10 +82,10 @@ func (c *Cell) State() CellState {
 func (c *Cell) Text() string {
 	return c.text
 }
-func (c *Cell) RowSpan() RwInt {
+func (c *Cell) RowSpan() int {
 	return c.rowSpan
 }
-func (c *Cell) ColSpan() RwInt {
+func (c *Cell) ColSpan() int {
 	return c.colSpan
 }
 

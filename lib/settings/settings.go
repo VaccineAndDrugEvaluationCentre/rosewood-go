@@ -11,7 +11,10 @@ import (
 type Settings struct {
 	CheckSyntaxOnly     bool
 	ColumnSeparator     string
+	ConvertOldVersions  bool
+	ConvertFromVersion  string
 	Debug               int
+	DoNotInlineCSS      bool
 	ExecutableVersion   string
 	LibVersion          string
 	InputFileName       string
@@ -20,6 +23,7 @@ type Settings struct {
 	OutputFileName      string
 	RangeOperator       int32
 	ReportAllError      bool
+	SaveConvertedFile   bool
 	SectionCapacity     int
 	SectionSeparator    string
 	SectionsPerTable    int

@@ -1,6 +1,8 @@
 # Salah Mahmud Standard for Go projects
 old
 word-importer
+novendor
+
 # Binaries for programs and plugins
 # *.exe allow for the moment
 *.dll
