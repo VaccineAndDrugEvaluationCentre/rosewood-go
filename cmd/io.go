@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/drgo/fileutils"
 	rosewood "github.com/drgo/rosewood/lib"
 )
 
@@ -65,7 +64,7 @@ func getOutputFile(fileName string, overWrite bool) (*os.File, error) {
 	if fileName == "" || fileName == "<stdout>" {
 		return os.Stdout, nil
 	}
-	out, err := fileutils.CreateFile(fileName, overWrite)
+	out, err := ioutil.TempFile("", "rwtmp") //create in the system default temp folder, a file prefixed with rwtmp
 	if err != nil {
 		return nil, fmt.Errorf(ErrOpenOutFile, fileName, err)
 	}

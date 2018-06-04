@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/drgo/rosewood/lib/settings"
+	"github.com/drgo/rosewood/lib/setter"
 	"github.com/drgo/rosewood/lib/types"
 )
 
@@ -93,7 +93,7 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		// {`set rangeseparator "-" "onemore"
 		// 	`, 1, true, "invalid # args to set"},
 	}
-	p := NewCommandParser(settings.DebugSettings(2)) //use default settings
+	p := NewCommandParser(setter.DebugSettings(setter.DebugAll)) //use default settings
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
 			ss := strings.Split(tt.source, "\n")
@@ -104,7 +104,7 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 			if tt.wantError != (err != nil) {
 				t.Errorf("Error handling failed, wanted %t, got %t\n error: %s", tt.wantError, err != nil, p.ErrorText(-1))
 			}
-			if showErrorMessages && p.errors.Count() > 0 {
+			if showErrorMessages && p.errors.Len() > 0 {
 				p.trace.Printf("faulty command %s --> %s\n", strings.TrimSpace(tt.source), p.ErrorText(-1))
 			}
 			if err != nil {
@@ -144,7 +144,7 @@ func TestCommandParser_ParseMultiLineCommands(t *testing.T) {
 		merge	row 1:2 col 1:2
 		`, 2, true, ""},
 	}
-	p := NewCommandParser(settings.DefaultSettings()) //use default settings
+	p := NewCommandParser(setter.DefaultSettings()) //use default settings
 	for _, tt := range tests {
 		t.Run(tt.source, func(t *testing.T) {
 			ss := strings.Split(tt.source, "\n")
@@ -200,7 +200,7 @@ func TestCommandParser_ParseFullScript(t *testing.T) {
 	}{
 		{"Script 1", script1, 10, false, ""},
 	}
-	p := NewCommandParser(settings.DefaultSettings()) //use default settings
+	p := NewCommandParser(setter.DefaultSettings()) //use default settings
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

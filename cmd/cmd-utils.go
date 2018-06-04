@@ -41,6 +41,8 @@ func helpMessage(topics []string, versionMessage string) {
 			fmt.Fprintln(os.Stderr, checkUsageMessage)
 		case "run":
 			fmt.Fprintln(os.Stderr, runUsageMessage)
+		case "v1tov2":
+			fmt.Fprintln(os.Stderr, v1tov2UsageMessage)
 		default:
 			fmt.Fprintln(os.Stderr, longUsageMessage)
 		}

@@ -10,7 +10,7 @@ import (
 	"time"
 
 	rosewood "github.com/drgo/rosewood/lib"
-	"github.com/drgo/rosewood/lib/settings"
+	"github.com/drgo/rosewood/lib/setter"
 	"github.com/drgo/rosewood/lib/types"
 )
 
@@ -40,7 +40,7 @@ var defaultHTMLRenderer = NewHTMLRenderer()
 
 //Register HTML renderer
 func init() {
-	config := rosewood.Config{
+	config := rosewood.Config{ //TODO: change to RenderConfig
 		Name:     "html",
 		Renderer: defaultHTMLRenderer,
 	}
@@ -50,7 +50,7 @@ func init() {
 //htmlRenderer implements types.Renderer for HTML output
 type htmlRenderer struct {
 	bw        io.Writer
-	settings  *settings.Settings
+	settings  *setter.Settings
 	tables    []*types.Table
 	htmlError error //tracks errors
 }
@@ -65,7 +65,7 @@ func (hr *htmlRenderer) SetWriter(w io.Writer) error {
 	return nil
 }
 
-func (hr *htmlRenderer) SetSettings(settings *settings.Settings) error {
+func (hr *htmlRenderer) SetSettings(settings *setter.Settings) error {
 	hr.settings = settings
 	return nil
 }
@@ -146,7 +146,7 @@ func (hr *htmlRenderer) EndRow(r *types.Row) error {
 
 func (hr *htmlRenderer) OutputCell(c *types.Cell) error {
 	//TODO: not working; merged cells are still printed
-	fmt.Printf("%s\n", c.DebugString()) //DEBUG
+	//fmt.Printf("%s\n", c.DebugString()) //DEBUG
 	if c.State() == types.CsMerged {
 		return nil
 	}

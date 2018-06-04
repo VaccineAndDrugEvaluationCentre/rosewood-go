@@ -14,7 +14,7 @@ func createMergedGridTable(Contents *TableContents, mrlist []Range) (*TableConte
 	}
 	//fmt.Printf("%+v\n", grid.DebugString())
 	for _, mr := range mrlist {
-		fmt.Printf("%+v\n", mr)
+		//fmt.Printf("%+v\n", mr)  //DEBUG
 		//the topleft cell will hold the row/col span info so state = csSpanned. Error if it is previously merged or spanned
 		topleft := grid.CellorPanic(mr.TopLeft.Row, mr.TopLeft.Col)
 		if topleft.state == CsMerged {
@@ -42,8 +42,8 @@ func createMergedGridTable(Contents *TableContents, mrlist []Range) (*TableConte
 		}
 
 	}
-	fmt.Printf("Contents:\n %+v\n", Contents.DebugString()) //DEBUG
-	fmt.Printf("Destination:\n %+v\n", grid.DebugString())  //DEBUG
+	//fmt.Printf("Contents:\n %+v\n", Contents.DebugString()) //DEBUG
+	//fmt.Printf("Destination:\n %+v\n", grid.DebugString())  //DEBUG
 	/*
 	   Contents:
 	    1,1 (normal) |

@@ -10,8 +10,9 @@ import (
 	"strings"
 	"text/scanner"
 
+	"github.com/drgo/errors"
 	"github.com/drgo/fileutils"
-	"github.com/drgo/rosewood/lib/settings"
+	"github.com/drgo/rosewood/lib/setter"
 	"github.com/drgo/rosewood/lib/types"
 )
 
@@ -34,12 +35,12 @@ type File struct {
 	FileName string
 	sections []*types.Section //holds raw lines
 	parser   *CommandParser
-	settings *settings.Settings
+	settings *setter.Settings
 	tables   []*types.Table //holds parsed tables and commands
 }
 
 //NewFile returns a Rosewood File
-func NewFile(fileName string, settings *settings.Settings) *File {
+func NewFile(fileName string, settings *setter.Settings) *File {
 	return &File{FileName: fileName,
 		parser:   NewCommandParser(settings),
 		settings: settings}
@@ -58,7 +59,10 @@ func (f *File) Parse(r io.ReadSeeker) error {
 		return NewError(ErrSyntaxError, unknownPos, scanner.Err().Error())
 	}
 	lineNum++ //we found a line
-	//fmt.Println(line)  //DEBUG
+	if f.settings.Debug == setter.DebugAll {
+		fmt.Println("inside file.Parse()")
+		fmt.Println(scanner.Text())
+	}
 	switch GetFileVersion(strings.TrimSpace(scanner.Text())) {
 	case "unknown":
 		return NewError(ErrSyntaxError, unknownPos, "file does not start by a valid section separator")
@@ -80,6 +84,9 @@ func (f *File) Parse(r io.ReadSeeker) error {
 	for scanner.Scan() {
 		lineNum++
 		line := scanner.Text()
+		if f.settings.Debug == setter.DebugAll {
+			fmt.Println(line)
+		}
 		if f.isSectionSeparatorLine(line) { //start of a new section
 			if s != nil { //there is an active section, append it to the sections array
 				f.sections = append(f.sections, s)
@@ -104,7 +111,7 @@ func (f *File) convertFromVersionZero1(r io.ReadSeeker) (*bytes.Buffer, error) {
 	var buf bytes.Buffer //buffer to hold converted code
 	buf.Grow(100 * 1024)
 	r.Seek(0, 0) //rewind the stream
-	if err := ConvertToCurrentVersion(RWSyntaxVdotzero1, r, &buf); err != nil {
+	if err := ConvertToCurrentVersion(f.settings, RWSyntaxVdotzero1, r, &buf); err != nil {
 		return nil, NewError(ErrSyntaxError, unknownPos, err.Error())
 	}
 	if f.settings.SaveConvertedFile {
@@ -172,7 +179,7 @@ func (f *File) Tables() []*types.Table {
 }
 
 //Errors returns a list of parsing errors
-func (f *File) Errors() []error {
+func (f *File) Errors() *errors.ErrorList {
 	return f.parser.Errors()
 }
 
@@ -199,6 +206,6 @@ func (f *File) Err() error {
 // 		break                                                 //SectionSeparator was in the first valid line
 // 	}
 // 	//other text found
-// 	fmt.Println("//EOF reached first") //DEBUG
+// 	fmt.Println("//EOF reached first") //
 // 	return NewError(ErrSyntaxError, unknownPos, "file is empty or does not start by a section separator: "+f.settings.SectionSeparator)
 // }

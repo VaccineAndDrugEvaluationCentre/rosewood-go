@@ -2,6 +2,8 @@
 
 package main
 
+//TODO: update with new options
+//TODO: spell check and streamline text
 const (
 	versionMessage   = "carpenter %s (%s) based on Rosewood version %s\nCopyRight Salah Mahmud 2017\n"
 	longUsageMessage = ` 
@@ -14,10 +16,12 @@ Command:
 check     Parse one or more Rosewood files and print any errors
 run       Generate a printout using specified template and CCV xml files
 help      Shows a list of commands or help for one command
+v1tov2 	  Converts most Rosewood v0.1 files to Rosewood v0.2 files. 	
 version   Print executable version
 
 Global options:
---debug, -d     prints information useful for debugging: -d=0 errors only [default], 2 prints everything, 1 is in-between
+--debug, -d  controls what information is printed: -d=0 errors only, 1 warning only [default]
+	2 prints information on names of files proceesed etc 3 prints internal debug information
  `
 	runUsageMessage = `
 run : prints the results of applying one or more templates to one or more CCV xml files.
@@ -36,7 +40,10 @@ Options:
 -sep, -S		  section separator used (default is +++)	
 -style, -s        Style sheet file name in css format
 -output, -o       path to output file or path pattern (in quotes) with * placeholder
--replace, -r      if specified, any existing output files will be overwritten	
+-replace, -r      any existing output files will be overwritten	
+-convert-old, co  v0.1 files will be converted to current version and proceesed.
+-save-converted, sc save a copy of the converted Rosewood file.
+-no-inlined-css   link to css file insread of including css in the generated html file. 
 `
 	checkUsageMessage = `
 check : Parse one or more Rosewood files and print any errors
@@ -46,8 +53,20 @@ carpenter [global options] check rosewoodfilenames [command options]
 
 rosewoodfilenames      file name or path pattern that must at least match one Rosewood file
 
-
 Options:
 -sep, -S		  section separator used (default is +++)	
+`
+
+	v1tov2UsageMessage = `
+v1tov2 : converts most Rosewood v0.1 files to Rosewood v0.2 files. Only complete files (ones with 6 
+	section separators) are currently supported.
+
+Usage:
+carpenter [global options] v1tov2 v1rosewoodfilenames [command options]
+
+v1rosewoodfilenames      file name or path pattern that must at least match one v0.1 Rosewood file
+
+Options:
+-replace, -r      if specified, any existing output files will be overwritten
 `
 )

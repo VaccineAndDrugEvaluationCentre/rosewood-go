@@ -10,7 +10,7 @@ import (
 	"text/scanner"
 
 	"github.com/drgo/errors"
-	"github.com/drgo/rosewood/lib/settings"
+	"github.com/drgo/rosewood/lib/setter"
 	"github.com/drgo/rosewood/lib/types"
 	"github.com/drgo/trace"
 )
@@ -18,30 +18,30 @@ import (
 // CommandParser specialized parser for format commands
 type CommandParser struct {
 	trace        trace.Tracer
-	errors       errors.ErrorList
+	errors       *errors.ErrorList
 	lexer        *scanner.Scanner
-	settings     *settings.Settings
+	settings     *setter.Settings
 	position     Position
 	currentToken rune
 	tables       []*types.TableContents //list of all loaded tables
 }
 
 //NewCommandParser initializes and returns a CommandParser
-func NewCommandParser(settings *settings.Settings) *CommandParser {
+func NewCommandParser(settings *setter.Settings) *CommandParser {
 	if settings == nil {
 		panic("nil settings passed to NewCommandParser")
 	}
 	p := CommandParser{errors: errors.NewErrorList(), lexer: new(scanner.Scanner)}
 	p.settings = settings
 	p.trace = trace.NewTrace(false, nil) //writer to stderr
-	if p.settings.Debug > 1 {
+	if p.settings.Debug == setter.DebugAll {
 		p.trace.On()
 	}
 	return &p
 }
 
 //Errors returns a list of parsing errors
-func (p *CommandParser) Errors() []error {
+func (p *CommandParser) Errors() *errors.ErrorList {
 	return p.errors
 }
 
@@ -50,7 +50,7 @@ func (p *CommandParser) ErrorText(index int) string {
 	if index < 0 {
 		return p.errors.Error()
 	}
-	return p.errors[index].Error() //intended: will panic if index out of range
+	return p.errors.Get(index).Error() //TODO: will panic if index is out of bound
 }
 
 //Pos returns the current position in the source
@@ -84,7 +84,7 @@ func (p *CommandParser) ParseCommandLines(s *types.Section) ([]*types.Command, e
 		}
 		p.trace.Println("to be parsed")
 		p.init(strings.NewReader(line))
-		errOffset := p.errors.Count()
+		errOffset := p.errors.Len()
 		cmdName, cmdToken := p.acceptCommandName()
 		cmd := types.NewCommand(cmdName, cmdToken)
 		switch cmdName {
@@ -98,7 +98,7 @@ func (p *CommandParser) ParseCommandLines(s *types.Section) ([]*types.Command, e
 			p.trace.Printf("parsing error: %s\n", err.Error())
 		}
 		p.trace.Printf("parsed: %v\n", cmd)
-		if p.errors.Count() > errOffset { //errors were detected during parsing; stop here
+		if p.errors.Len() > errOffset { //errors were detected during parsing; stop here
 			continue
 		}
 		if err = cmd.Finalize(); err != nil {
@@ -107,7 +107,7 @@ func (p *CommandParser) ParseCommandLines(s *types.Section) ([]*types.Command, e
 		cmdList = append(cmdList, cmd)
 	}
 	switch {
-	case p.errors.Count() > 0:
+	case p.errors.Len() > 0:
 		return nil, p.errors.Err()
 	case len(cmdList) == 0:
 		return nil, NewError(ErrSyntaxError, unknownPos, "found no valid commands")

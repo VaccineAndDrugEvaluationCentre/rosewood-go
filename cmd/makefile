@@ -15,7 +15,7 @@ LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Build=${BUILD}"
 
 #default buid
 build:
-	go build ${LDFLAGS} -o ${EXE}
+	go build -race ${LDFLAGS} -o ${EXE}
 
 run: 
 	go run carpenter.go

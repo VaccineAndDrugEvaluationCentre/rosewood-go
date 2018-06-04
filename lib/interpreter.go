@@ -8,15 +8,15 @@ import (
 
 	"github.com/drgo/errors"
 	"github.com/drgo/rosewood/lib/parser"
-	"github.com/drgo/rosewood/lib/settings"
+	"github.com/drgo/rosewood/lib/setter"
 	"github.com/drgo/rosewood/lib/types"
 )
 
 //Version of this library
-const Version = "0.4.0"
+const Version = "0.5.0"
 
-//Settings is an alias for Rosewood settings
-type Settings = settings.Settings
+//Settings is an alias for setter settings
+type Settings = setter.Settings
 
 //Interpreter holds the state of a Rosewood interpreter
 type Interpreter struct {
@@ -26,7 +26,7 @@ type Interpreter struct {
 
 //NewInterpreter returns an initialized Rosewood interpreter
 //
-func NewInterpreter(settings *settings.Settings) *Interpreter {
+func NewInterpreter(settings *setter.Settings) *Interpreter {
 	//if no custom settings use default ones
 	if settings == nil {
 		settings = DefaultSettings()
@@ -51,7 +51,7 @@ func (ri *Interpreter) Parse(r io.ReadSeeker, scriptIdentifer string) (*parser.F
 		return nil, err
 	}
 	//TODO: change to use tracer
-	if ri.settings.Debug > 1 { //DEBUG
+	if ri.settings.Debug == setter.DebugAll {
 		fmt.Printf("%d table(s) found\n", file.TableCount())
 		tables := file.Tables()
 		for i := 0; i < len(tables); i++ {
@@ -96,20 +96,20 @@ func (ri *Interpreter) SetScriptIdentifer(scriptIdentifer string) *Interpreter {
 }
 
 //Settings returns currently active interpreter settings
-func (ri *Interpreter) Setting() *settings.Settings {
+func (ri *Interpreter) Setting() *setter.Settings {
 	return ri.settings
 }
 
 //DefaultSettings returns a pointer to an initialized settings object
 func DefaultSettings() *Settings {
-	return settings.DefaultSettings()
+	return setter.DefaultSettings()
 }
 
 //ConvertToCurrentVersion utility to convert older versions of Rosewood to current version
-func ConvertToCurrentVersion(settings *settings.Settings, in io.Reader, out io.Writer) error {
+func ConvertToCurrentVersion(settings *setter.Settings, in io.Reader, out io.Writer) error {
 	switch settings.ConvertFromVersion {
 	case "v0.1":
-		return parser.ConvertToCurrentVersion(parser.RWSyntaxVdotzero1, in, out)
+		return parser.ConvertToCurrentVersion(settings, parser.RWSyntaxVdotzero1, in, out)
 	}
 	return fmt.Errorf("invalid version number: %s", settings.ConvertFromVersion)
 }

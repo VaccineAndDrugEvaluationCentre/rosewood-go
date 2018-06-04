@@ -194,7 +194,7 @@ func getAllRanges(cmdList []*Command, cmdType RwKeyWord) (allRangesList []Range,
 			continue
 		}
 		rList, err := cmd.cellSpan.ExpandSpanToRanges()
-		fmt.Printf("%d %s --> len(rlist)=%d \n", cmdType, cmd.cellSpan, len(rList)) //DEBUG
+		//fmt.Printf("%d %s --> len(rlist)=%d \n", cmdType, cmd.cellSpan, len(rList)) //DEBUG
 		if err != nil {
 			return nil, err
 		}

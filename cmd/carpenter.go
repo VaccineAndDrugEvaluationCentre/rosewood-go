@@ -4,7 +4,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -12,8 +11,14 @@ import (
 	"github.com/drgo/errors"
 	"github.com/drgo/fileutils"
 	rosewood "github.com/drgo/rosewood/lib"
+	"github.com/drgo/rosewood/lib/setter"
 	_ "github.com/drgo/rosewood/renderers/html" //include needed renderers
 )
+
+type result struct {
+	fileName string
+	err      error
+}
 
 var (
 	//Version holds the exe version initialized in the Makefile
@@ -23,14 +28,23 @@ var (
 )
 
 //TODO:
-// remove # from syntax error syntax error line #39 col #23: expected row, col or an argument, found 1
+//clean up debug and warnings
+//Debug=0 silent, 1=warnings only 2= verbose  3=internal debug info
+// remove # from syntax error: syntax error line #39 col #23: expected row, col or an argument, found 1
 // allow quoted argument in style command
 // change version strings into constants eg v0.1 Version0_1
 // remove blank line in top of rendered html
 // add support to inlined-markdown.
-// use settings.Debug to control printing debug info; add no-warning default false
 // move all utilities to appropriate packages
 // refresh vendor packages
+// document new arguments
+// add concurrent processing of files--> control access to stdout
+// add graceful shutdown
+// add reading of settings from a json file
+// add support for settings in package types
+// clean-up all tests.
+// expose setter constant through Rosewood.
+// add css into generated html files
 
 func main() {
 	if err := RunApp(); err != nil {
@@ -51,7 +65,7 @@ func RunApp() error {
 	if err != nil {
 		return err
 	}
-	if settings.Debug > 0 {
+	if settings.Debug == setter.DebugAll {
 		fmt.Printf("current settings:\n%s\n", settings)
 	}
 	switch flg.Name() {
@@ -59,13 +73,13 @@ func RunApp() error {
 		settings.CheckSyntaxOnly = true
 		fallthrough
 	case "run":
-		//TODO: remove if stmt
-		if err := Run(settings, flg.Args()); err != nil {
-			return err
-		}
+		err = Run(settings, flg.Args())
 	case "v1tov2":
-		settings.ConvertFromVersion = "v0.1"
+		//settings.ConvertFromVersion = "v0.1"
 		err = V1toV2(settings, flg.Args())
+		if err != nil {
+			err = fmt.Errorf("one or more errors occurred during file conversion %s", err)
+		}
 	case "version":
 		fmt.Println(getVersion())
 	case "help":
@@ -77,39 +91,9 @@ func RunApp() error {
 	return err
 }
 
-func setupCommandFlag(settings *rosewood.Settings) (flgSets []*flag.FlagSet, err error) {
-	globals := NewCommand("", []Flag{
-		{&settings.Debug, "debug", "d", 0},
-		{&settings.OverWriteOutputFile, "replace", "r", false}, //ignored by some commands
-	})
-	cmdRun := NewCommand("run", []Flag{
-		{&settings.ConvertOldVersions, "convert-old", "co", false},
-		{&settings.DoNotInlineCSS, "no-inlined-css", "", false},
-		{&settings.OutputFileName, "output", "o", ""},
-		{&settings.SaveConvertedFile, "save-converted", "sc", false},
-		{&settings.SectionSeparator, "sep", "S", "+++"},
-		{&settings.StyleSheetName, "style", "s", ""},
-		{&settings.ConvertFromVersion, "rosewood-version", "rv", ""},
-	})
-	cmdCheck := NewCommand("check", []Flag{
-		{&settings.SectionSeparator, "sep", "S", "+++"},
-	})
-	cmdV1tov2 := NewCommand("v1tov2", []Flag{
-		{&settings.ConvertFromVersion, "rosewood-version", "rv", ""},
-	})
-	cmdHelp := NewCommand("help", []Flag{})
-	cmdVersion := NewCommand("version", []Flag{})
-	flgSets = append(flgSets, globals, cmdRun, cmdCheck, cmdV1tov2, cmdHelp, cmdVersion)
-	for _, fs := range flgSets {
-		fs.Usage = func() {}    //disable internal usage function
-		fs.SetOutput(devNull{}) //suppress output from package flag
-	}
-	return flgSets, nil
-}
-
-//Run work-horse and main entry function
+//Run is the main work-horse function
 func Run(settings *rosewood.Settings, args []string) error {
-	if settings.Debug > 0 {
+	if settings.Debug >= setter.DebugUpdates {
 		fmt.Printf("Processing %d files\n", len(args))
 	}
 	switch len(args) {
@@ -129,14 +113,22 @@ func Run(settings *rosewood.Settings, args []string) error {
 	default: //input= > 1 file
 		switch settings.OutputFileName {
 		case "": //one outputfile for each input file
+			if settings.Debug >= setter.DebugUpdates {
+				fmt.Println("in a multi-input multi-output mode\n")
+			}
 			errs := errors.NewErrorList()
+			//TODO: convert to concurrent
 			for _, settings.InputFileName = range args {
+				fmt.Println(settings.InputFileName)
 				if err := runSingle(settings); err != nil {
 					errs.Add(errors.ErrorsToError(err))
 				}
 			}
 			return fmt.Errorf(ErrRunningBatch, errors.ErrorsToError(errs))
 		default: //all output goes into a single file
+			if settings.Debug >= setter.DebugUpdates {
+				fmt.Println("in a multi-input single-output mode\n")
+			}
 			if err := runMulti(args, settings); err != nil {
 				return fmt.Errorf(ErrRunningBatch, errors.ErrorsToError(err))
 			}
@@ -146,41 +138,54 @@ func Run(settings *rosewood.Settings, args []string) error {
 }
 
 //runSingle parses and render (if in run mode) a single input file
-func runSingle(settings *rosewood.Settings) error {
+func runSingle(settings *rosewood.Settings) (err error) {
 	var (
 		in  *os.File
 		out *os.File
-		err error
 	)
+	if settings.Debug >= setter.DebugUpdates {
+		fmt.Printf("Processing file %s\n", settings.InputFileName)
+	}
+	//define a function that saves the temp output file created below using settings.OutputFileName
+	onOutputFileClose := func(outputFileName string) {
+		if err == nil { //do not save file if runFile() below failed
+			if closeErr := fileutils.CloseAndRename(out, outputFileName, settings.OverWriteOutputFile); closeErr != nil {
+				err = annotateError(settings.InputFileName, closeErr)
+			}
+		}
+	}
 	iDesc := DefaultRwInputDescriptor(settings)
 	switch settings.InputFileName {
 	case "<stdin>":
 		in, _ = getValidInputReader(iDesc.SetFileName("")) //setFileName called for consistency and clarity
 		//output either stdout if outFileName=="" or outFileName
 		if !settings.CheckSyntaxOnly { //do not need an output for only checking syntax
+			//verify that settings.OutputFileName is never empty
 			if out, err = getOutputFile(settings.OutputFileName, settings.OverWriteOutputFile); err != nil {
 				return annotateError(settings.InputFileName, err)
 			}
-			defer out.Close()
+			defer onOutputFileClose(settings.OutputFileName)
 		}
-	default: //single file
+	default: //other file
 		if in, err = getValidInputReader(iDesc.SetFileName(settings.InputFileName)); err != nil {
 			return annotateError(settings.InputFileName, err)
 		}
 		defer in.Close()
-		//output either outFileName or a new file =inFileName + "ext" if outFileName==""
+		//output either settings.OutputFileName or a new file =inFileName + "ext" if settings.OutputFileName==""
 		if !settings.CheckSyntaxOnly { //do not need an output
-			if settings.OutputFileName == "" {
-				settings.OutputFileName = fileutils.ReplaceFileExt(settings.InputFileName, "html")
+			outputFileName := settings.OutputFileName
+			if outputFileName == "" {
+				outputFileName = fileutils.ReplaceFileExt(settings.InputFileName, "html")
 			}
-			if out, err = getOutputFile(settings.OutputFileName, settings.OverWriteOutputFile); err != nil {
+			if out, err = getOutputFile(outputFileName, settings.OverWriteOutputFile); err != nil {
 				return annotateError(settings.InputFileName, err)
 			}
-			defer out.Close()
+			defer onOutputFileClose(outputFileName)
 		}
 	}
 	ri := rosewood.NewInterpreter(settings).SetScriptIdentifer(settings.InputFileName)
-	return annotateError(settings.InputFileName, runFile(ri, in, out))
+	err = annotateError(settings.InputFileName, runFile(ri, in, out))
+	return
 }
 
 func runFile(ri *rosewood.Interpreter, in io.ReadSeeker, out io.Writer) error {
@@ -195,37 +200,40 @@ func runFile(ri *rosewood.Interpreter, in io.ReadSeeker, out io.Writer) error {
 	return ri.ReportError(ri.Render(out, file, hr))
 }
 
-func runMulti(inFileNames []string, settings *rosewood.Settings) error {
+func runMulti(inFileNames []string, settings *rosewood.Settings) (err error) {
 	var (
-		out io.WriteCloser
-		err error
+		in  *os.File
+		out *os.File
 	)
+	errs := errors.NewErrorList()
+	//define a function that saves the temp output file created below using settings.OutputFileName
+	onOutputFileClose := func() {
+		if errs == nil { //do not save file if runFile below failed
+			if closeErr := fileutils.CloseAndRename(out, settings.OutputFileName, settings.OverWriteOutputFile); closeErr != nil {
+				errs.Add(closeErr)
+			}
+		}
+	}
 	//open output file if needed
 	if !settings.CheckSyntaxOnly {
 		if out, err = getOutputFile(settings.OutputFileName, settings.OverWriteOutputFile); err != nil {
 			return err
 		}
-		defer out.Close()
+		defer onOutputFileClose()
 	}
 	ri := rosewood.NewInterpreter(settings)
-	errs := errors.NewErrorList()
-	iDesc := DefaultRwInputDescriptor(settings)
 	for _, f := range inFileNames {
-		in, err := getValidInputReader(iDesc.SetFileName(f))
+		in, err = getValidInputReader(DefaultRwInputDescriptor(settings).SetFileName(f))
 		if err != nil {
 			errs.Add(err)
 			continue
 		}
-		defer in.Close()
 		if err = runFile(ri, in, out); err != nil {
 			errs.Add(fmt.Errorf("error running file %s:\n%s", f, errors.ErrorsToError(err)))
 		}
+		in.Close()
 	}
 	return errs
-}
-
-func getVersion() string {
-	return fmt.Sprintf(versionMessage, Version, Build, rosewood.Version)
 }
 
 // func interactive() {

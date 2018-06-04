@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/drgo/rosewood/lib/settings"
+	"github.com/drgo/rosewood/lib/setter"
 )
 
 func TestInterpreter_Run(t *testing.T) {
@@ -19,12 +19,12 @@ func TestInterpreter_Run(t *testing.T) {
 	tests := []struct {
 		srcFileName string
 		outFileName string
-		settings    *settings.Settings
+		settings    *setter.Settings
 		wantW       string
 		wantErr     bool
 	}{
-		{"singletab.rw", "singletab", settings.DebugSettings(true), "", false},
-		{"wrong1tab.rw", "", settings.DebugSettings(true), "", true},
+		{"singletab.rw", "singletab", setter.DebugSettings(true), "", false},
+		{"wrong1tab.rw", "", setter.DebugSettings(true), "", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.srcFileName, func(t *testing.T) {
