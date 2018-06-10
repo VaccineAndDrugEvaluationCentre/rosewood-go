@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"reflect"
 	"strings"
 	"text/scanner"
 
@@ -46,6 +47,11 @@ func NewFile(fileName string, settings *setter.Settings) *File {
 		settings: settings}
 }
 
+func isNil(a interface{}) bool {
+	defer func() { recover() }()
+	return a == nil || reflect.ValueOf(a).IsNil()
+}
+
 //Parse parses an io.ReadSeeker streaming a Rosewood file and returns any found tables
 func (f *File) Parse(r io.ReadSeeker) error {
 	//TODO: add a test file that starts with empty space or other stuff
@@ -53,15 +59,23 @@ func (f *File) Parse(r io.ReadSeeker) error {
 		s       *types.Section
 		lineNum int
 	)
+	if isNil(r) {
+		panic("nil io.ReadSeeker passed to file.Parse()")
+	}
+	if f.settings.Debug == setter.DebugAll {
+		fmt.Println("inside file.Parse()")
+	}
 	scanner := bufio.NewScanner(r)
 	//check file version
 	if !scanner.Scan() {
+		if scanner.Err() == nil {
+			return NewError(ErrSyntaxError, unknownPos, "file is empty")
+		}
 		return NewError(ErrSyntaxError, unknownPos, scanner.Err().Error())
 	}
 	lineNum++ //we found a line
 	if f.settings.Debug == setter.DebugAll {
-		fmt.Println("inside file.Parse()")
-		fmt.Println(scanner.Text())
+		fmt.Println("first line is" + scanner.Text())
 	}
 	switch GetFileVersion(strings.TrimSpace(scanner.Text())) {
 	case "unknown":

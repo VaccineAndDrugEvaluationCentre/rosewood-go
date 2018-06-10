@@ -36,13 +36,11 @@ const (
 	// htmlCloseDiv = "</div>"
 )
 
-var defaultHTMLRenderer = NewHTMLRenderer()
-
-//Register HTML renderer
+//init registers HTML renderer with Rosewood
 func init() {
-	config := rosewood.Config{ //TODO: change to RenderConfig
+	config := rosewood.RendererConfig{
 		Name:     "html",
-		Renderer: defaultHTMLRenderer,
+		Renderer: makeHTMLRenderer,
 	}
 	rosewood.Register(&config)
 }
@@ -53,6 +51,11 @@ type htmlRenderer struct {
 	settings  *setter.Settings
 	tables    []*types.Table
 	htmlError error //tracks errors
+}
+
+//makeHTMLRenderer factory functions according to the renderer registration requirements
+func makeHTMLRenderer() (types.Renderer, error) {
+	return NewHTMLRenderer(), nil
 }
 
 //NewHTMLRenderer create a new htmlRenderer and return it as a Renderer

@@ -1,5 +1,6 @@
 ## 0.5.0
-- added support for processing Rosewood v0.1 source files. 
+- added support for concurrent processing of input files
+- added support for processing Rosewood v0.1 source files directly in run commands. 
 - added command v1tov2 to convert from v0.1 to v0.2
 - updated to be consistent with new specs.
 

@@ -10,37 +10,41 @@ import (
 	"github.com/drgo/rosewood/lib/types"
 )
 
-type Config struct {
+type RendererFactory func() (types.Renderer, error)
+
+type RendererConfig struct {
 	Name     string
-	Renderer types.Renderer
+	Renderer RendererFactory
 }
 
 var (
 	renderersMu sync.RWMutex
-	renderers   = make(map[string]types.Renderer)
+	renderers   = make(map[string]*RendererConfig)
 )
 
+//TODO: rename to RegisterRenderer
 // Register makes an output renderer available by the provided name.
 // If Register is called twice with the same name or if renderer is nil,
 // it panics.
-func Register(config *Config) {
+func Register(config *RendererConfig) {
 	renderersMu.Lock()
 	defer renderersMu.Unlock()
 	if config.Renderer == nil {
-		panic("rosewood: Register renderer is nil")
+		panic(fmt.Sprintf("rosewood: failed to register renderer %s: renderer is nil", config.Name))
 	}
 	if _, dup := renderers[config.Name]; dup {
 		panic("rosewood: Register called twice for renderer " + config.Name)
 	}
-	renderers[config.Name] = config.Renderer
+	renderers[config.Name] = config
 }
 
 func unregisterAllRenderers() {
 	renderersMu.Lock()
 	defer renderersMu.Unlock()
-	renderers = make(map[string]types.Renderer)
+	renderers = make(map[string]*RendererConfig)
 }
 
+//TODO: rename to GetRenderersList
 // Renderers returns a sorted list of the names of the registered renderers.
 func Renderers() []string {
 	renderersMu.RLock()
@@ -56,10 +60,10 @@ func Renderers() []string {
 // GetRendererByName returns a renderer specified by its name
 func GetRendererByName(name string) (types.Renderer, error) {
 	renderersMu.RLock()
-	renderer, ok := renderers[name]
+	rendererConfig, ok := renderers[name]
 	renderersMu.RUnlock()
 	if !ok {
 		return nil, fmt.Errorf("rosewood: unknown renderer %q (forgotten import?)", name)
 	}
-	return renderer, nil
+	return rendererConfig.Renderer()
 }

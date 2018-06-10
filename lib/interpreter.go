@@ -15,9 +15,6 @@ import (
 //Version of this library
 const Version = "0.5.0"
 
-//Settings is an alias for setter settings
-type Settings = setter.Settings
-
 //Interpreter holds the state of a Rosewood interpreter
 type Interpreter struct {
 	settings        *Settings
@@ -25,7 +22,6 @@ type Interpreter struct {
 }
 
 //NewInterpreter returns an initialized Rosewood interpreter
-//
 func NewInterpreter(settings *setter.Settings) *Interpreter {
 	//if no custom settings use default ones
 	if settings == nil {
@@ -34,17 +30,8 @@ func NewInterpreter(settings *setter.Settings) *Interpreter {
 	return &Interpreter{settings, ""}
 }
 
-// //Run takes an io.Reader streaming the contents of one or more Rosewood scripts
-// //and an io.Writer to output the formatted text.
-// func (ri *Interpreter) Run(src io.Reader, out io.Writer) error {
-// 	file, err := ri.Parse(src, "")
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return ri.RenderTables(out, file.Tables(), html.NewHTMLRenderer())
-// }
-
-//Parse takes an io.Reader containing RoseWood script and an optional script identifier and returns parsed tables and an error
+//Parse takes an io.Reader containing RoseWood script and an optional script identifier and returns
+// parsed tables and an error
 func (ri *Interpreter) Parse(r io.ReadSeeker, scriptIdentifer string) (*parser.File, error) {
 	file := parser.NewFile(scriptIdentifer, ri.settings)
 	if err := file.Parse(r); err != nil {
@@ -100,11 +87,6 @@ func (ri *Interpreter) Setting() *setter.Settings {
 	return ri.settings
 }
 
-//DefaultSettings returns a pointer to an initialized settings object
-func DefaultSettings() *Settings {
-	return setter.DefaultSettings()
-}
-
 //ConvertToCurrentVersion utility to convert older versions of Rosewood to current version
 func ConvertToCurrentVersion(settings *setter.Settings, in io.Reader, out io.Writer) error {
 	switch settings.ConvertFromVersion {
@@ -132,4 +114,14 @@ func ConvertToCurrentVersion(settings *setter.Settings, in io.Reader, out io.Wri
 // 	}
 // 	err = hr.EndFile()
 // 	return err
+// }
+
+// //Run takes an io.Reader streaming the contents of one or more Rosewood scripts
+// //and an io.Writer to output the formatted text.
+// func (ri *Interpreter) Run(src io.Reader, out io.Writer) error {
+// 	file, err := ri.Parse(src, "")
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return ri.RenderTables(out, file.Tables(), html.NewHTMLRenderer())
 // }

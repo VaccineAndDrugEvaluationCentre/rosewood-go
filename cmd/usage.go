@@ -13,6 +13,7 @@ Usage:
 carpenter [global options] command [command options]
 
 Command:
+init	  Generates a default carpenter.json file in the current folder 	
 check     Parse one or more Rosewood files and print any errors
 run       Generate a printout using specified template and CCV xml files
 help      Shows a list of commands or help for one command

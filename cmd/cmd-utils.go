@@ -9,6 +9,13 @@ import (
 	"strings"
 )
 
+var (
+	//Version holds the exe version initialized in the Makefile
+	Version string
+	//Build holds the exe build number initialized in the Makefile
+	Build string
+)
+
 //crash prints errors and exit with code 2. First line is printed in bold red
 func crash(err error) {
 	lines := strings.Split(err.Error(), "\n")
@@ -69,6 +76,7 @@ type Flag struct {
 	value  interface{}
 }
 
+//FIXME: remove default value from flag structure because we are reading the value of dest field as default
 func NewCommand(name string, args []Flag) *flag.FlagSet {
 	cmd := flag.NewFlagSet(name, flag.ContinueOnError)
 	//duplicate args with both name and letter specified, so the command
@@ -84,11 +92,11 @@ func NewCommand(name string, args []Flag) *flag.FlagSet {
 	for _, arg := range expanded {
 		switch p := arg.dest.(type) {
 		case *string:
-			cmd.StringVar(p, arg.name, arg.value.(string), "")
+			cmd.StringVar(p, arg.name, *p, "")
 		case *bool:
-			cmd.BoolVar(p, arg.name, arg.value.(bool), "")
+			cmd.BoolVar(p, arg.name, *p, "")
 		case *int:
-			cmd.IntVar(p, arg.name, arg.value.(int), "")
+			cmd.IntVar(p, arg.name, *p, "")
 		default:
 			continue
 		}

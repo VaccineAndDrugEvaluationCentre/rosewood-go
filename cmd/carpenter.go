@@ -7,30 +7,28 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"strings"
+	"time"
 
-	"github.com/drgo/errors"
 	"github.com/drgo/fileutils"
+	"github.com/drgo/htmldocx"
 	rosewood "github.com/drgo/rosewood/lib"
-	"github.com/drgo/rosewood/lib/setter"
 	_ "github.com/drgo/rosewood/renderers/html" //include needed renderers
 )
 
 type result struct {
-	fileName string
-	err      error
+	inputFileName  string
+	outputFileName string
+	err            error
 }
 
-var (
-	//Version holds the exe version initialized in the Makefile
-	Version string
-	//Build holds the exe build number initialized in the Makefile
-	Build string
+const (
+	ConfigFileBaseName = "carpenter.json"
 )
 
 //TODO:
-//clean up debug and warnings
-//Debug=0 silent, 1=warnings only 2= verbose  3=internal debug info
-// remove # from syntax error: syntax error line #39 col #23: expected row, col or an argument, found 1
+//clean up debug and warnings: Debug=0 silent, 1=warnings only 2= verbose  3=internal debug info
 // allow quoted argument in style command
 // change version strings into constants eg v0.1 Version0_1
 // remove blank line in top of rendered html
@@ -38,13 +36,20 @@ var (
 // move all utilities to appropriate packages
 // refresh vendor packages
 // document new arguments
-// add concurrent processing of files--> control access to stdout
-// add graceful shutdown
-// add reading of settings from a json file
+// add concurrent processing of files--> check rosewood routines for shared memory
+// add graceful shutdown https://golang.org/pkg/os/signal/
+// add cleanup routine
+// add reading of settings from a json file specified using config command--see setters.go
+// add support for running jobs from a json file
 // add support for settings in package types
 // clean-up all tests.
-// expose setter constant through Rosewood.
 // add css into generated html files
+// use consistent errors types and constants eg NewError()
+// add support for exporting to docx
+// add support for processing subfolder if arg==./..
+
+//Docs update
+// check identifies v0.1 files as such but does not check them
 
 func main() {
 	if err := RunApp(); err != nil {
@@ -52,33 +57,45 @@ func main() {
 	}
 }
 
-//RunApp has all program logic; easier to test than func main
+//TODO: add gracefull shutdown logic here along with a pointer to an optional cleanup function
+
+//RunApp has all program logic; entry point for all tests
 func RunApp() error {
+	//fmt.Printf("main: len=%d ==>%v\n", len(cmdArgs), cmdArgs)
 	if len(os.Args) == 1 { //only app name passed, exit
 		return fmt.Errorf(ErrWrongCommand)
 	}
-	settings := rosewood.DefaultSettings()
+	//load configuration from config file if one exists in current dir
+	settings, err := GetValidSettings()
+	if err != nil {
+		return err
+	}
 	settings.ExecutableVersion = Version
-	settings.InputFileName = "<stdin>" //default to stdin
 	flgSets, _ := setupCommandFlag(settings)
 	flg, err := ParseCommandLine(flgSets[0], flgSets[1:]...)
 	if err != nil {
 		return err
 	}
-	if settings.Debug == setter.DebugAll {
+	if settings.Debug == rosewood.DebugAll {
 		fmt.Printf("current settings:\n%s\n", settings)
 	}
+	inputFileNames := flg.Args()
 	switch flg.Name() {
 	case "check":
 		settings.CheckSyntaxOnly = true
 		fallthrough
 	case "run":
-		err = Run(settings, flg.Args())
+		//FIXME: this check is not working
+		if err = Run(settings, inputFileNames); rosewood.Errors().IsParsingError(err) {
+			err = fmt.Errorf("one or more errors occurred during file processing") //do not report again
+		}
 	case "v1tov2":
-		//settings.ConvertFromVersion = "v0.1"
-		err = V1toV2(settings, flg.Args())
-		if err != nil {
-			err = fmt.Errorf("one or more errors occurred during file conversion %s", err)
+		if err = V1toV2(settings, inputFileNames); err != nil { //shadwing err, so check/run/convert errors will not returned
+			fmt.Printf("one or more errors occurred during file processing")
+		}
+	case "init":
+		if err = Init(settings, inputFileNames); err != nil {
+			fmt.Printf("one or more errors occurred during configuration initialization")
 		}
 	case "version":
 		fmt.Println(getVersion())
@@ -91,101 +108,178 @@ func RunApp() error {
 	return err
 }
 
-//Run is the main work-horse function
-func Run(settings *rosewood.Settings, args []string) error {
-	if settings.Debug >= setter.DebugUpdates {
-		fmt.Printf("Processing %d files\n", len(args))
-	}
-	switch len(args) {
-	case 0: //input=stdin
+//Run is the main work-horse function;
+func Run(settings *rosewood.Settings, inputFileNames []string) error {
+	//No arguments: check if the input is coming from stdin
+	if len(inputFileNames) == 0 {
 		if info, _ := os.Stdin.Stat(); info.Size() == 0 {
 			return fmt.Errorf(ErrMissingInFile)
 		}
-		settings.InputFileName = "<stdin>"
-		if err := runSingle(settings); err != nil {
+		inputFileNames = append(inputFileNames, "") //empty argument signals stdin
+	}
+	var (
+		err            error
+		baseDir        string
+		format         string
+		outputFileName = strings.TrimSpace(settings.OutputFileName)
+		start          time.Time
+	)
+	verb := "Check"
+	if !settings.CheckSyntaxOnly {
+		if format, err = GetValidFormat(inputFileNames, outputFileName); err != nil {
 			return err
 		}
-	case 1: //input=single file
-		settings.InputFileName = args[0]
-		if err := runSingle(settings); err != nil {
+		preserveWorkFiles := strings.TrimSpace(settings.WorkDirName) != "" || (format == "docx" && settings.PreserveWorkFiles) || format == "html"
+		if baseDir, err = GetOutputBaseDir(settings.WorkDirName, preserveWorkFiles); err != nil {
 			return err
 		}
-	default: //input= > 1 file
-		switch settings.OutputFileName {
-		case "": //one outputfile for each input file
-			if settings.Debug >= setter.DebugUpdates {
-				fmt.Println("in a multi-input multi-output mode\n")
+		if !preserveWorkFiles { //baseDir is temp, schedule removing it
+			defer os.RemoveAll(baseDir)
+		}
+		verb = "Process"
+	}
+
+	if settings.Debug >= rosewood.DebugUpdates {
+		fmt.Printf("%sing %d file(s)\n", verb, len(inputFileNames))
+		start = time.Now()
+	}
+
+	processedFiles, err := runHTMLFiles(settings, inputFileNames, baseDir, format)
+	if err != nil || len(processedFiles) == 0 {
+		//	fmt.Printf("runHTMLFiles failed %s", err)
+		return err
+	}
+	//fmt.Printf("format=%s \n %s \n", format, strings.Join(processedFiles, "|"))
+	if !settings.CheckSyntaxOnly {
+		switch {
+		case format == "docx":
+			docxOpts := htmldocx.DefaultOptions().SetDebug(settings.Debug)
+			if err = htmldocx.Convert(processedFiles, outputFileName, docxOpts); err != nil {
+				return fmt.Errorf("failed to convert to docx file: %s", err)
 			}
-			errs := errors.NewErrorList()
-			//TODO: convert to concurrent
-			for _, settings.InputFileName = range args {
-				fmt.Println(settings.InputFileName)
-				if err := runSingle(settings); err != nil {
-					errs.Add(errors.ErrorsToError(err))
-				}
-			}
-			return fmt.Errorf(ErrRunningBatch, errors.ErrorsToError(errs))
-		default: //all output goes into a single file
-			if settings.Debug >= setter.DebugUpdates {
-				fmt.Println("in a multi-input single-output mode\n")
-			}
-			if err := runMulti(args, settings); err != nil {
-				return fmt.Errorf(ErrRunningBatch, errors.ErrorsToError(err))
+		case format == "html":
+			// fmt.Println("about to save file as " + outputFileName)
+			// if outputFileName != "" { //we are here, so there must be only 1 file in processedFiles, rename it
+			// 	if err = os.Rename(processedFiles[0], outputFileName); err != nil {
+			// 		return fmt.Errorf("failed to rename file to %s: %s", outputFileName, err)
+			// 	} else {
+			// 		fmt.Println("file saved as " + outputFileName)
+			// 	}
+			// }
+		default:
+			return fmt.Errorf("unsupported format: %s", format) //should not happen
+		}
+	}
+	if settings.Debug >= rosewood.DebugUpdates {
+		fmt.Printf("%sed %d file(s) in %s\n", verb, len(inputFileNames), time.Since(start).String())
+	}
+	return err
+}
+
+//basedir always points to a valid dir to save output files
+func runHTMLFiles(settings *rosewood.Settings, inputFileNames []string, baseDir, format string) ([]string, error) {
+	report := func(res result) {
+		if !settings.CheckSyntaxOnly {
+			fmt.Printf("\n--------------\nprocessing %s:", res.inputFileName)
+		} else {
+			fmt.Printf("\n--------------\nchecking %s:", res.inputFileName)
+		}
+		if res.err != nil {
+			fmt.Printf("\nErrors: %v\n", res.err)
+		} else {
+			fmt.Printf("...Done\n")
+			if !settings.CheckSyntaxOnly {
+				fmt.Printf("output file: %s\n", res.outputFileName)
 			}
 		}
 	}
-	return nil
+	//channel to communicate with
+	resCh := make(chan result)
+	//A counting semaphore to limit number of open files
+	tokens := NewCountingSemaphore(settings.MaxConcurrentWorkers)
+	go func() {
+		outputFileName := strings.TrimSpace(settings.OutputFileName)
+		tempOutputFileName := ""
+		for _, inputFileName := range inputFileNames {
+			switch {
+			case outputFileName == "": //no output file assume html file with the same base name as inputfile
+				tempOutputFileName = filepath.Join(baseDir,
+					fileutils.ReplaceFileExt(filepath.Base(inputFileName), "html"))
+			case format == "html": //this happens only if there was a single inputfile
+				//AND outfilename with html ext, use the outputfilename
+				if filepath.Dir(outputFileName) == "." { //no directory, use the baseDir
+					tempOutputFileName = filepath.Join(baseDir, outputFileName)
+				}
+			case format == "docx": //create temp html files in the basedir
+				tempOutputFileName = filepath.Join(baseDir,
+					fileutils.ReplaceFileExt(filepath.Base(inputFileName), "html"))
+			default:
+				panic("unexpected branch in runHTMLFiles()") //should not happen
+			}
+			fmt.Println(outputFileName + "-->" + tempOutputFileName)
+			tokens.Reserve(1)                                                 //reserve a worker
+			go htmlRunner(settings, inputFileName, tempOutputFileName, resCh) //launch a runSingle worker for each file
+		}
+	}()
+	var err error
+	var processedFiles []string
+	for i := 0; i < len(inputFileNames); i++ { //wait for workers to return one by one
+		//fmt.Println("inside for loop")
+		res := <-resCh
+		//fmt.Printf("%+v", res)
+		tokens.Free(1) //release a reserved worker
+		if settings.Debug >= rosewood.DebugUpdates || res.err != nil {
+			report(res)
+		}
+		if res.err == nil {
+			processedFiles = append(processedFiles, res.outputFileName)
+		}
+		if err == nil {
+			err = res.err
+		}
+	}
+	return processedFiles, err
 }
 
-//runSingle parses and render (if in run mode) a single input file
-func runSingle(settings *rosewood.Settings) (err error) {
+//htmlRunner parses and renders (if in run mode) a single input file into an HTML file
+//all errors are returned through resChan channel; only one error per run
+func htmlRunner(settings *rosewood.Settings, inputFileName, outputFileName string, resChan chan result) {
 	var (
 		in  *os.File
 		out *os.File
+		err error //not returned, used to decide whether the output file should be saved or not
 	)
-	if settings.Debug >= setter.DebugUpdates {
-		fmt.Printf("Processing file %s\n", settings.InputFileName)
-	}
-	//define a function that saves the temp output file created below using settings.OutputFileName
-	onOutputFileClose := func(outputFileName string) {
-		if err == nil { //do not save file if runFile() below failed
-			if closeErr := fileutils.CloseAndRename(out, outputFileName, settings.OverWriteOutputFile); closeErr != nil {
-				err = annotateError(settings.InputFileName, closeErr)
-			}
-		}
+	if inputFileName == "" { //reading from stdin
+		inputFileName = "<stdin>"
 	}
 	iDesc := DefaultRwInputDescriptor(settings)
-	switch settings.InputFileName {
-	case "<stdin>":
-		in, _ = getValidInputReader(iDesc.SetFileName("")) //setFileName called for consistency and clarity
-		//output either stdout if outFileName=="" or outFileName
-		if !settings.CheckSyntaxOnly { //do not need an output for only checking syntax
-			//verify that settings.OutputFileName is never empty
-			if out, err = getOutputFile(settings.OutputFileName, settings.OverWriteOutputFile); err != nil {
-				return annotateError(settings.InputFileName, err)
-			}
-			defer onOutputFileClose(settings.OutputFileName)
-		}
-	default: //other file
-		if in, err = getValidInputReader(iDesc.SetFileName(settings.InputFileName)); err != nil {
-			return annotateError(settings.InputFileName, err)
-		}
-		defer in.Close()
-		//output either settings.OutputFileName or a new file =inFileName + "ext" if settings.OutputFileName==""
-		if !settings.CheckSyntaxOnly { //do not need an output
-			outputFileName := settings.OutputFileName
-			if outputFileName == "" {
-				outputFileName = fileutils.ReplaceFileExt(settings.InputFileName, "html")
-			}
-			if out, err = getOutputFile(outputFileName, settings.OverWriteOutputFile); err != nil {
-				return annotateError(settings.InputFileName, err)
-			}
-			defer onOutputFileClose(outputFileName)
-		}
+	if in, err = getValidInputReader(iDesc.SetFileName(inputFileName)); err != nil {
+		resChan <- result{inputFileName, outputFileName, err}
+		return
 	}
-	ri := rosewood.NewInterpreter(settings).SetScriptIdentifer(settings.InputFileName)
-	err = annotateError(settings.InputFileName, runFile(ri, in, out))
-	return
+	defer in.Close()
+	if !settings.CheckSyntaxOnly { //do not need an output
+		//if the outputFileName already exists and OverWriteOutputFile is false, return an error
+		if _, err := os.Stat(outputFileName); err == nil && !settings.OverWriteOutputFile {
+			resChan <- result{inputFileName, outputFileName, fmt.Errorf("file already exists: %s", outputFileName)}
+			return
+		}
+		//output either settings.OutputFileName or a new file =inFileName + "ext" if settings.OutputFileName==""
+		if out, err = getOutputWriter(outputFileName, settings.OverWriteOutputFile); err != nil {
+			resChan <- result{inputFileName, outputFileName, err}
+			return
+		}
+		//define a function that saves the temp output file created below using settings.OutputFileName
+		defer func() {
+			if err == nil { //only save temp file if runFile() below succeeded
+				resChan <- result{inputFileName, outputFileName, fileutils.CloseAndRename(out, outputFileName, settings.OverWriteOutputFile)}
+				return
+			}
+		}()
+	}
+	ri := rosewood.NewInterpreter(settings).SetScriptIdentifer(inputFileName)
+	err = runFile(ri, in, out)
+	resChan <- result{inputFileName, outputFileName, err}
 }
 
 func runFile(ri *rosewood.Interpreter, in io.ReadSeeker, out io.Writer) error {
@@ -193,48 +287,50 @@ func runFile(ri *rosewood.Interpreter, in io.ReadSeeker, out io.Writer) error {
 	if err != nil || ri.Setting().CheckSyntaxOnly {
 		return ri.ReportError(err)
 	}
-	hr, err := rosewood.GetRendererByName("html")
+	hr, err := rosewood.GetRendererByName("html") //TODO: get from settings
 	if err != nil {
 		return err
 	}
 	return ri.ReportError(ri.Render(out, file, hr))
 }
 
-func runMulti(inFileNames []string, settings *rosewood.Settings) (err error) {
-	var (
-		in  *os.File
-		out *os.File
-	)
-	errs := errors.NewErrorList()
-	//define a function that saves the temp output file created below using settings.OutputFileName
-	onOutputFileClose := func() {
-		if errs == nil { //do not save file if runFile below failed
-			if closeErr := fileutils.CloseAndRename(out, settings.OutputFileName, settings.OverWriteOutputFile); closeErr != nil {
-				errs.Add(closeErr)
-			}
-		}
-	}
-	//open output file if needed
-	if !settings.CheckSyntaxOnly {
-		if out, err = getOutputFile(settings.OutputFileName, settings.OverWriteOutputFile); err != nil {
-			return err
-		}
-		defer onOutputFileClose()
-	}
-	ri := rosewood.NewInterpreter(settings)
-	for _, f := range inFileNames {
-		in, err = getValidInputReader(DefaultRwInputDescriptor(settings).SetFileName(f))
-		if err != nil {
-			errs.Add(err)
-			continue
-		}
-		if err = runFile(ri, in, out); err != nil {
-			errs.Add(fmt.Errorf("error running file %s:\n%s", f, errors.ErrorsToError(err)))
-		}
-		in.Close()
-	}
-	return errs
-}
+// func runMulti(settings *rosewood.Settings, inFileNames []string, resChan chan result) {
+// 	var (
+// 		in  *os.File
+// 		out *os.File
+// 		err error //not returned, used to decide whether the output file should be saved or not
+// 	)
+// 	outputFileName := settings.OutputFileName //can't be empty
+// 	//define a function that saves the temp output file created below using settings.OutputFileName
+// 	onOutputFileClose := func() {
+// 		if err == nil { //only save temp file if runFile() below succeeded
+// 			resChan <- result{outputFileName, fileutils.CloseAndRename(out, outputFileName, settings.OverWriteOutputFile)}
+// 			return
+// 		}
+// 	}
+// 	//open output file
+// 	if out, err = getOutputFile(outputFileName, settings.OverWriteOutputFile); err != nil {
+// 		resChan <- result{outputFileName, err}
+// 		return
+// 	}
+// 	defer onOutputFileClose()
+
+// 	ri := rosewood.NewInterpreter(settings)   //concurrent-safe
+// 	for _, inputFileName := range inFileNames {
+// 		in, err = getValidInputReader(DefaultRwInputDescriptor(settings).SetFileName(inputFileName))
+// 		if err != nil {
+// 			resChan <- result{inputFileName, err}
+// 			return
+// 		}
+// 		defer in.Close()
+// 		if err = runFile(ri, in, out); err != nil {
+// 			resChan <- result{inputFileName, err}
+// 			return
+// 			//errs.Add(fmt.Errorf("error running file %s:\n%s", inputFileName, errors.ErrorsToError(err)))
+// 		}
+// 		in.Close()
+// 	}
+// }
 
 // func interactive() {
 // 	usage(-1)
@@ -263,4 +359,19 @@ func runMulti(inFileNames []string, settings *rosewood.Settings) (err error) {
 // 			continue
 // 		}
 // 	}
+// }
+
+// if settings.OutputFileName != "" { // && len(args) > 1
+//multiple files with one single output file
+// if settings.Debug >= rosewood.DebugUpdates {
+// 	fmt.Println("in a multi-input single-output mode")
+// }
+// if err = runMulti(settings, args); err != nil {
+// 	return fmt.Errorf(ErrRunningBatch, errors.ErrorsToError(err))
+// }
+// } else {
+//either one input file with
+//this signals that we need to create one outputfile for each input file
+// if settings.Debug >= rosewood.DebugUpdates {
+// 	fmt.Println("in a multi-input multi-output mode")
 // }

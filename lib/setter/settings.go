@@ -5,30 +5,45 @@ package setter
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 )
 
+//TODO: split Settings into Rosewood settings and carpenter settings to be included in a jobconfig struct
+/*
+	jobconfig
+	rosewood settings
+	outputfilename a filename descriptor
+	inputfilenames array of filename descriptors
+	others eg workingdir etc
+*/
+
 //Settings implements a simple configuration solution.
+// `json:"-"` used to exclude certain fields from saving/loading from config files
 type Settings struct {
-	CheckSyntaxOnly     bool
-	ColumnSeparator     string
-	ConvertOldVersions  bool
-	ConvertFromVersion  string
-	Debug               int
-	DoNotInlineCSS      bool
-	ExecutableVersion   string
-	LibVersion          string
-	InputFileName       string
-	MandatoryCol        bool
-	OverWriteOutputFile bool
-	OutputFileName      string
-	RangeOperator       int32
-	ReportAllError      bool
-	SaveConvertedFile   bool
-	SectionCapacity     int
-	SectionSeparator    string
-	SectionsPerTable    int
-	StyleSheetName      string
-	TrimCellContents    bool
+	CheckSyntaxOnly    bool   `json:"-"`
+	ColumnSeparator    string `json:"-"`
+	ConvertOldVersions bool
+	ConvertFromVersion string
+	Debug              int
+	DoNotInlineCSS     bool
+	//	ExecutableVersion    string `json:"-"`
+	LibVersion           string `json:"-"`
+	MandatoryCol         bool
+	MaxConcurrentWorkers int
+	//OverWriteOutputFile  bool
+	// OutputFileName       string
+	// OutputFormat         string
+	PreserveWorkFiles bool
+	RangeOperator     int32 `json:"-"`
+	ReportAllError    bool
+	SaveConvertedFile bool
+	SectionCapacity   int    `json:"-"`
+	SectionSeparator  string `json:"-"`
+	SectionsPerTable  int    `json:"-"`
+	StyleSheetName    string
+	// WorkDirName          string
+	TrimCellContents bool
 }
 
 //NewSettings returns an empty Settings struct
@@ -44,6 +59,7 @@ func DefaultSettings() *Settings {
 	settings.SectionSeparator = "+++"
 	settings.ColumnSeparator = "|"
 	settings.RangeOperator = ':'
+	settings.MaxConcurrentWorkers = 24
 	return settings
 }
 
@@ -54,6 +70,20 @@ func DebugSettings(Tracing int) *Settings {
 	return settings
 }
 
+//TODO: change path to io.reader
+func LoadSettings(path string) (*Settings, error) {
+	file, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load settings: %v", err)
+	}
+	var s Settings
+	err = json.Unmarshal(file, &s)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse settings: %v", err)
+	}
+	return &s, nil
+}
+
 func (settings *Settings) String() string {
 	b, err := json.MarshalIndent(settings, "", "  ")
 	if err != nil {
@@ -62,33 +92,17 @@ func (settings *Settings) String() string {
 	return string(b)
 }
 
-// func (s Settings) String() string {
-// 	return fmt.Sprintf("Settings:\n %#v", s)
-// }
-
-// //TODO: change path to io.reader
-// func (s *Settings) LoadSettings(path string) error {
-// 	file, err := ioutil.ReadFile(path)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to load settings: %v", err)
-// 	}
-// 	err = json.Unmarshal(file, &s.items)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to parse settings: %v", err)
-// 	}
-// 	return nil
-// }
-
-// //TODO: change path to io.writer
-// func (s *Settings) SaveSettings(path string, replace true) error {
-// 	file, err := os.Create(path)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to save settings: %v", err)
-// 	}
-// 	defer file.Close()
-// 	e := json.NewEncoder(file)
-// 	if err := e.Encode(s.items); err != nil {
-// 		return fmt.Errorf("failed to save settings: %v", err)
-// 	}
-// 	return nil
-// }
+//TODO: replace with tempfile with proper close error management
+func SaveSettings(settings *Settings, path string, replace bool) error {
+	file, err := os.Create(path)
+	if err != nil {
+		return fmt.Errorf("failed to save settings: %v", err)
+	}
+	defer file.Close()
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "    ")
+	if err := encoder.Encode(settings); err != nil {
+		return fmt.Errorf("failed to save settings: %v", err)
+	}
+	return nil
+}

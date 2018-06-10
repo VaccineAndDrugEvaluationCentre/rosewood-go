@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	rosewood "github.com/drgo/rosewood/lib"
 )
@@ -59,9 +60,9 @@ func getValidInputReader(iDesc *RwInputDescriptor) (*os.File, error) {
 	// return in, nil
 }
 
-//TODO: replace with temp file to prevent creating output file when run fails
-func getOutputFile(fileName string, overWrite bool) (*os.File, error) {
-	if fileName == "" || fileName == "<stdout>" {
+//TODO: remove overwrite flag; not used
+func getOutputWriter(fileName string, overWrite bool) (*os.File, error) {
+	if fileName == "<stdout>" {
 		return os.Stdout, nil
 	}
 	out, err := ioutil.TempFile("", "rwtmp") //create in the system default temp folder, a file prefixed with rwtmp
@@ -69,6 +70,46 @@ func getOutputFile(fileName string, overWrite bool) (*os.File, error) {
 		return nil, fmt.Errorf(ErrOpenOutFile, fileName, err)
 	}
 	return out, nil
+}
+
+//DefineOutputBaseDir returns current working directory if PreserveIntermediateFiles is false
+// otherwise creates a temp dir in the os default temp dir and return its name
+//defer os.RemoveAll(dir)
+func GetOutputBaseDir(workDirName string, preserveWorkFiles bool) (baseDir string, err error) {
+	if strings.TrimSpace(workDirName) != "" {
+		return workDirName, nil
+	}
+	if preserveWorkFiles { //save in current folder permanently
+		baseDir, err = os.Getwd()
+		if err != nil {
+			err = fmt.Errorf("failed to determine current working directory: %s", err)
+		}
+		return
+	}
+	// create temp folder
+	baseDir, err = ioutil.TempDir("", "rosewood-") //create temp dir in the os default temp dir
+	if err != nil {
+		err = fmt.Errorf("failed to create a temp directory: %s", err)
+	}
+	return
+}
+
+func GetValidFormat(inputFileNames []string, outputFileName string) (string, error) {
+	format := strings.Trim(strings.ToLower(filepath.Ext(outputFileName)), ".")
+	switch {
+	case outputFileName == "": //no outputfile specified, assume one html per each inputfile
+		format = "html"
+	case format == "": //outputfile specified but without an extension, return an error for simplicity
+		return "", fmt.Errorf("must specify an extension for output file : %s", outputFileName)
+	case format == "html": //if an html outputfile is specified, currently >1 input file are not allowed
+		if len(inputFileNames) > 1 {
+			return "", fmt.Errorf("merging html files into one html file is not supported")
+		}
+	case format == "docx": //any number of inputfiles is acceptable
+	default:
+		return "", fmt.Errorf("unsupported output format: %s", format)
+	}
+	return format, nil
 }
 
 //TODO: clean temp dir if any on start

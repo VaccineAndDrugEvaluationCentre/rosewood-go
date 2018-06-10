@@ -25,7 +25,7 @@ func V1toV2(settings *rosewood.Settings, inFileNames []string) error {
 	for i := 0; i < len(inFileNames); i++ {
 		res := <-resChan
 		//		if settings.Debug >= setter.DebugUpdates || res.err != nil {
-		fmt.Printf("processing " + res.fileName)
+		fmt.Printf("processing " + res.inputFileName)
 		if res.err != nil {
 			fmt.Printf("\nErrors: %v\n", res.err)
 		} else {
@@ -51,27 +51,27 @@ func ConvertFile(settings *rosewood.Settings, fileName string, resChan chan resu
 	var err error
 	in, err = getValidInputReader(iDesc.SetFileName(fileName))
 	if err != nil {
-		resChan <- result{fileName, err}
+		resChan <- result{fileName, "", err}
 		return
 	}
 	defer in.Close()
 	outputFileName := fileutils.ConstructFileName(fileName, "rw", "", "-converted-v1-2-v2")
-	if out, err = getOutputFile(outputFileName, settings.OverWriteOutputFile); err != nil {
-		resChan <- result{fileName, err}
+	if out, err = getOutputWriter(outputFileName, settings.OverWriteOutputFile); err != nil {
+		resChan <- result{fileName, outputFileName, err}
 		return
 	}
 	defer func() {
 		if err == nil { //do not save file if runFile below failed
 			if closeErr := fileutils.CloseAndRename(out, outputFileName, settings.OverWriteOutputFile); closeErr != nil {
-				resChan <- result{fileName, closeErr}
+				resChan <- result{fileName, outputFileName, closeErr}
 			}
 		}
 	}()
 	if err = rosewood.ConvertToCurrentVersion(settings, in, out); err != nil {
-		resChan <- result{fileName, errors.ErrorsToError(err)}
+		resChan <- result{fileName, outputFileName, errors.ErrorsToError(err)}
 		return
 	}
-	resChan <- result{fileName, nil}
+	resChan <- result{fileName, outputFileName, nil}
 }
 
 //TODO: fix use of annotate error
