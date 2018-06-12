@@ -31,7 +31,7 @@ type Settings struct {
 	LibVersion           string `json:"-"`
 	MandatoryCol         bool
 	MaxConcurrentWorkers int
-	//OverWriteOutputFile  bool
+	OverWriteOutputFile  bool
 	// OutputFileName       string
 	// OutputFormat         string
 	PreserveWorkFiles bool

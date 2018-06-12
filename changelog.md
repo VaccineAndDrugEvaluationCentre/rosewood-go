@@ -1,8 +1,10 @@
 ## 0.5.0
+- added support for running jobs from a json file
 - added support for concurrent processing of input files
 - added support for processing Rosewood v0.1 source files directly in run commands. 
 - added command v1tov2 to convert from v0.1 to v0.2
 - updated to be consistent with new specs.
+- several bugs fixes
 
 ## 0.4.5
 - changed algorithm for merging cells to address an unforeseen corner case (needs testing).
@@ -24,5 +26,5 @@
 - streamlined error messages and error reporting
 
 ## 0.3.1
-- Crash due to invalid cell coordinates in a merge or style command
-- Default section separator did not default to +++
+- fixed crash due to invalid cell coordinates in a merge or style command
+- fixed bug Default section separator did not default to +++

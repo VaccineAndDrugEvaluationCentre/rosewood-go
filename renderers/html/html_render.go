@@ -91,7 +91,9 @@ func (hr *htmlRenderer) write(format string, a ...interface{}) error {
 }
 
 func (hr *htmlRenderer) StartFile() error {
-	ExecutableVersion := fmt.Sprintf("Exe Version %s, Lib Version %s", hr.settings.ExecutableVersion, hr.settings.LibVersion)
+	//FIXME:
+	//	ExecutableVersion := fmt.Sprintf("Exe Version %s, Lib Version %s", hr.settings.ExecutableVersion, hr.settings.LibVersion)
+	ExecutableVersion := fmt.Sprintf("Lib Version %s", hr.settings.LibVersion)
 	if err := hr.write(htmlHeader, ExecutableVersion, time.Now().Format("2006-01-02 15:04:05")); err != nil {
 		return err
 	}

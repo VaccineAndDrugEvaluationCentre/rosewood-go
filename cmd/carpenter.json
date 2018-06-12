@@ -1,0 +1,24 @@
+{
+    "settings": {
+        "CheckSyntaxOnly": false,
+        "ConvertOldVersions": false,
+        "ConvertFromVersion": "v01",
+        "Debug": 3,
+        "DoNotInlineCSS": false,
+        "MandatoryCol": false,
+        "MaxConcurrentWorkers": 30,      
+        "PreserveWorkFiles": false,
+        "ReportAllError": false,
+        "SaveConvertedFile": false,
+        "StyleSheetName": "",    
+        "TrimCellContents": false
+    },
+    "InputFiles": [
+        {"name":"input1","version":""},
+        {"name":"input2","version":""}
+    ],
+    "OverWriteOutputFile": false,
+    "OutputFormat": "",
+    "OutputFile": {"name":"test.docx","version":""},
+    "WorkDirName": ""
+}

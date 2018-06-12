@@ -94,15 +94,15 @@ func GetOutputBaseDir(workDirName string, preserveWorkFiles bool) (baseDir strin
 	return
 }
 
-func GetValidFormat(inputFileNames []string, outputFileName string) (string, error) {
-	format := strings.Trim(strings.ToLower(filepath.Ext(outputFileName)), ".")
+func GetValidFormat(job *Job) (string, error) {
+	format := strings.Trim(strings.ToLower(filepath.Ext(job.OutputFile.Name)), ".")
 	switch {
-	case outputFileName == "": //no outputfile specified, assume one html per each inputfile
+	case job.OutputFile.Name == "": //no outputfile specified, assume one html per each inputfile
 		format = "html"
 	case format == "": //outputfile specified but without an extension, return an error for simplicity
-		return "", fmt.Errorf("must specify an extension for output file : %s", outputFileName)
+		return "", fmt.Errorf("must specify an extension for output file : %s", job.OutputFile.Name)
 	case format == "html": //if an html outputfile is specified, currently >1 input file are not allowed
-		if len(inputFileNames) > 1 {
+		if len(job.InputFiles) > 1 {
 			return "", fmt.Errorf("merging html files into one html file is not supported")
 		}
 	case format == "docx": //any number of inputfiles is acceptable
