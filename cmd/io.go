@@ -87,7 +87,7 @@ func GetOutputBaseDir(workDirName string, preserveWorkFiles bool) (baseDir strin
 		return
 	}
 	// create temp folder
-	baseDir, err = ioutil.TempDir("", "rosewood-") //create temp dir in the os default temp dir
+	baseDir, err = ioutil.TempDir("", "rw-temp101") //create temp dir in the os default temp dir
 	if err != nil {
 		err = fmt.Errorf("failed to create a temp directory: %s", err)
 	}

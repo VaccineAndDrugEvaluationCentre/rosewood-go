@@ -54,6 +54,13 @@ func NewFileDescriptor(fileName string) *FileDescriptor {
 	}
 }
 
+func FileDescriptorsToStrings(fds []*FileDescriptor) (ss []string) {
+	for _, f := range fds {
+		ss = append(ss, f.Name)
+	}
+	return ss
+}
+
 //Job holds info about the current run
 type Job struct { //IMMUTABLE once initialized; TODO: hide internal details but getter functions
 	FileName            string //if not empty, points to source config file that was used to load the config
@@ -71,13 +78,13 @@ type Job struct { //IMMUTABLE once initialized; TODO: hide internal details but 
 }
 
 func DefaultJob(settings *setter.Settings) *Job {
-	dir, _ := os.Getwd()
+	//dir, _ := os.Getwd()
 	return &Job{
 		Command:           "run",
 		ExecutableVersion: Version,
 		OutputFile:        NewFileDescriptor(""),
 		Settings:          settings,
-		WorkDirName:       dir,
+		//	WorkDirName:       dir,
 	}
 }
 

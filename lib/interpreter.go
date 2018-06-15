@@ -3,6 +3,7 @@
 package rosewood
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 
@@ -51,8 +52,9 @@ func (ri *Interpreter) Parse(r io.ReadSeeker, scriptIdentifer string) (*parser.F
 //RenderTables renders 1 or more tables into a Writer using the passed Renderer
 func (ri *Interpreter) Render(w io.Writer, file *parser.File, hr types.Renderer) error {
 	var err error
+	bw := bufio.NewWriter(w) //buffer the writer to speed up writing
 	tables := file.Tables()
-	hr.SetWriter(w)
+	hr.SetWriter(bw)
 	hr.SetSettings(ri.settings)
 	hr.SetTables(tables)
 	err = hr.StartFile()
@@ -65,6 +67,7 @@ func (ri *Interpreter) Render(w io.Writer, file *parser.File, hr types.Renderer)
 		}
 	}
 	err = hr.EndFile()
+	bw.Flush() //flush to ensure all changes are written to the writer
 	return err
 }
 

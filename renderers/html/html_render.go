@@ -15,14 +15,13 @@ import (
 )
 
 const (
-	htmlHeader = `
-<!DOCTYPE html>
+	htmlHeader = `<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
-<meta name="generator" content="Rosewood Carpenter %s" /> 
-<meta name="date-generated" content="%s" scheme="YYYY-MM-DD HH:MM:SS">
+<meta name="generator" content="Rosewood Carpenter new" />
 `
-	htmlHeaderClose = `	
+
+	htmlBody = `	
 </head>
 <body>
 `
@@ -30,10 +29,6 @@ const (
 </body>
 </html>
 `
-	// htmlPara     = "<p>"
-	// htmlbreak    = "<br>"
-	// htmlOpenDiv  = "<div>"
-	// htmlCloseDiv = "</div>"
 )
 
 //init registers HTML renderer with Rosewood
@@ -83,7 +78,7 @@ func (hr *htmlRenderer) Err() error {
 }
 
 //write does all the writing to the writer and handles errors by stopping any further writing
-func (hr *htmlRenderer) write(format string, a ...interface{}) error {
+func (hr *htmlRenderer) write(format string, a ...interface{}) error { //TODO:optimize
 	if hr.htmlError == nil {
 		_, hr.htmlError = fmt.Fprintf(hr.bw, format, a...)
 	}
@@ -91,25 +86,34 @@ func (hr *htmlRenderer) write(format string, a ...interface{}) error {
 }
 
 func (hr *htmlRenderer) StartFile() error {
+	var err error
+	var b strings.Builder //optimization for golang >= 1.10
+	b.Grow(1024 * 100)    //preallocate 100kb to avoid additional allocations
+	b.WriteString(htmlHeader)
+	b.WriteString(`<meta name="date-generated" content="`)
+	b.WriteString(time.Now().Format("2006-01-02 15:04:05"))
+	b.WriteString(`" scheme="YYYY-MM-DD HH:MM:SS">
+		`)
 	//FIXME:
 	//	ExecutableVersion := fmt.Sprintf("Exe Version %s, Lib Version %s", hr.settings.ExecutableVersion, hr.settings.LibVersion)
-	ExecutableVersion := fmt.Sprintf("Lib Version %s", hr.settings.LibVersion)
-	if err := hr.write(htmlHeader, ExecutableVersion, time.Now().Format("2006-01-02 15:04:05")); err != nil {
-		return err
-	}
 	cssFileName := hr.settings.StyleSheetName
 	if cssFileName == "" {
 		cssFileName = "carpenter.css"
 	}
-	//TODO: experimental: insert css into html
-	css, err := ioutil.ReadFile(cssFileName)
-	if err != nil {
-		return err
+	css := []byte(cssFileName)
+	if hr.settings.DoNotInlineCSS == false {
+		if css, err = ioutil.ReadFile(cssFileName); err != nil { //optimize using io.copy
+			return err
+		}
 	}
-	hr.write("<style>\n")
-	hr.write(string(css))
-	hr.write("\n</style>\n")
-	hr.write(htmlHeaderClose)
+	b.WriteString("<style>\n")
+	b.Write(css)
+	b.WriteString("\n</style>\n")
+	b.WriteString(htmlBody)
+	if hr.settings.Debug >= setter.DebugAll {
+		b.WriteString(time.Now().Format("2006-01-02 15:04:05"))
+	}
+	hr.write(b.String())
 	return hr.Err()
 }
 
@@ -118,7 +122,8 @@ func (hr *htmlRenderer) EndFile() error {
 }
 
 func (hr *htmlRenderer) StartTable(t *types.Table) error {
-	hr.write("<table>\n")
+	hr.write(`<table class="rw-table">
+		`)
 	if t.Caption != nil {
 		hr.write("<caption>")
 		for _, line := range t.Caption.Lines {
@@ -132,7 +137,7 @@ func (hr *htmlRenderer) StartTable(t *types.Table) error {
 func (hr *htmlRenderer) EndTable(t *types.Table) error {
 	hr.write("</table>\n")
 	if t.Footnotes != nil {
-		hr.write(`<div class="footnotes">%s`, "\n")
+		hr.write(`<div class="rw-footnotes">%s`, "\n")
 		for _, line := range t.Footnotes.Lines {
 			hr.write("%s%s\n", line, "<br>")
 		}

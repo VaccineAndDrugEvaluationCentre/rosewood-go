@@ -50,6 +50,12 @@ func helpMessage(topics []string, versionMessage string) {
 			fmt.Fprintln(os.Stderr, runUsageMessage)
 		case "v1tov2":
 			fmt.Fprintln(os.Stderr, v1tov2UsageMessage)
+		case "init":
+			fmt.Fprintln(os.Stderr, initUsageMessage)
+		case "version":
+			fmt.Fprintln(os.Stderr, "prints executable version.")
+		case "help":
+			fmt.Fprintln(os.Stderr, "got me! forgot to create help message for help.")
 		default:
 			fmt.Fprintln(os.Stderr, longUsageMessage)
 		}
@@ -76,10 +82,9 @@ type Flag struct {
 	value  interface{}
 }
 
-//FIXME: remove default value from flag structure because we are reading the value of dest field as default
 func NewCommand(name string, args []Flag) *flag.FlagSet {
 	cmd := flag.NewFlagSet(name, flag.ContinueOnError)
-	//duplicate args with both name and letter specified, so the command
+	//add duplicate args with both name and letter specified, so the command
 	//can be invoked by either
 	var expanded []Flag
 	for _, arg := range args {
@@ -90,6 +95,9 @@ func NewCommand(name string, args []Flag) *flag.FlagSet {
 		}
 	}
 	for _, arg := range expanded {
+		if arg.value == nil {
+			arg.value = arg.dest
+		}
 		switch p := arg.dest.(type) {
 		case *string:
 			cmd.StringVar(p, arg.name, *p, "")
