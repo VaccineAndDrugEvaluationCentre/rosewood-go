@@ -112,35 +112,35 @@ func GetValidFormat(job *Job) (string, error) {
 	return format, nil
 }
 
-//TODO: clean temp dir if any on start
-func start() {
-	tmp := filepath.Join(os.TempDir(), "mydir")
-	os.RemoveAll(tmp)
-	t, err := ioutil.TempFile(tmp, "prefix")
-	if err != nil {
-		// ...
-	}
-	defer os.Remove(t.Name())
-	defer t.Close()
-}
+// //TODO: clean temp dir if any on start
+// func start() {
+// 	tmp := filepath.Join(os.TempDir(), "mydir")
+// 	os.RemoveAll(tmp)
+// 	t, err := ioutil.TempFile(tmp, "prefix")
+// 	if err != nil {
+// 		// ...
+// 	}
+// 	defer os.Remove(t.Name())
+// 	defer t.Close()
+// }
 
-//without removing the dir itself
-//use os.RemoveAll("/tmp/") to remove folder and its contents
-func RemoveDirContents(dir string) error {
-	d, err := os.Open(dir)
-	if err != nil {
-		return err
-	}
-	defer d.Close()
-	names, err := d.Readdirnames(-1)
-	if err != nil {
-		return err
-	}
-	for _, name := range names {
-		err = os.RemoveAll(filepath.Join(dir, name))
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
+// //without removing the dir itself
+// //use os.RemoveAll("/tmp/") to remove folder and its contents
+// func RemoveDirContents(dir string) error {
+// 	d, err := os.Open(dir)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	defer d.Close()
+// 	names, err := d.Readdirnames(-1)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	for _, name := range names {
+// 		err = os.RemoveAll(filepath.Join(dir, name))
+// 		if err != nil {
+// 			return err
+// 		}
+// 	}
+// 	return nil
+// }

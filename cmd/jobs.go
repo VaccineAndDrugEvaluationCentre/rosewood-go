@@ -75,6 +75,7 @@ type Job struct { //IMMUTABLE once initialized; TODO: hide internal details but 
 	Settings            *setter.Settings
 	StyleSheetName      string
 	WorkDirName         string
+	DocxConfigFileName  string
 }
 
 func DefaultJob(settings *setter.Settings) *Job {
@@ -91,26 +92,20 @@ func DefaultJob(settings *setter.Settings) *Job {
 //GetValidJob loads configuration from a config file if one exists in current dir,
 //otherwise returns default Job including default Rosewood settings
 func GetValidJob(configFileName string) (*Job, error) {
-	// configFileName, err := os.Getwd()
-	// if err != nil {
-	// 	return nil, err
-	// }
 	// configFileName = filepath.Join(configFileName, ConfigFileBaseName)
 	configBuf, err := ioutil.ReadFile(configFileName)
-	job := new(Job)
-	if !os.IsNotExist(err) { //configFile found
-		if err != nil { //some error other than file does not exist occurred
-			return nil, fmt.Errorf("failed to load configuration file %s: %v", configFileName, err)
-		}
-		err = json.Unmarshal(configBuf, job)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse settings: %v", err)
-		}
-		fmt.Println("configuration loaded from " + configFileName)
-		job.FileName = configFileName
-	} else {
-		job = DefaultJob(rosewood.DefaultSettings())
+	if os.IsNotExist(err) { //configFile not found
+		return DefaultJob(rosewood.DefaultSettings()), nil
 	}
+	if err != nil { //some error other than file does not exist occurred
+		return nil, fmt.Errorf("failed to load configuration file %s: %v", configFileName, err)
+	}
+	job := new(Job)
+	if err = json.Unmarshal(configBuf, job); err != nil {
+		return nil, fmt.Errorf("failed to parse settings: %v", err)
+	}
+	fmt.Println("configuration loaded from " + configFileName)
+	job.FileName = configFileName
 	return job, nil
 }
 
@@ -161,7 +156,7 @@ func SaveJob(job *Job, path string, replace bool) error {
 }
 
 //GetValidSettings loads configuration from config file if one exists in current dir,
-//otherwise returns default Rosewood settings
+//otherwise returns default Rosewood settings  //FIXME: obsolete. remove?
 func GetValidSettings() (*setter.Settings, error) {
 	configFileName, err := os.Getwd()
 	if err != nil {
@@ -169,19 +164,17 @@ func GetValidSettings() (*setter.Settings, error) {
 	}
 	configFileName = filepath.Join(configFileName, ConfigFileBaseName)
 	configBuf, err := ioutil.ReadFile(configFileName)
-	configFileFound := !os.IsNotExist(err)
-	settings := new(setter.Settings)
-	if configFileFound {
-		if err != nil { //some error other than file does not exist occurred
-			return nil, fmt.Errorf("failed to load configuration file %s: %v", configFileName, err)
-		}
-		err = json.Unmarshal(configBuf, settings)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse settings: %v", err)
-		}
-		fmt.Println("configuration loaded from " + configFileName)
-	} else {
-		settings = rosewood.DefaultSettings()
+	if os.IsNotExist(err) { //file not found
+		return rosewood.DefaultSettings(), nil
 	}
+	settings := new(setter.Settings)
+	if err != nil { //some error other than file does not exist occurred
+		return nil, fmt.Errorf("failed to load configuration file %s: %v", configFileName, err)
+	}
+	if err = json.Unmarshal(configBuf, settings); err != nil {
+		return nil, fmt.Errorf("failed to parse settings: %v", err)
+	}
+	fmt.Println("configuration loaded from " + configFileName)
+
 	return settings, nil
 }

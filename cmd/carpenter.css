@@ -1,80 +1,68 @@
 html {
-    font-family: 'Bell MT', helvetica, arial, sans-serif;
+  font-family: 'Bell MT', helvetica, arial, sans-serif;
 }
+
 body {
-    color: black;
-    background-color: rgb(232, 230, 223) ;
+  color: black;
+  /* background-color: rgb(232, 230, 223) ; */
 }
 
-  th {
-    letter-spacing: 2px;
-  }
-  
-  td {
-    letter-spacing: 1px;
-  }
-  
- /* tbody tr {
-      border: solid thin;  
- }   */
-  /* tbody td {
-    text-align: center;
-  }
-   */
-  /* table tr td:first-child {
-     text-align: left;
-  } */
+th {
+  /* letter-spacing: 2px; */
+  font-style: bold;  
+  border-bottom: solid 1px black; 
+}
 
-  /* tbody tr:nth-child(odd) {
-    background-color: #ff33cc;
-  }
-  
-  tbody tr:nth-child(even) {
-    background-color: #e495e4;
-  } */
+td {
+  /* letter-spacing: 1px; */
+  border-bottom: solid 1px #ddd;
+  border-top: solid 1px #ddd;       
+  text-align: center;    
+}
 
-  caption {
-    font-family: 'Bell MT', helvetica, arial, sans-serif;
-    padding: 10px;
-    font-style: italic;    
-    font-weight: bold;    
-    caption-side: top;
-    color: #666;
-    text-align: left;
-    letter-spacing: 1px;
-  }
 
-  .rwtable {
-    font-family: 'Bell MT', helvetica, arial, sans-serif;
-    table-layout:fixed;
-    width: fixed;
-    border-collapse: collapse;
-    border: none ;
-    /* background-color: #D5DCE6; */
-  }
+table{
+  font-family: 'Bell MT', helvetica, arial, sans-serif;
+  font-size: 12px;
+  table-layout:auto;
+  /* width: 100%; */
+  border-collapse: collapse;
+  border-bottom: solid 1px black;
+  border-top: solid 1px black;       
+  /* text-align: center;     */
+}  
 
-  .header {
-    font-weight: bold;   
-  }
+caption {
+  font-family: 'Bell MT', helvetica, arial, sans-serif;
+  padding: 10px;
+  font-weight: bold;    
+  caption-side: top;
+  text-align: left;
+  letter-spacing: 1px;
+}
 
-  .rw-cell {
-    text-align: center;
-    border-bottom: solid 1px black;
-    border-top: solid 1px black;       
-    text-align: left;    
-  }
+.header {
+  font-weight: bold;   
+}
 
-  .rw-footnotes{
+.rw-cell{ 
+  /* border-bottom: solid 1px black;
+  border-top: solid 1px black;        */
+  /* text-align: left;     */
+}
 
-  }
+.rw-footnotes{
+  font-family: 'Bell MT', helvetica, arial, sans-serif;
+  font-size: 10px;
+}
 
-  .rw-row{
+.rw-row{
+ }
 
-  }
+.rw-table{
+}
 
-  .rw-table{
-    
-  }
-  .indent{
-    text-align: left;
-  }
+.indent{
+  text-align: left;
+  padding: 15px;
+}

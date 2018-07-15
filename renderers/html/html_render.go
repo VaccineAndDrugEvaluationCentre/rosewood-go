@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"strconv"
 	"strings"
 	"time"
 
@@ -78,9 +79,9 @@ func (hr *htmlRenderer) Err() error {
 }
 
 //write does all the writing to the writer and handles errors by stopping any further writing
-func (hr *htmlRenderer) write(format string, a ...interface{}) error { //TODO:optimize
+func (hr *htmlRenderer) write(s string) error { //TODO:optimize
 	if hr.htmlError == nil {
-		_, hr.htmlError = fmt.Fprintf(hr.bw, format, a...)
+		_, hr.htmlError = hr.bw.Write([]byte(s))
 	}
 	return hr.htmlError
 }
@@ -127,7 +128,7 @@ func (hr *htmlRenderer) StartTable(t *types.Table) error {
 	if t.Caption != nil {
 		hr.write("<caption>")
 		for _, line := range t.Caption.Lines {
-			hr.write("%s%s\n", line, "<br>")
+			hr.write(hr.renderText(line))
 		}
 		hr.write("</caption>\n") //added for completeness
 	}
@@ -137,9 +138,9 @@ func (hr *htmlRenderer) StartTable(t *types.Table) error {
 func (hr *htmlRenderer) EndTable(t *types.Table) error {
 	hr.write("</table>\n")
 	if t.Footnotes != nil {
-		hr.write(`<div class="rw-footnotes">%s`, "\n")
+		hr.write(`<div class="rw-footnotes">` + "\n")
 		for _, line := range t.Footnotes.Lines {
-			hr.write("%s%s\n", line, "<br>")
+			hr.write(hr.renderText(line) + "<br>\n")
 		}
 		hr.write("</div>\n")
 	}
@@ -147,51 +148,71 @@ func (hr *htmlRenderer) EndTable(t *types.Table) error {
 }
 
 func (hr *htmlRenderer) StartRow(r *types.Row) error {
-	return hr.write(`<tr class="rw-row">%s`, "\n")
+	return hr.write(`<tr class="rw-row">` + "\n")
 }
 
 func (hr *htmlRenderer) EndRow(r *types.Row) error {
 	return hr.write("</tr>\n")
 }
 
+func (hr *htmlRenderer) renderText(s string) string {
+	txt, err := InlinedMdToHTML(s, nil)
+	if err != nil {
+		hr.htmlError = fmt.Errorf("error in parsing the following text: %s; error is %s ", strconv.Quote(s), err)
+	}
+	return string(txt)
+}
+
 func (hr *htmlRenderer) OutputCell(c *types.Cell) error {
-	//TODO: not working; merged cells are still printed
 	//fmt.Printf("%s\n", c.DebugString()) //DEBUG
 	if c.State() == types.CsMerged {
 		return nil
 	}
-	hr.write("<td")
-	//EXPERIMENTAL: add base cell style rw-cell
-	hr.write(` class="rw-cell %s"`, strings.Join(c.Styles(), " "))
-
+	tag := "td"
+	if c.Header() {
+		tag = "th"
+	}
+	var b strings.Builder //optimization for golang >= 1.10
+	b.Grow(1024)
+	b.WriteString("<" + tag) //open td or th tag
+	switch len(c.Styles()) {
+	case 0: //donothing
+	case 1: //optimization for the common scenario with only style
+		b.WriteString(` class="` + c.Styles()[0] + string('"')) //eg class="style1"
+	default:
+		b.WriteString(` class="` + strings.Join(c.Styles(), " ") + string('"')) // replace with \"
+	}
 	if c.RowSpan() > 1 {
-		hr.write(` rowspan="%d"`, c.RowSpan())
+		b.WriteString(` rowspan="` + strconv.Itoa(c.RowSpan()) + string('"')) //eg rowspan="3"
 	}
 	if c.ColSpan() > 1 {
-		hr.write(` colspan="%d"`, c.ColSpan())
+		b.WriteString(` colspan=` + strconv.Itoa(c.ColSpan()) + string('"')) // eg colspan="2"
 	}
-	txt := escapeString(c.Text())
+	// txt, err := InlinedMdToHTML(c.Text(), nil)
+	// if err != nil {
+	// 	hr.htmlError = fmt.Errorf("error in parsing the following text: %s; error is %s ", strconv.Quote(c.Text()), err)
+	// }
 	//	if hr.settings.TrimCellContents {
-	txt = strings.TrimSpace(txt)
+	//txt = strings.TrimSpace(txt)
 	//	}
-	hr.write(">%s</td>\n", txt)
+	b.WriteString(">" + hr.renderText(c.Text()) + "</" + tag + ">\n") //eg "> text </td>"
+	hr.write(b.String())
 	return hr.Err()
 }
 
-// escapeString escapes special characters like "<" to become "&lt;". It
-// modified from html.EscapeString to escape <, <=, >, >=,  &, ' and ".
-func escapeString(s string) string {
-	return htmlEscaper.Replace(s)
-}
+// // escapeString escapes special characters like "<" to become "&lt;". It
+// // modified from stdlib html.EscapeString() to escape <, <=, >, >=,  &, ' and ".
+// func escapeString(s string) string {
+// 	return htmlEscaper.Replace(s)
+// }
 
-var htmlEscaper = strings.NewReplacer(
-	`&`, "&amp;",
-	`'`, "&#39;",
-	`<=`, "&le;",
-	`<=`, "&le;",
-	`<`, "&lt;",
-	`>=`, "&ge;",
-	`=>`, "&ge;",
-	`>`, "&gt;",
-	`"`, "&#34;",
-)
+// var htmlEscaper = strings.NewReplacer(
+// 	`&`, "&amp;",
+// 	`'`, "&#39;",
+// 	`<=`, "&le;",
+// 	`<`, "&lt;",
+// 	`>=`, "&ge;",
+// 	`=>`, "&ge;",
+// 	`>`, "&gt;",
+// 	`"`, "&#34;",
+// )

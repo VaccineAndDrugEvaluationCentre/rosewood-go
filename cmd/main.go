@@ -22,17 +22,18 @@ const (
 //TODO:
 //clean up debug and warnings: Debug=0 silent, 1=warnings only 2= verbose  3=internal debug info
 // allow quoted argument in style command
-// add support to inlined-markdown.
 // move all utilities to appropriate packages
 // refresh vendor packages
 // document new arguments
 // add support for settings in package types
 // clean-up all tests.
-// clean up css styles in generated html files
 // use consistent errors types and constants eg NewError()
 //add gracefull shutdown https://golang.org/pkg/os/signal/ along with a pointer to an optional cleanup function
 // add support for processing subfolder if arg==./..
 //?? add support for automerge; merged cells proceesed correctly even if there were no merge commands
+// add word section struct to hold html inputfiles and section settings include headers and footers
+// expand doInit to create word sections from input files in command line or current folder
+// add command run to run an external file on the table; useful for formatting many similar tables
 
 func main() {
 	if err := RunApp(); err != nil {
@@ -96,7 +97,7 @@ func DoFromConfigFile() error {
 			return err
 		}
 	} else {
-		//2 or more arguments, is it app name + do + a json file
+		//  we must have been called with app name + do + a json file
 		if strings.TrimSpace(strings.ToLower(os.Args[1])) != "do" {
 			return fmt.Errorf("invalid command %s", os.Args[1])
 		}

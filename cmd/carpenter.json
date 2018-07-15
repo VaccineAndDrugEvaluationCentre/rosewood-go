@@ -3,7 +3,7 @@
         "CheckSyntaxOnly": false,
         "ConvertOldVersions": false,
         "ConvertFromVersion": "v01",
-        "Debug": 3,
+        "Debug": 1,
         "DoNotInlineCSS": false,
         "MandatoryCol": false,
         "MaxConcurrentWorkers": 30,      

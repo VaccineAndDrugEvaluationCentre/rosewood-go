@@ -55,6 +55,7 @@ type Cell struct {
 	state            CellState
 	rowSpan, colSpan int
 	styleList        []string
+	header           bool //optimization for header cells
 }
 
 //NewCell returns a pointer to a new Cell
@@ -89,6 +90,10 @@ func (c *Cell) ColSpan() int {
 	return c.colSpan
 }
 
+func (c *Cell) Header() bool {
+	return c.header
+}
+
 func (c *Cell) Styles() []string {
 	return c.styleList
 }
@@ -103,7 +108,11 @@ outer:
 				continue outer
 			}
 		}
-		c.styleList = append(c.styleList, s)
+		if s == "header" {
+			c.header = true //optimization for header cells
+		} else {
+			c.styleList = append(c.styleList, s)
+		}
 	}
 	return nil
 }
