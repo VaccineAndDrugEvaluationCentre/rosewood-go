@@ -2,23 +2,33 @@ package rosewood
 
 import (
 	"github.com/drgo/rosewood/lib/parser"
-	"github.com/drgo/rosewood/lib/setter"
+	"github.com/drgo/rosewood/lib/types"
 )
 
-//Settings is an alias for setter settings
-type Settings = setter.Settings
+//this file exposes useful internal types
 
-//Debug* aliases for setter.Debug*
+//Job is an alias for rosewood.Job
+type Job = types.Job
+
+//DefaultJob returns a pointer to an initialized job object
+func DefaultJob(settings *Settings) *Job {
+	return types.DefaultJob(settings)
+}
+
+//Settings is an alias for setter settings
+type Settings = types.RosewoodSettings
+
+//Debug* aliases for types.Debug*
 const (
-	DebugSilent  = setter.DebugSilent
-	DebugWarning = setter.DebugWarning
-	DebugUpdates = setter.DebugUpdates
-	DebugAll     = setter.DebugAll
+	DebugSilent  = types.DebugSilent
+	DebugWarning = types.DebugWarning
+	DebugUpdates = types.DebugUpdates
+	DebugAll     = types.DebugAll
 )
 
 //DefaultSettings returns a pointer to an initialized settings object
 func DefaultSettings() *Settings {
-	return setter.DefaultSettings()
+	return types.DefaultRosewoodSettings()
 }
 
 // const (

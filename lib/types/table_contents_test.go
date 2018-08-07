@@ -5,7 +5,7 @@ package types
 import (
 	"testing"
 
-	"github.com/drgo/trace"
+	"github.com/drgo/core/trace"
 )
 
 func TestParseTableData(t *testing.T) {

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/drgo/rosewood/lib/setter"
+	"github.com/drgo/rosewood/lib/types"
 )
 
 type RWSyntax struct {
@@ -29,7 +29,7 @@ var RWSyntaxVdotzero2 = RWSyntax{
 }
 
 //ConvertToCurrentVersion utility to convert two current Rosewood version
-func ConvertToCurrentVersion(settings *setter.Settings, oldSyntax RWSyntax, in io.Reader, out io.Writer) error {
+func ConvertToCurrentVersion(settings *types.RosewoodSettings, oldSyntax RWSyntax, in io.Reader, out io.Writer) error {
 	newCode, err := ConvertVersion(settings, RWSyntaxVdotzero2, oldSyntax, in)
 	if err != nil {
 		return err
@@ -43,11 +43,11 @@ func ConvertToCurrentVersion(settings *setter.Settings, oldSyntax RWSyntax, in i
 }
 
 //ConvertVersion utility to convert between two Rosewood versions
-func ConvertVersion(settings *setter.Settings, newSyntax RWSyntax, oldSyntax RWSyntax, in io.Reader) ([]string, error) {
+func ConvertVersion(settings *types.RosewoodSettings, newSyntax RWSyntax, oldSyntax RWSyntax, in io.Reader) ([]string, error) {
 	newCode := make([]string, 0, 256)
 	output := func(line string) {
 		newCode = append(newCode, line)
-		if settings.Debug == setter.DebugAll {
+		if settings.Debug == types.DebugAll {
 			fmt.Println(line)
 		}
 	}
@@ -110,7 +110,7 @@ func ConvertVersion(settings *setter.Settings, newSyntax RWSyntax, oldSyntax RWS
 		return nil, fmt.Errorf("file does contain a valid table section")
 	default:
 	}
-	if settings.Debug == setter.DebugAll {
+	if settings.Debug == types.DebugAll {
 		fmt.Printf("table had %d section separators, table starts on line %d and ends on line %d, header starts on line %d and ends on line %d, foototes section starts on line %d\n, rules section starts on line %d\n", sectionNum, tableStart, tableEnd, headerStart, headerEnd, footnoteStart, rulesStart)
 	}
 	//add comment to the beginning of the generated code
@@ -137,7 +137,7 @@ func ConvertVersion(settings *setter.Settings, newSyntax RWSyntax, oldSyntax RWS
 		//remove the header start section separator //TODO: refactor as RemovefromSlice
 		newCode = append(newCode[:headerEnd], newCode[headerEnd+1:]...)
 	}
-	if settings.Debug == setter.DebugAll {
+	if settings.Debug == types.DebugAll {
 		fmt.Printf("table had %d section separators, table starts on line %d and ends on line %d, header starts on line %d and ends on line %d, foototes section starts on line %d\n, rules section starts on line %d\n", sectionNum, tableStart, tableEnd, headerStart, headerEnd, footnoteStart, rulesStart)
 	}
 	return newCode, nil

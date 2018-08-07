@@ -1,6 +1,6 @@
 package main
 
-//TODO: move to util package
+//TODO: move to core/sync package
 type semToken struct{} //empty because we only care about the count
 //CountingSemaphore implemented as a buffered channel of empty structs
 type CountingSemaphore chan semToken

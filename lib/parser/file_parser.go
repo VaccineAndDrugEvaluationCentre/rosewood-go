@@ -13,7 +13,6 @@ import (
 
 	"github.com/drgo/errors"
 	"github.com/drgo/fileutils"
-	"github.com/drgo/rosewood/lib/setter"
 	"github.com/drgo/rosewood/lib/types"
 )
 
@@ -36,12 +35,12 @@ type File struct {
 	FileName string
 	sections []*types.Section //holds raw lines
 	parser   *CommandParser
-	settings *setter.Settings
+	settings *types.RosewoodSettings
 	tables   []*types.Table //holds parsed tables and commands
 }
 
 //NewFile returns a Rosewood File
-func NewFile(fileName string, settings *setter.Settings) *File {
+func NewFile(fileName string, settings *types.RosewoodSettings) *File {
 	return &File{FileName: fileName,
 		parser:   NewCommandParser(settings),
 		settings: settings}
@@ -62,7 +61,7 @@ func (f *File) Parse(r io.ReadSeeker) error {
 	if isNil(r) {
 		panic("nil io.ReadSeeker passed to file.Parse()")
 	}
-	if f.settings.Debug == setter.DebugAll {
+	if f.settings.Debug == types.DebugAll {
 		fmt.Println("inside file.Parse()")
 	}
 	scanner := bufio.NewScanner(r)
@@ -74,7 +73,7 @@ func (f *File) Parse(r io.ReadSeeker) error {
 		return NewError(ErrSyntaxError, unknownPos, scanner.Err().Error())
 	}
 	lineNum++ //we found a line
-	if f.settings.Debug == setter.DebugAll {
+	if f.settings.Debug == types.DebugAll {
 		fmt.Println("first line is" + scanner.Text())
 	}
 	switch GetFileVersion(strings.TrimSpace(scanner.Text())) {
@@ -98,7 +97,7 @@ func (f *File) Parse(r io.ReadSeeker) error {
 	for scanner.Scan() {
 		lineNum++
 		line := scanner.Text()
-		if f.settings.Debug == setter.DebugAll {
+		if f.settings.Debug == types.DebugAll {
 			fmt.Println(line)
 		}
 		if f.isSectionSeparatorLine(line) { //start of a new section
@@ -130,7 +129,7 @@ func (f *File) convertFromVersionZero1(r io.ReadSeeker) (*bytes.Buffer, error) {
 	}
 	if f.settings.SaveConvertedFile {
 		v2FileName := fileutils.ConstructFileName(f.FileName, "rw", "", "-autogen")
-		out, err := fileutils.CreateFile(v2FileName, f.settings.OverWriteOutputFile)
+		out, err := fileutils.CreateFile(v2FileName, false /* do not overwrite files*/)
 		if err != nil {
 			return nil, fmt.Errorf("unable to create converted v0.2 file [%s]: %s", v2FileName, err)
 		}

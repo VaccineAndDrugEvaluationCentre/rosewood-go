@@ -3,9 +3,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,14 +14,18 @@ import (
 )
 
 const (
-	ConfigFileBaseName = "carpenter.json"
+	//ConfigFileBaseName default config file name
+	ConfigFileBaseName = "carpenter.mdson"
 )
+
+//FIXME: create htmldocx config when invoked from command line
+//FIXME: ensure workdirname is used to find rw files
+//FIXME: ensure overwriteoutputfile flag is respected
 
 //TODO:
 //clean up debug and warnings: Debug=0 silent, 1=warnings only 2= verbose  3=internal debug info
 // allow quoted argument in style command
 // move all utilities to appropriate packages
-// refresh vendor packages
 // document new arguments
 // add support for settings in package types
 // clean-up all tests.
@@ -31,9 +33,8 @@ const (
 //add gracefull shutdown https://golang.org/pkg/os/signal/ along with a pointer to an optional cleanup function
 // add support for processing subfolder if arg==./..
 //?? add support for automerge; merged cells proceesed correctly even if there were no merge commands
-// add word section struct to hold html inputfiles and section settings include headers and footers
 // expand doInit to create word sections from input files in command line or current folder
-// add command run to run an external file on the table; useful for formatting many similar tables
+// add command run to run an external rw file on the table; useful for formatting many similar tables
 
 func main() {
 	if err := RunApp(); err != nil {
@@ -42,7 +43,7 @@ func main() {
 }
 
 //RunApp has all program logic; entry point for all tests
-//WARNING: not safe to call concurrently; this is the only function allowed to change the job configuration
+//WARNING: not thread-safe; this is the only function allowed to change the job configuration
 func RunApp() error {
 	if len(os.Args) == 1 { //no command line arguments
 		return DoFromConfigFile()
@@ -51,7 +52,7 @@ func RunApp() error {
 	if err != nil {
 		return err
 	}
-	if job.Settings.Debug == rosewood.DebugAll {
+	if job.RosewoodSettings.Debug == rosewood.DebugAll {
 		fmt.Printf("current settings:\n%s\n", job)
 	}
 	switch job.Command { //TODO: check command is case insensitive
@@ -60,7 +61,7 @@ func RunApp() error {
 			return err
 		}
 	case "check":
-		job.Settings.CheckSyntaxOnly = true
+		job.RosewoodSettings.CheckSyntaxOnly = true
 		fallthrough
 	case "run":
 		job.Command = "process" //change to print nicer messages
@@ -69,17 +70,17 @@ func RunApp() error {
 			err = fmt.Errorf("one or more errors occurred during file processing") //do not report again
 		}
 	case "v1tov2":
-		if err = V1toV2(job); err != nil { //shadwing err, so check/run/convert errors will not returned
+		if err = V1toV2(job); err != nil {
 			err = fmt.Errorf("one or more errors occurred during file processing")
 		}
-	case "init": //FIXME
+	case "init":
 		if err = DoInit(job); err != nil {
 			err = fmt.Errorf("one or more errors occurred during configuration initialization")
 		}
 	case "version":
 		fmt.Println(getVersion())
 	case "help":
-		helpMessage(FileDescriptorsToStrings(job.InputFiles), getVersion())
+		helpMessage(job.RwFileNames, getVersion())
 	default:
 		helpMessage(nil, getVersion())
 		return fmt.Errorf(ErrWrongCommand)
@@ -87,12 +88,14 @@ func RunApp() error {
 	return err
 }
 
+//DoFromConfigFile runs a job using a config file (not command line options)
 func DoFromConfigFile() error {
 	var (
 		configFileName string
 		err            error
 	)
 	if len(os.Args) == 1 { //only app name passed, use ConfigFileBaseName in current folder
+		//FIXME: replace getfullpath with os.Abs() if os.Abs can handle empty argument
 		if configFileName, err = fileutils.GetFullPath(ConfigFileBaseName); err != nil {
 			return err
 		}
@@ -102,30 +105,23 @@ func DoFromConfigFile() error {
 			return fmt.Errorf("invalid command %s", os.Args[1])
 		}
 		if len(os.Args) < 3 {
-			return fmt.Errorf("must specify a json configuration file")
+			return fmt.Errorf("must specify an MDSon configuration file")
 		}
 		configFileName = os.Args[2]
-		if strings.ToLower(filepath.Ext(configFileName)) != ".json" {
-			return fmt.Errorf("invalid config file name [%s] passed, ext must be json", configFileName)
+		if ext := strings.ToLower(filepath.Ext(configFileName)); ext != ".mdson" {
+			return fmt.Errorf("invalid config file name [%s] passed", configFileName)
 		}
+		//FIXME: replace getfullpath with os.Abs()
 		if configFileName, err = fileutils.GetFullPath(configFileName); err != nil {
 			return err
 		}
 	}
 	//load configuration from config file
-	configBuf, err := ioutil.ReadFile(configFileName)
-	if err != nil {
-		return fmt.Errorf("failed to load configuration file: %v", err)
-	}
-	job := DefaultJob(rosewood.DefaultSettings())
-	if err = json.Unmarshal(configBuf, job); err != nil {
+	job := rosewood.DefaultJob(rosewood.DefaultSettings())
+	if err = job.LoadFromMDSonFile(configFileName); err != nil {
 		return fmt.Errorf("failed to parse configuration file %s: %v", configFileName, err)
 	}
-	if job.Settings.Debug >= rosewood.DebugUpdates {
-		fmt.Println("configuration loaded from " + configFileName)
-	}
-	job.FileName = configFileName
-	if job.Settings.Debug >= rosewood.DebugAll {
+	if job.RosewoodSettings.Debug >= rosewood.DebugAll {
 		fmt.Printf("current configuration: \n %s\n", job)
 	}
 	if err = DoRun(job); rosewood.Errors().IsParsingError(err) {
@@ -134,8 +130,9 @@ func DoFromConfigFile() error {
 	return err
 }
 
-func LoadConfigFromCommandLine() (*Job, error) {
-	job := DefaultJob(rosewood.DefaultSettings()) //TODO: ensure all defaults are reasonable
+//LoadConfigFromCommandLine creates a object using command line arguments
+func LoadConfigFromCommandLine() (*rosewood.Job, error) {
+	job := rosewood.DefaultJob(rosewood.DefaultSettings()) //TODO: ensure all defaults are reasonable
 	flgSets, _ := setupCommandFlag(job)
 	flg, err := ParseCommandLine(flgSets[0], flgSets[1:]...)
 	if err != nil {
@@ -144,7 +141,7 @@ func LoadConfigFromCommandLine() (*Job, error) {
 	job.Command = flg.Name()
 	//TODO: validate command line inputs; use in RunfromConfigFile too?!
 	for _, fileName := range flg.Args() {
-		job.InputFiles = append(job.InputFiles, NewFileDescriptor(fileName))
+		job.RwFileNames = append(job.RwFileNames, fileName)
 	}
 	return job, nil
 }

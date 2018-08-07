@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"strconv"
 
+	"github.com/drgo/core/trace"
 	"github.com/drgo/rosewood/lib/types"
-	"github.com/drgo/trace"
 )
 
 func (p *CommandParser) runSetCommand(cmd *types.Command) error {

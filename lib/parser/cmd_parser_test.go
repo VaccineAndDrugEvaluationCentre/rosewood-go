@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/drgo/rosewood/lib/setter"
 	"github.com/drgo/rosewood/lib/types"
 )
 
@@ -93,7 +92,7 @@ func TestCommandParser_ParseOneLineCommands(t *testing.T) {
 		// {`set rangeseparator "-" "onemore"
 		// 	`, 1, true, "invalid # args to set"},
 	}
-	p := NewCommandParser(setter.DebugSettings(setter.DebugAll)) //use default settings
+	p := NewCommandParser(types.DebugRosewoodSettings(types.DebugAll)) //use default settings
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
 			ss := strings.Split(tt.source, "\n")
@@ -144,7 +143,7 @@ func TestCommandParser_ParseMultiLineCommands(t *testing.T) {
 		merge	row 1:2 col 1:2
 		`, 2, true, ""},
 	}
-	p := NewCommandParser(setter.DefaultSettings()) //use default settings
+	p := NewCommandParser(types.DefaultRosewoodSettings()) //use default settings
 	for _, tt := range tests {
 		t.Run(tt.source, func(t *testing.T) {
 			ss := strings.Split(tt.source, "\n")
@@ -200,7 +199,7 @@ func TestCommandParser_ParseFullScript(t *testing.T) {
 	}{
 		{"Script 1", script1, 10, false, ""},
 	}
-	p := NewCommandParser(setter.DefaultSettings()) //use default settings
+	p := NewCommandParser(types.DefaultRosewoodSettings()) //use default settings
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -1,24 +1,30 @@
 {
-    "settings": {
-        "CheckSyntaxOnly": false,
+    "Settings": {
         "ConvertOldVersions": false,
         "ConvertFromVersion": "v01",
-        "Debug": 1,
+        "Debug": 2,
         "DoNotInlineCSS": false,
         "MandatoryCol": false,
-        "MaxConcurrentWorkers": 30,      
+        "MaxConcurrentWorkers": 30,
+        "OverWriteOutputFile": false,
+        "OutputFileName": "",
+        "OutputFormat": "",
         "PreserveWorkFiles": false,
         "ReportAllError": false,
         "SaveConvertedFile": false,
-        "StyleSheetName": "",    
+        "StyleSheetName": "",
+        "WorkDirName": "",
         "TrimCellContents": false
     },
-    "InputFiles": [
-        {"name":"input1","version":""},
-        {"name":"input2","version":""}
+    "InputFileNames": [
+          "tab2.gold",
+          "singletab.gold"        
     ],
-    "OverWriteOutputFile": false,
+    "OverWriteOutputFile": true,
+    "OutputFileName": "test.docx",
     "OutputFormat": "",
-    "OutputFile": {"name":"test.docx","version":""},
+    "PreserveWorkFiles": false,
+    "SaveConvertedFile": false,
+    "StyleSheetName": "",
     "WorkDirName": ""
 }

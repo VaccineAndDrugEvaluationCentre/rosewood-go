@@ -1,0 +1,68 @@
+{
+    "Version": "1.0.0",
+    "Command": "run",
+    "OverWriteOutputFile": false,
+    "OutputFile": {
+        "Name": "test.docx"
+    },
+    "OutputFormat": "",
+    "Document": {
+        "HeadersFooters": [
+            {
+                "ID": "header1",
+                "XMLFileName": "",
+                "Contents": "${htmldocx: timestamp} text in next line is created using raw xml ${xml:<w:p><w:rPr><w:tab w:val=\"right\" w:leader=\"dot\" w:pos=\"2160\"/></w:rPr><w:r><w:rPr><w:b/><w:i/><w:color w:val=\"8300ff\"/><w:rFonts w:ascii=\"Courier New\" w:hAnsi=\"Times New Roman\" w:cs=\"Times New Roman\"/></w:rPr><w:tab/><w:tab/><w:t>tabbed-bold-italic-magenta-Courier New</w:t></w:r></w:p>}"
+            },
+            {
+                "ID": "footer1",
+                "XMLFileName": "",
+                "Contents": "${word: PAGE}"
+            }
+        ],
+        "Sections": [
+            {
+                "ID": "section1",
+                "Settings": {
+                    "Size": {
+                        "Width": "12240",
+                        "Height": "15840",
+                        "Orientation": "portrait"
+                    },
+                    "Margins": {
+                        "Top": "1440",
+                        "Right": "1440",
+                        "Bottom": "1440",
+                        "Left": "1440",
+                        "Header": "360",
+                        "Footer": "360",
+                        "Gutter": "0"
+                    },
+                    "HeadersFooters": [
+                        {
+                            "ID": "header1",
+                            "type": "default"
+                        },
+                        {
+                            "ID": "footer1",
+                            "type": "default"
+                        }
+                    ]
+                },
+                "InputFiles": [
+                    {
+                        "Name": "tab2.html"
+                    },
+                    {
+                        "Name": "singletab.html"
+                    }
+                ],
+                "InputDir": "/Users/salah/Dropbox/code/go/src/github.com/drgo/htmldocx/cmd",
+                "AddPageBreakAfterEachInputFile": true
+            }
+        ]
+    },
+    "RunOptions": {
+        "Debug": 3,
+        "JobFileName": ""
+    }
+}

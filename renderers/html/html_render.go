@@ -11,7 +11,6 @@ import (
 	"time"
 
 	rosewood "github.com/drgo/rosewood/lib"
-	"github.com/drgo/rosewood/lib/setter"
 	"github.com/drgo/rosewood/lib/types"
 )
 
@@ -44,7 +43,7 @@ func init() {
 //htmlRenderer implements types.Renderer for HTML output
 type htmlRenderer struct {
 	bw        io.Writer
-	settings  *setter.Settings
+	settings  *types.RosewoodSettings
 	tables    []*types.Table
 	htmlError error //tracks errors
 }
@@ -64,7 +63,7 @@ func (hr *htmlRenderer) SetWriter(w io.Writer) error {
 	return nil
 }
 
-func (hr *htmlRenderer) SetSettings(settings *setter.Settings) error {
+func (hr *htmlRenderer) SetSettings(settings *types.RosewoodSettings) error {
 	hr.settings = settings
 	return nil
 }
@@ -111,7 +110,7 @@ func (hr *htmlRenderer) StartFile() error {
 	b.Write(css)
 	b.WriteString("\n</style>\n")
 	b.WriteString(htmlBody)
-	if hr.settings.Debug >= setter.DebugAll {
+	if hr.settings.Debug >= types.DebugAll {
 		b.WriteString(time.Now().Format("2006-01-02 15:04:05"))
 	}
 	hr.write(b.String())

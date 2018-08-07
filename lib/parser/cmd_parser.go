@@ -9,10 +9,9 @@ import (
 	"strings"
 	"text/scanner"
 
+	"github.com/drgo/core/trace"
 	"github.com/drgo/errors"
-	"github.com/drgo/rosewood/lib/setter"
 	"github.com/drgo/rosewood/lib/types"
-	"github.com/drgo/trace"
 )
 
 // CommandParser specialized parser for format commands
@@ -20,21 +19,21 @@ type CommandParser struct {
 	trace        trace.Tracer
 	errors       *errors.ErrorList
 	lexer        *scanner.Scanner
-	settings     *setter.Settings
+	settings     *types.RosewoodSettings
 	position     Position
 	currentToken rune
 	tables       []*types.TableContents //list of all loaded tables
 }
 
 //NewCommandParser initializes and returns a CommandParser
-func NewCommandParser(settings *setter.Settings) *CommandParser {
+func NewCommandParser(settings *types.RosewoodSettings) *CommandParser {
 	if settings == nil {
 		panic("nil settings passed to NewCommandParser")
 	}
 	p := CommandParser{errors: errors.NewErrorList(), lexer: new(scanner.Scanner)}
 	p.settings = settings
 	p.trace = trace.NewTrace(false, nil) //writer to stderr
-	if p.settings.Debug == setter.DebugAll {
+	if p.settings.Debug == types.DebugAll {
 		p.trace.On()
 	}
 	return &p

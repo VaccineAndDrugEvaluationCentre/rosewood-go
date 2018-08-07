@@ -1,9 +1,10 @@
 //rosewood_test contains integration (black box tests) for // Copyright 2017 Salah Mahmud and Colleagues. All rights reserved.
 
 package rosewood
+
 // Copyright 2017 Salah Mahmud and Colleagues. All rights reserved.
 
-package rosewood_test
+// package rosewood_test
 
 // import (
 // 	"bytes"

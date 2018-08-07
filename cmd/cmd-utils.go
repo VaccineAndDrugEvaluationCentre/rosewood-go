@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+//TODO: move to core/cmd
 var (
 	//Version holds the exe version initialized in the Makefile
 	Version string
@@ -55,7 +56,7 @@ func helpMessage(topics []string, versionMessage string) {
 		case "version":
 			fmt.Fprintln(os.Stderr, "prints executable version.")
 		case "help":
-			fmt.Fprintln(os.Stderr, "got me! forgot to create help message for help.")
+			fmt.Fprintln(os.Stderr, "you got me! forgot to create help message for help.")
 		default:
 			fmt.Fprintln(os.Stderr, longUsageMessage)
 		}
@@ -75,6 +76,7 @@ func (devNull) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
+//Flag holds command line flag info
 type Flag struct {
 	dest   interface{}
 	name   string
@@ -82,6 +84,7 @@ type Flag struct {
 	value  interface{}
 }
 
+//NewCommand creates a new command
 func NewCommand(name string, args []Flag) *flag.FlagSet {
 	cmd := flag.NewFlagSet(name, flag.ContinueOnError)
 	//add duplicate args with both name and letter specified, so the command

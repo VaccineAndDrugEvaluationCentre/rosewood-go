@@ -10,7 +10,8 @@ import (
 	rosewood "github.com/drgo/rosewood/lib"
 )
 
-//TODO: move to fileUtils; replace with generic file descriptors
+//TODO: move this file to fileUtils; replace with generic file descriptors
+
 type RwInputDescriptor struct {
 	FileName           string
 	MinFileSize        int
@@ -72,7 +73,7 @@ func getOutputWriter(fileName string, overWrite bool) (*os.File, error) {
 	return out, nil
 }
 
-//DefineOutputBaseDir returns current working directory if PreserveIntermediateFiles is false
+//GetOutputBaseDir returns current working directory if PreserveIntermediateFiles is false
 // otherwise creates a temp dir in the os default temp dir and return its name
 //defer os.RemoveAll(dir)
 func GetOutputBaseDir(workDirName string, preserveWorkFiles bool) (baseDir string, err error) {
@@ -94,15 +95,16 @@ func GetOutputBaseDir(workDirName string, preserveWorkFiles bool) (baseDir strin
 	return
 }
 
-func GetValidFormat(job *Job) (string, error) {
-	format := strings.Trim(strings.ToLower(filepath.Ext(job.OutputFile.Name)), ".")
+//TODO: move to jobs.go
+func GetValidFormat(job *rosewood.Job) (string, error) {
+	format := strings.Trim(strings.ToLower(filepath.Ext(job.OutputFileName)), ".")
 	switch {
-	case job.OutputFile.Name == "": //no outputfile specified, assume one html per each inputfile
+	case job.OutputFileName == "": //no outputfile specified, assume one html per each inputfile
 		format = "html"
 	case format == "": //outputfile specified but without an extension, return an error for simplicity
-		return "", fmt.Errorf("must specify an extension for output file : %s", job.OutputFile.Name)
+		return "", fmt.Errorf("must specify an extension for output file : %s", job.OutputFileName)
 	case format == "html": //if an html outputfile is specified, currently >1 input file are not allowed
-		if len(job.InputFiles) > 1 {
+		if len(job.RwFileNames) > 1 {
 			return "", fmt.Errorf("merging html files into one html file is not supported")
 		}
 	case format == "docx": //any number of inputfiles is acceptable

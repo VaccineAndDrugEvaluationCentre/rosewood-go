@@ -8,30 +8,33 @@ import (
 )
 
 //WARNING: the default value field in flag struct is not used
-func setupCommandFlag(job *Job) (flgSets []*flag.FlagSet, err error) {
+func setupCommandFlag(job *rosewood.Job) (flgSets []*flag.FlagSet, err error) {
 	globals := NewCommand("", []Flag{
-		{&job.Settings.Debug, "debug", "d", nil},
-		{&job.Settings.MaxConcurrentWorkers, "max-threads", "mt", nil},
+		{&job.RosewoodSettings.Debug, "debug", "d", nil},
+		{&job.RosewoodSettings.MaxConcurrentWorkers, "max-threads", "mt", nil},
 	})
 	cmdDo := NewCommand("do", []Flag{})
 	cmdRun := NewCommand("run", []Flag{
-		{&job.Settings.ConvertOldVersions, "convert-old", "co", nil},
-		{&job.Settings.ConvertFromVersion, "rosewood-version", "rv", nil},
-		{&job.Settings.DoNotInlineCSS, "no-inlined-css", "", nil},
-		{&job.OutputFile.Name, "output", "o", nil},
-		{&job.Settings.OverWriteOutputFile, "replace", "r", nil},
-		{&job.Settings.PreserveWorkFiles, "keep-temp", "k", nil},
-		{&job.Settings.SaveConvertedFile, "save-converted", "sc", nil},
-		{&job.Settings.StyleSheetName, "style", "s", nil},
+		{&job.RosewoodSettings.ConvertOldVersions, "convert-old", "co", nil},
+		{&job.RosewoodSettings.ConvertFromVersion, "rosewood-version", "rv", nil},
+		{&job.RosewoodSettings.DoNotInlineCSS, "no-inlined-css", "", nil},
+		{&job.OutputFileName, "output", "o", nil},
+		//FIXME: read overwriteoutputfile and PreserveWorkFiles into options
+		{&job.OverWriteOutputFile, "replace", "r", nil},
+		{&job.RosewoodSettings.PreserveWorkFiles, "keep-temp", "k", nil},
+		{&job.RosewoodSettings.SaveConvertedFile, "save-converted", "sc", nil},
+		{&job.RosewoodSettings.StyleSheetName, "style", "s", nil},
 		{&job.WorkDirName, "work-dir", "w", nil},
 	})
 	cmdCheck := NewCommand("check", []Flag{})
 	cmdV1tov2 := NewCommand("v1tov2", []Flag{
-		{&job.Settings.ConvertFromVersion, "rosewood-version", "rv", nil},
-		{&job.Settings.OverWriteOutputFile, "replace", "r", nil},
+		{&job.RosewoodSettings.ConvertFromVersion, "rosewood-version", "rv", nil},
+		//FIXME: read overwriteoutputfile and PreserveWorkFiles into options
+		{&job.OverWriteOutputFile, "replace", "r", nil},
 	})
 	cmdInit := NewCommand("init", []Flag{
-		{&job.Settings.OverWriteOutputFile, "replace", "r", nil},
+		//FIXME: read overwriteoutputfile and PreserveWorkFiles into options
+		{&job.OverWriteOutputFile, "replace", "r", nil},
 	})
 	cmdHelp := NewCommand("help", []Flag{})
 	cmdVersion := NewCommand("version", []Flag{})
@@ -44,5 +47,5 @@ func setupCommandFlag(job *Job) (flgSets []*flag.FlagSet, err error) {
 }
 
 func getVersion() string {
-	return fmt.Sprintf(versionMessage, Version, Build, rosewood.Version)
+	return fmt.Sprintf(versionMessage, Version, Build, rosewood.LibVersion())
 }

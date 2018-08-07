@@ -9,12 +9,15 @@ import (
 
 	"github.com/drgo/errors"
 	"github.com/drgo/rosewood/lib/parser"
-	"github.com/drgo/rosewood/lib/setter"
 	"github.com/drgo/rosewood/lib/types"
 )
 
 //Version of this library
-const Version = "0.5.0"
+const version = "0.5.0"
+
+func LibVersion() string {
+	return version
+}
 
 //Interpreter holds the state of a Rosewood interpreter
 type Interpreter struct {
@@ -23,7 +26,7 @@ type Interpreter struct {
 }
 
 //NewInterpreter returns an initialized Rosewood interpreter
-func NewInterpreter(settings *setter.Settings) *Interpreter {
+func NewInterpreter(settings *types.RosewoodSettings) *Interpreter {
 	//if no custom settings use default ones
 	if settings == nil {
 		settings = DefaultSettings()
@@ -38,8 +41,7 @@ func (ri *Interpreter) Parse(r io.ReadSeeker, scriptIdentifer string) (*parser.F
 	if err := file.Parse(r); err != nil {
 		return nil, err
 	}
-	//TODO: change to use tracer
-	if ri.settings.Debug == setter.DebugAll {
+	if ri.settings.Debug == types.DebugAll {
 		fmt.Printf("%d table(s) found\n", file.TableCount())
 		tables := file.Tables()
 		for i := 0; i < len(tables); i++ {
@@ -86,12 +88,12 @@ func (ri *Interpreter) SetScriptIdentifer(scriptIdentifer string) *Interpreter {
 }
 
 //Settings returns currently active interpreter settings
-func (ri *Interpreter) Setting() *setter.Settings {
+func (ri *Interpreter) Setting() *types.RosewoodSettings {
 	return ri.settings
 }
 
 //ConvertToCurrentVersion utility to convert older versions of Rosewood to current version
-func ConvertToCurrentVersion(settings *setter.Settings, in io.Reader, out io.Writer) error {
+func ConvertToCurrentVersion(settings *types.RosewoodSettings, in io.Reader, out io.Writer) error {
 	switch settings.ConvertFromVersion {
 	case "v0.1":
 		return parser.ConvertToCurrentVersion(settings, parser.RWSyntaxVdotzero1, in, out)
