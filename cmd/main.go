@@ -71,11 +71,11 @@ func RunApp() error {
 		}
 	case "v1tov2":
 		if err = V1toV2(job); err != nil {
-			err = fmt.Errorf("one or more errors occurred during file processing")
+			err = fmt.Errorf("one or more errors occurred during file processing: %s", err)
 		}
 	case "init":
-		if err = DoInit(job); err != nil {
-			err = fmt.Errorf("one or more errors occurred during configuration initialization")
+		if _, err = DoInit(job); err != nil {
+			err = fmt.Errorf("one or more errors occurred during configuration initialization: %s", err)
 		}
 	case "version":
 		fmt.Println(getVersion())
@@ -135,6 +135,7 @@ func LoadConfigFromCommandLine() (*rosewood.Job, error) {
 	job := rosewood.DefaultJob(rosewood.DefaultSettings()) //TODO: ensure all defaults are reasonable
 	flgSets, _ := setupCommandFlag(job)
 	flg, err := ParseCommandLine(flgSets[0], flgSets[1:]...)
+
 	if err != nil {
 		return nil, err
 	}

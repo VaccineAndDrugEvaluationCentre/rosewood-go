@@ -1,6 +1,6 @@
 # EXE is binary name
 EXE=carpenter
-VERSION=0.5.0
+VERSION=0.6.0
 BUILD := $(shell git describe --always --long --dirty)
 BUILD_DATE=$(shell date)
 
@@ -17,16 +17,20 @@ LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Build=${BUILD}"
 build:
 	go build -race ${LDFLAGS} -o ${EXE}
 
-run: 
-	go run carpenter.go
+buildprod: 
+	go build ${LDFLAGS} -o ${EXE}
 
 # Windows build
 buildwin:
-	GOOS=windows GOARCH=amd64 go build ${LDFLAGS} -o ${EXE}.exe	
+	GOOS=windows GOARCH=amd64 go build  -race ${LDFLAGS} -o ${EXE}.exe	
+
+buildwinprod:
+	GOOS=windows GOARCH=amd64 go build  ${LDFLAGS} -o ${EXE}.exe	
 
 clean:
 	rm ${EXE}
 	rm ${EXE}.exe
+	# go clean
 
 doc: 
 #update README with version and build number in line 4 only and only if it had Version

@@ -2,37 +2,33 @@ package types
 
 //RosewoodSettings for controlling Rosewood lib
 type RosewoodSettings struct {
-	CheckSyntaxOnly    bool   `json:"-"`
-	ColumnSeparator    string `json:"-"`
+	CheckSyntaxOnly    bool   `mdson:"-"`
+	ColumnSeparator    string `mdson:"-"`
 	ConvertOldVersions bool
 	ConvertFromVersion string
 	//controls printing debug info by internal lib routines
 	Debug                int
 	DoNotInlineCSS       bool
-	MandatoryCol         bool
+	MandatoryCol         bool `mdson:"-"`
 	MaxConcurrentWorkers int
-	//	OverWriteOutputFile  bool
-	// OutputFileName       string
-	// OutputFormat         string
 	//FIXME: move to options?
 	PreserveWorkFiles bool
-	RangeOperator     int32 `json:"-"`
+	RangeOperator     int32 `mdson:"-"`
 	ReportAllError    bool
 	SaveConvertedFile bool
-	SectionCapacity   int    `json:"-"`
-	SectionSeparator  string `json:"-"`
-	SectionsPerTable  int    `json:"-"`
+	SectionCapacity   int    `mdson:"-"`
+	SectionSeparator  string `mdson:"-"`
+	SectionsPerTable  int    `mdson:"-"`
 	StyleSheetName    string
-	// WorkDirName          string
-	TrimCellContents bool
+	TrimCellContents  bool
 }
 
-//NewSettings returns an empty Settings struct
+//NewRosewoodSettings returns an empty Settings struct
 func NewRosewoodSettings() *RosewoodSettings {
 	return &RosewoodSettings{}
 }
 
-//DefaultSettings returns default settings in case no settings were set.
+//DefaultRosewoodSettings returns default settings in case no settings were set.
 func DefaultRosewoodSettings() *RosewoodSettings {
 	settings := NewRosewoodSettings()
 	settings.SectionsPerTable = 4
@@ -46,10 +42,10 @@ func DefaultRosewoodSettings() *RosewoodSettings {
 
 //FIXME: remove tracing to runOptions
 
-//DebugSettings returns default settings for settings and setup tracing
-func DebugRosewoodSettings(Tracing int) *RosewoodSettings {
+//DebugRosewoodSettings returns default settings for settings and setup tracing
+func DebugRosewoodSettings(debug int) *RosewoodSettings {
 	settings := DefaultRosewoodSettings()
-	settings.Debug = Tracing
+	settings.Debug = debug
 	return settings
 }
 
@@ -62,8 +58,8 @@ type Options struct {
 	JobFileName           string
 	DefaultConfigFileName string
 	DefaultScriptFileName string
-	ExecutableVersion     string `json:"-"`
-	LibVersion            string `json:"-"`
+	ExecutableVersion     string `mdson:"-"`
+	LibVersion            string `mdson:"-"`
 }
 
 //DefaultOptions returns a default option setting

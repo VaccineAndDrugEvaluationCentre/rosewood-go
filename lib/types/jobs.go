@@ -12,19 +12,22 @@ import (
 
 //Job holds info about the current run
 type Job struct { //IMMUTABLE once initialized; TODO: hide internal details using getter functions
-	Command             string
+	Command             string `mdson:"-"`
 	Debug               int
-	ExecutableVersion   string `json:"-"`
+	ExecutableVersion   string `mdson:"-"`
 	RwFileNames         []string
 	OverWriteOutputFile bool
 	OutputFileName      string
 	OutputFormat        string
 	PreserveWorkFiles   bool
 	SaveConvertedFile   bool
+	SaveConfigFile      bool
 	RosewoodSettings    *RosewoodSettings
 	StyleSheetName      string
 	WorkDirName         string
-	configFileName      string //if not empty, points to source config file that was used to load the config
+	HTMLFileNames       []string //files generated from Rosewood scripts
+	HTMLWorkDirName     string   //dir where HTMLFileNames are stored
+	configFileName      string   //MDSon file that was used to load the config
 }
 
 //DefaultJob returns default job
@@ -82,8 +85,21 @@ func (job *Job) LoadFromMDSon(r io.Reader) error {
 	return nil
 }
 
-//SaveToMDSon save job configuration to specified MDSon file
-func (job *Job) SaveToMDSon(FileName string, overwrite bool) error {
+//SaveToMDSon saves job configuration to specified MDSon writer
+func (job *Job) SaveToMDSon(w io.Writer) error {
+	buf, err := mdson.Marshal(job)
+	if err != nil {
+		return fmt.Errorf("failed to save job configuration: %s", err)
+	}
+	_, err = w.Write(buf)
+	if err != nil {
+		return fmt.Errorf("failed to save job configuration: %s", err)
+	}
+	return nil
+}
+
+//SaveToMDSonFile save job configuration to specified MDSon file
+func (job *Job) SaveToMDSonFile(FileName string, overwrite bool) error {
 	err := mdson.MarshalToFile(job, FileName, overwrite)
 	if err != nil {
 		return fmt.Errorf("failed to save job configuration: %v", err)
@@ -91,8 +107,13 @@ func (job *Job) SaveToMDSon(FileName string, overwrite bool) error {
 	return nil
 }
 
-//ConfigFileName path to the MDSon file used to initialize this Job
+//ConfigFileName returns path to the MDSon file used to initialize this Job
 //empty if a file was not used
 func (job *Job) ConfigFileName() string {
 	return job.configFileName
+}
+
+//SetConfigFileName sets the MDSon file name
+func (job *Job) SetConfigFileName(fileName string) {
+	job.configFileName = fileName
 }

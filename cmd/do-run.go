@@ -77,6 +77,15 @@ func DoRun(job *rosewood.Job) error {
 	if job.RosewoodSettings.Debug >= rosewood.DebugUpdates {
 		fmt.Printf("processed %d file(s) in %s\n", len(job.RwFileNames), time.Since(start).String())
 	}
+	if job.SaveConfigFile {
+		configFilename, err := DoInit(job)
+		if job.RosewoodSettings.Debug >= rosewood.DebugAll {
+			fmt.Println("SaveConfigFile:", configFilename, err)
+		}
+		if err == nil && job.RosewoodSettings.Debug >= rosewood.DebugUpdates {
+			fmt.Printf("configuration saved as '%s'\n", configFilename)
+		}
+	}
 	return err
 }
 
@@ -199,9 +208,23 @@ func runFile(ri *rosewood.Interpreter, in io.ReadSeeker, out io.Writer) error {
 	return ri.ReportError(ri.Render(out, file, hr))
 }
 
+//outputAsDocx caution: modifies job, not thread-safe
 func outputAsDocx(processedFiles []string, job *rosewood.Job) error {
+	var err error
+	configFileName := job.ConfigFileName()
+	fmt.Println("current configFileName", configFileName)
+	job.HTMLFileNames = processedFiles
+	if configFileName == "" { //from commandline, create temp config file
+		if configFileName, err = genConfigFile(job, ""); err != nil {
+			return err
+		}
+		if job.RosewoodSettings.Debug >= rosewood.DebugUpdates {
+			fmt.Printf("created htmldocx config file %s\n", configFileName)
+		}
+		defer os.Remove(configFileName)
+	}
 	docxOpts := htmldocx.DefaultOptions().SetDebug(job.RosewoodSettings.Debug)
-	if err := htmldocx.MakeDocxFromMdsonFile(job.ConfigFileName(), docxOpts); err != nil {
+	if err := htmldocx.MakeDocxFromMdsonFile(configFileName, docxOpts); err != nil {
 		return err
 	}
 	if job.RosewoodSettings.Debug >= rosewood.DebugUpdates {
@@ -209,25 +232,3 @@ func outputAsDocx(processedFiles []string, job *rosewood.Job) error {
 	}
 	return nil
 }
-
-// //FIXME: ensure that current dir and jon.workdirname are used before trying other options
-// func getHtmldocxConfigFileName(job *rosewood.Job, docxOpts *htmldocx.Options) string {
-// 	fileName := strings.TrimSpace(job.DocxConfigFileName) //first take the one specified in carpenter.json
-// 	if fileName == "" {
-// 		if _, err := os.Stat(docxOpts.DefaultConfigFileName); err == nil { //try the default config file name
-// 			fileName = docxOpts.DefaultConfigFileName
-// 		}
-// 	}
-// 	// if strings.TrimSpace(job.WorkDirName) != "" {
-// 	// 	fileName
-// 	// }
-// 	if fileName == "" {
-// 		return ""
-// 	}
-// 	fileName, err := filepath.Abs(fileName) //expand filename returning full path relative to current dir
-// 	if err != nil {
-// 		return ""
-// 	}
-// 	// fmt.Println("inside getHtmldocxConfigFileName:", fileName)
-// 	return fileName
-// }

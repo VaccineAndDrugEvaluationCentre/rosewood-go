@@ -22,6 +22,7 @@ func setupCommandFlag(job *rosewood.Job) (flgSets []*flag.FlagSet, err error) {
 		//FIXME: read overwriteoutputfile and PreserveWorkFiles into options
 		{&job.OverWriteOutputFile, "replace", "r", nil},
 		{&job.RosewoodSettings.PreserveWorkFiles, "keep-temp", "k", nil},
+		{&job.SaveConfigFile, "save-config", "sg", nil},
 		{&job.RosewoodSettings.SaveConvertedFile, "save-converted", "sc", nil},
 		{&job.RosewoodSettings.StyleSheetName, "style", "s", nil},
 		{&job.WorkDirName, "work-dir", "w", nil},

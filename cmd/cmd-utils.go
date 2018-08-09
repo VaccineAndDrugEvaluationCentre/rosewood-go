@@ -128,6 +128,7 @@ func ParseCommandLine(top *flag.FlagSet, subs ...*flag.FlagSet) (*flag.FlagSet, 
 		case strings.Contains(s, "help requested"):
 			helpMessage(nil, getVersion())
 		default:
+			return nil, err
 		}
 	}
 	if flg == nil || flg.Name() == "" {

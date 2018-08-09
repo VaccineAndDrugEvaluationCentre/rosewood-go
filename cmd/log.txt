@@ -1,0 +1,1242 @@
+current settings:
+{
+    "Command": "run",
+    "Debug": 0,
+    "RwFileNames": [
+        "test/singletab.gold",
+        "test/tab2.gold"
+    ],
+    "OverWriteOutputFile": true,
+    "OutputFileName": "fcom.docx",
+    "OutputFormat": "",
+    "PreserveWorkFiles": false,
+    "SaveConvertedFile": false,
+    "SaveConfigFile": false,
+    "RosewoodSettings": {
+        "ConvertOldVersions": false,
+        "ConvertFromVersion": "",
+        "Debug": 3,
+        "DoNotInlineCSS": false,
+        "MandatoryCol": false,
+        "MaxConcurrentWorkers": 24,
+        "PreserveWorkFiles": false,
+        "ReportAllError": false,
+        "SaveConvertedFile": false,
+        "StyleSheetName": "",
+        "TrimCellContents": false
+    },
+    "StyleSheetName": "",
+    "WorkDirName": ""
+}
+
+processing 2 file(s) in work dir=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101236239001
+inside file.Parse()
+inside file.Parse()
+first line is+++
+first line is+++
+Definition of Autoimmune diseases
++++
+Definition of Autoimmune diseases^1^
+>= 1 admission (ICD-10 codes as below) OR >= 2 physician claims (ICD-9 codes as below) |
++++
+Disease                     |             ICD9 codes             |     ICD10 codes     |
+                            | Physician claims |  Hospital data  |                     |
+Pernicious anemia           |       281        |      281.0      |        D51.0        |
+Autoimmune hemolytic anemia |       283        |      283.0      |        D59.1        |
+Ankylosing spondylitis      |       720        |      720.0      |         M45         |
+>= 1 admission (ICD-10 codes as below)^2^ OR >= 2 physician claims (ICD-9 codes as below) |
+Disease                     |             ICD9 codes             |     ICD10 codes     |
+                            | Physician claims |  Hospital data  |                     |
++++
+Pernicious anemia           |       281        |      281.0      |        D51.0        |
+1. Some footnote
+Autoimmune hemolytic anemia |       283        |      **283.0**      |        D59.1        |
+2. Some other footnote
+Ankylosing spondylitis      |       720        |      720.0      |         M45         |
++++
++++
+1. *Some footnote*
+merge row 1
+merge row 2:2 col 2:3
+merge row 2:3 col 1 
+merge row 2:3 col 4
+style row 1:3 header
+2. Some other footnote~see appendix 1~
++++
+style row 1:3 header
+style row 1 red 
+merge row 1
+merge row 2:2 col 2:3
+merge row 2:3 col 1 
+merge row 2:3 col 4
+//merge row 1:2:5 
+style row 1:3 header
+//style row 1:2:5 col 1,2,4 red
+style col 1 indent 
+//merge row 1:2:5 
+//style row 1:2:5 col 1,2,4 red
++++
++++
+src[14]: :style row 1:3 header->to be parsed
+src[14]: :merge row 1->to be parsed
+parsed: style row 1:3 header
+parsed: merge row 1:NA
+src[15]: :merge row 1->to be parsed
+src[15]: :merge row 2:2 col 2:3->to be parsed
+parsed: merge row 1:NA
+src[16]: :merge row 2:2 col 2:3->to be parsed
+parsed: merge row 2:2 col 2:3
+src[16]: :merge row 2:3 col 1 ->to be parsed
+parsed: merge row 2:2 col 2:3
+src[17]: :merge row 2:3 col 1 ->to be parsed
+parsed: merge row 2:3 col 1:NA
+src[17]: :merge row 2:3 col 4->to be parsed
+parsed: merge row 2:3 col 1:NA
+src[18]: :merge row 2:3 col 4->to be parsed
+parsed: merge row 2:3 col 4:NA
+src[18]: :style row 1:3 header->to be parsed
+parsed: merge row 2:3 col 4:NA
+src[19]: :style row 1:3 header->to be parsed
+parsed: style row 1:3 header
+src[19]: :style row 1 red ->to be parsed
+parsed: style row 1:3 header
+src[20]: :style col 1 indent ->parsed: style row 1:NA red
+to be parsed
+src[20]: ://merge row 1:2:5 ->skipped
+src[21]: ://style row 1:2:5 col 1,2,4 red->skipped
+1 table(s) found
+parsed: style col 1:NA indent
+src[21]: ://merge row 1:2:5 ->skipped
+src[22]: ://style row 1:2:5 col 1,2,4 red->skipped
+1 table(s) found
+caption: Definition of Autoimmune diseases
+footnotes: 1. Some footnote
+2. Some other footnote
+proceeded content: 1,1 (normal) |
+2,1 (normal) |2,2 (normal) |2,3 (normal) |
+3,1 (normal) |3,2 (normal) |3,3 (normal) |3,4 (normal) |
+4,1 (normal) |4,2 (normal) |4,3 (normal) |4,4 (normal) |
+5,1 (normal) |5,2 (normal) |5,3 (normal) |5,4 (normal) |
+6,1 (normal) |6,2 (normal) |6,3 (normal) |6,4 (normal) |
+
+
+caption: Definition of Autoimmune diseases^1^
+footnotes: 1. *Some footnote*
+2. Some other footnote~see appendix 1~
+proceeded content: 1,1 (normal) |
+2,1 (normal) |2,2 (normal) |2,3 (normal) |
+3,1 (normal) |3,2 (normal) |3,3 (normal) |3,4 (normal) |
+4,1 (normal) |4,2 (normal) |4,3 (normal) |4,4 (normal) |
+5,1 (normal) |5,2 (normal) |5,3 (normal) |5,4 (normal) |
+6,1 (normal) |6,2 (normal) |6,3 (normal) |6,4 (normal) |
+
+
+--------------
+processing test/tab2.gold:...success
+output file: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101236239001/tab2.html
+inside runhtmlfiles result processing loop
+file name=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101236239001/tab2.html
+file size=2562
+--------------
+processing test/singletab.gold:...success
+output file: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101236239001/singletab.html
+inside runhtmlfiles result processing loop
+file name=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101236239001/singletab.html
+file size=2424
+inside DoRun() after returning from runhtmlfiles()
+file name=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101236239001/tab2.html
+file size=2562
+PNL() 0 : # Job
+: # Job
+0 type=Block, linesread=0, key=job 1
+
+parseblock: parent root 0 current job 1
+PNL() 0 : Command :process
+PNL() 0 : Debug :0
+PNL() 0 : ExecutableVersion :
+PNL() 0 : RwFileNames :
+PNL() 0 : - test/singletab.gold
+0 type=ListItem, linesread=0, key=test/singletab.gold
+PNL() 0 : - test/tab2.gold
+0 type=ListItem, linesread=0, key=test/tab2.gold
+PNL() 0 : OverWriteOutputFile :true
+PNL() 0 : OutputFileName :fcom.docx
+PNL() 0 : OutputFormat :docx
+PNL() 0 : PreserveWorkFiles :false
+PNL() 0 : SaveConvertedFile :false
+PNL() 0 : SaveConfigFile :false
+PNL() 0 : ## RosewoodSettings
+: ## RosewoodSettings
+0 type=Block, linesread=0, key=rosewoodsettings 2
+
+parseblock: parent job 1 current rosewoodsettings 2
+PNL() 0 : CheckSyntaxOnly :false
+PNL() 0 : ColumnSeparator :|
+PNL() 0 : ConvertOldVersions :false
+PNL() 0 : ConvertFromVersion :
+PNL() 0 : Debug :3
+PNL() 0 : DoNotInlineCSS :false
+PNL() 0 : MandatoryCol :false
+PNL() 0 : MaxConcurrentWorkers :24
+PNL() 0 : PreserveWorkFiles :false
+PNL() 0 : RangeOperator :58
+PNL() 0 : ReportAllError :false
+PNL() 0 : SaveConvertedFile :false
+PNL() 0 : SectionCapacity :100
+PNL() 0 : SectionSeparator :+++
+PNL() 0 : SectionsPerTable :4
+PNL() 0 : StyleSheetName :
+PNL() 0 : TrimCellContents :false
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : StyleSheetName :
+PNL() 0 : WorkDirName :/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101236239001
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ## Document
+: ## Document
+0 type=Block, linesread=0, key=document 2
+
+parseblock: parent rosewoodsettings 2 current document 2
+PNL() 0 : ID :
+PNL() 0 : TemplateFileName :
+PNL() 0 : InputDir :
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ### HeadersFooters List
+: ### HeadersFooters List
+0 type=Block, linesread=0, key=headersfooters list 3
+
+parseblock: parent document 2 current headersfooters 3
+PNL() 0 : #### Header11
+: #### Header11
+0 type=Block, linesread=0, key=header11 4
+
+parseblock: parent headersfooters 3 current header11 4
+PNL() 0 : ID :header1
+PNL() 0 : InputDir :
+PNL() 0 : AddPageBreakAfterEachInputFile :false
+PNL() 0 : Contents :${htmldocx: timestamp} text in next line is created using raw xml ${xml:<w:p><w:rPr><w:tab w:val="right" w:leader="dot" w:pos="2160"/></w:rPr><w:r><w:rPr><w:b/><w:i/><w:color w:val="8300ff"/><w:rFonts w:ascii="Courier New" w:hAnsi="Times New Roman" w:cs="Times New Roman"/></w:rPr><w:tab/><w:tab/><w:t>tabbed-bold-italic-magenta-Courier New</w:t></w:r></w:p>}
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : #### Footer12
+: #### Footer12
+0 type=Block, linesread=0, key=footer12 4
+
+parseblock: parent header11 4 current footer12 4
+PNL() 0 : ID :footer1
+PNL() 0 : InputDir :
+PNL() 0 : AddPageBreakAfterEachInputFile :false
+PNL() 0 : Contents :${word: PAGE}
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ### Sections List
+: ### Sections List
+0 type=Block, linesread=0, key=sections list 3
+
+parseblock: parent footer12 4 current sections 3
+PNL() 0 : #### Section11
+: #### Section11
+0 type=Block, linesread=0, key=section11 4
+
+parseblock: parent sections 3 current section11 4
+PNL() 0 : ID :section1
+PNL() 0 : InputDir :/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101236239001
+PNL() 0 : AddPageBreakAfterEachInputFile :true
+PNL() 0 : Contents :<<${include test/singletab.gold}${include test/tab2.gold}>>
+PNL() 0 : ##### Props
+: ##### Props
+0 type=Block, linesread=0, key=props 5
+
+parseblock: parent section11 4 current props 5
+PNL() 0 : ###### Size
+: ###### Size
+0 type=Block, linesread=0, key=size 6
+
+parseblock: parent props 5 current size 6
+PNL() 0 : Width :12240
+PNL() 0 : Height :15840
+PNL() 0 : Orientation :portrait
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ###### Margins
+: ###### Margins
+0 type=Block, linesread=0, key=margins 6
+
+parseblock: parent size 6 current margins 6
+PNL() 0 : Top :1440
+PNL() 0 : Right :1440
+PNL() 0 : Bottom :1440
+PNL() 0 : Left :1440
+PNL() 0 : Header :360
+PNL() 0 : Footer :360
+PNL() 0 : Gutter :0
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ###### HeadersFooters List
+: ###### HeadersFooters List
+0 type=Block, linesread=0, key=headersfooters list 6
+
+parseblock: parent margins 6 current headersfooters 6
+PNL() 0 : ####### SectionHeaderFooter1
+: ####### SectionHeaderFooter1
+0 type=Block, linesread=0, key=sectionheaderfooter1 7
+
+parseblock: parent headersfooters 6 current sectionheaderfooter1 7
+PNL() 0 : ID :header1
+PNL() 0 : HFType :default
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ####### SectionHeaderFooter2
+: ####### SectionHeaderFooter2
+0 type=Block, linesread=0, key=sectionheaderfooter2 7
+
+parseblock: parent sectionheaderfooter1 7 current sectionheaderfooter2 7
+PNL() 0 : ID :footer1
+PNL() 0 : HFType :default
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+*********Decoding started
+block: job ,struct type: htmldocx.Job
+  element: KV Pair command
+  element: KV Pair debug
+  element: KV Pair executableversion
+  element: List rwfilenames
+  warning: rwfilenames no suitable field in corresponding struct
+  element: KV Pair overwriteoutputfile
+  element: KV Pair outputfilename
+  element: KV Pair outputformat
+  element: KV Pair preserveworkfiles
+  warning: preserveworkfiles no suitable field in corresponding struct
+  element: KV Pair saveconvertedfile
+  warning: saveconvertedfile no suitable field in corresponding struct
+  element: KV Pair saveconfigfile
+  warning: saveconfigfile no suitable field in corresponding struct
+  element: Block rosewoodsettings
+  warning: rosewoodsettings no suitable field in corresponding struct
+***********decoding ended. Err=  <nil>
+unmarshalled {
+    "FileName": "",
+    "Command": "process",
+    "Debug": 0,
+    "InputFileNames": null,
+    "OverWriteOutputFile": true,
+    "OutputFileName": "fcom.docx",
+    "OutputFormat": "docx",
+    "WorkDirName": "",
+    "Document": {
+        "ID": "",
+        "TemplateFileName": "",
+        "InputDir": "",
+        "HeadersFooters": [
+            {
+                "ID": "header1",
+                "InputDir": "",
+                "AddPageBreakAfterEachInputFile": false,
+                "Contents": "${htmldocx: timestamp} text in next line is created using raw xml ${xml:\u003cw:p\u003e\u003cw:rPr\u003e\u003cw:tab w:val=\"right\" w:leader=\"dot\" w:pos=\"2160\"/\u003e\u003c/w:rPr\u003e\u003cw:r\u003e\u003cw:rPr\u003e\u003cw:b/\u003e\u003cw:i/\u003e\u003cw:color w:val=\"8300ff\"/\u003e\u003cw:rFonts w:ascii=\"Courier New\" w:hAnsi=\"Times New Roman\" w:cs=\"Times New Roman\"/\u003e\u003c/w:rPr\u003e\u003cw:tab/\u003e\u003cw:tab/\u003e\u003cw:t\u003etabbed-bold-italic-magenta-Courier New\u003c/w:t\u003e\u003c/w:r\u003e\u003c/w:p\u003e}"
+            },
+            {
+                "ID": "footer1",
+                "InputDir": "",
+                "AddPageBreakAfterEachInputFile": false,
+                "Contents": "${word: PAGE}"
+            }
+        ],
+        "Sections": [
+            {
+                "ID": "section1",
+                "InputDir": "",
+                "AddPageBreakAfterEachInputFile": true,
+                "Contents": "${include: tab1old.html}",
+                "Props": {
+                    "Size": {
+                        "Width": "12240",
+                        "Height": "15840",
+                        "Orientation": "portrait"
+                    },
+                    "Margins": {
+                        "Top": "1440",
+                        "Right": "1440",
+                        "Bottom": "1440",
+                        "Left": "1440",
+                        "Header": "360",
+                        "Footer": "360",
+                        "Gutter": "0"
+                    },
+                    "HeadersFooters": [
+                        {
+                            "ID": "header1",
+                            "type": "default"
+                        },
+                        {
+                            "ID": "footer1",
+                            "type": "default"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "RunOptions": {
+        "Debug": 3,
+        "JobFileName": "",
+        "DefaultConfigFileName": "htmldocx.mdson"
+    }
+}
+
+htmldocx.Convert() started
+part: section
+full path: tab1old.html  --> /Users/salah/Dropbox/code/go/src/github.com/drgo/rosewood/cmd/tab1old.html
+current settings:
+{
+    "Command": "run",
+    "Debug": 0,
+    "RwFileNames": [
+        "test/singletab.gold",
+        "test/tab2.gold"
+    ],
+    "OverWriteOutputFile": true,
+    "OutputFileName": "fcom.docx",
+    "OutputFormat": "",
+    "PreserveWorkFiles": false,
+    "SaveConvertedFile": false,
+    "SaveConfigFile": false,
+    "RosewoodSettings": {
+        "ConvertOldVersions": false,
+        "ConvertFromVersion": "",
+        "Debug": 3,
+        "DoNotInlineCSS": false,
+        "MandatoryCol": false,
+        "MaxConcurrentWorkers": 24,
+        "PreserveWorkFiles": false,
+        "ReportAllError": false,
+        "SaveConvertedFile": false,
+        "StyleSheetName": "",
+        "TrimCellContents": false
+    },
+    "StyleSheetName": "",
+    "WorkDirName": "",
+    "HTMLFileNames": null,
+    "HTMLWorkDirName": ""
+}
+
+processing 2 file(s) in work dir=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101597143249
+inside file.Parse()
+inside file.Parse()
+first line is+++
+Definition of Autoimmune diseases^1^
++++
+>= 1 admission (ICD-10 codes as below)^2^ OR >= 2 physician claims (ICD-9 codes as below) |
+Disease                     |             ICD9 codes             |     ICD10 codes     |
+                            | Physician claims |  Hospital data  |                     |
+Pernicious anemia           |       281        |      281.0      |        D51.0        |
+Autoimmune hemolytic anemia |       283        |      **283.0**      |        D59.1        |
+Ankylosing spondylitis      |       720        |      720.0      |         M45         |
++++
+first line is+++
+Definition of Autoimmune diseases
++++
+>= 1 admission (ICD-10 codes as below) OR >= 2 physician claims (ICD-9 codes as below) |
+Disease                     |             ICD9 codes             |     ICD10 codes     |
+                            | Physician claims |  Hospital data  |                     |
+Pernicious anemia           |       281        |      281.0      |        D51.0        |
+Autoimmune hemolytic anemia |       283        |      283.0      |        D59.1        |
+1. *Some footnote*
+Ankylosing spondylitis      |       720        |      720.0      |         M45         |
++++
+1. Some footnote
+2. Some other footnote
++++
+merge row 1
+merge row 2:2 col 2:3
+2. Some other footnote~see appendix 1~
+merge row 2:3 col 1 
+merge row 2:3 col 4
++++
+style row 1:3 header
+merge row 1
+style row 1:3 header
+merge row 2:2 col 2:3
+style row 1 red 
+merge row 2:3 col 1 
+//merge row 1:2:5 
+//style row 1:2:5 col 1,2,4 red
+merge row 2:3 col 4
++++
+style row 1:3 header
+style col 1 indent 
+//merge row 1:2:5 
+//style row 1:2:5 col 1,2,4 red
+src[14]: :merge row 1->+++
+to be parsed
+src[14]: :style row 1:3 header->to be parsed
+parsed: merge row 1:NA
+parsed: style row 1:3 header
+src[15]: :merge row 2:2 col 2:3->to be parsed
+src[15]: :merge row 1->to be parsed
+parsed: merge row 2:2 col 2:3
+parsed: merge row 1:NA
+src[16]: :merge row 2:2 col 2:3->src[16]: :merge row 2:3 col 1 ->to be parsed
+to be parsed
+parsed: merge row 2:3 col 1:NA
+src[17]: :merge row 2:3 col 4->to be parsed
+parsed: merge row 2:2 col 2:3
+src[17]: :merge row 2:3 col 1 ->to be parsed
+parsed: merge row 2:3 col 4:NA
+src[18]: :style row 1:3 header->to be parsed
+parsed: merge row 2:3 col 1:NA
+src[18]: :merge row 2:3 col 4->to be parsed
+parsed: style row 1:3 header
+src[19]: :style row 1 red ->to be parsed
+parsed: merge row 2:3 col 4:NA
+src[19]: :style row 1:3 header->to be parsed
+parsed: style row 1:NA red
+src[20]: ://merge row 1:2:5 ->skipped
+parsed: style row 1:3 header
+src[21]: ://style row 1:2:5 col 1,2,4 red->src[20]: :style col 1 indent ->to be parsed
+skipped
+1 table(s) found
+parsed: style col 1:NA indent
+src[21]: ://merge row 1:2:5 ->skipped
+src[22]: ://style row 1:2:5 col 1,2,4 red->skipped
+1 table(s) found
+caption: Definition of Autoimmune diseases
+footnotes: 1. Some footnote
+2. Some other footnote
+proceeded content: 1,1 (normal) |
+2,1 (normal) |2,2 (normal) |2,3 (normal) |
+3,1 (normal) |3,2 (normal) |3,3 (normal) |3,4 (normal) |
+4,1 (normal) |4,2 (normal) |4,3 (normal) |4,4 (normal) |
+5,1 (normal) |5,2 (normal) |5,3 (normal) |5,4 (normal) |
+6,1 (normal) |6,2 (normal) |6,3 (normal) |6,4 (normal) |
+
+
+caption: Definition of Autoimmune diseases^1^
+footnotes: 1. *Some footnote*
+2. Some other footnote~see appendix 1~
+proceeded content: 1,1 (normal) |
+2,1 (normal) |2,2 (normal) |2,3 (normal) |
+3,1 (normal) |3,2 (normal) |3,3 (normal) |3,4 (normal) |
+4,1 (normal) |4,2 (normal) |4,3 (normal) |4,4 (normal) |
+5,1 (normal) |5,2 (normal) |5,3 (normal) |5,4 (normal) |
+6,1 (normal) |6,2 (normal) |6,3 (normal) |6,4 (normal) |
+
+
+--------------
+processing test/tab2.gold:...success
+output file: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101597143249/tab2.html
+inside runhtmlfiles result processing loop
+file name=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101597143249/tab2.html
+file size=2562
+--------------
+processing test/singletab.gold:...success
+output file: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101597143249/singletab.html
+inside runhtmlfiles result processing loop
+file name=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101597143249/singletab.html
+file size=2424
+inside DoRun() after returning from runhtmlfiles()
+file name=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101597143249/tab2.html
+file size=2562
+PNL() 0 : # Job
+: # Job
+0 type=Block, linesread=0, key=job 1
+
+parseblock: parent root 0 current job 1
+PNL() 0 : Command :process
+PNL() 0 : Debug :0
+PNL() 0 : ExecutableVersion :
+PNL() 0 : RwFileNames :
+PNL() 0 : - test/singletab.gold
+0 type=ListItem, linesread=0, key=test/singletab.gold
+PNL() 0 : - test/tab2.gold
+0 type=ListItem, linesread=0, key=test/tab2.gold
+PNL() 0 : OverWriteOutputFile :true
+PNL() 0 : OutputFileName :fcom.docx
+PNL() 0 : OutputFormat :docx
+PNL() 0 : PreserveWorkFiles :false
+PNL() 0 : SaveConvertedFile :false
+PNL() 0 : SaveConfigFile :false
+PNL() 0 : ## RosewoodSettings
+: ## RosewoodSettings
+0 type=Block, linesread=0, key=rosewoodsettings 2
+
+parseblock: parent job 1 current rosewoodsettings 2
+PNL() 0 : CheckSyntaxOnly :false
+PNL() 0 : ColumnSeparator :|
+PNL() 0 : ConvertOldVersions :false
+PNL() 0 : ConvertFromVersion :
+PNL() 0 : Debug :3
+PNL() 0 : DoNotInlineCSS :false
+PNL() 0 : MandatoryCol :false
+PNL() 0 : MaxConcurrentWorkers :24
+PNL() 0 : PreserveWorkFiles :false
+PNL() 0 : RangeOperator :58
+PNL() 0 : ReportAllError :false
+PNL() 0 : SaveConvertedFile :false
+PNL() 0 : SectionCapacity :100
+PNL() 0 : SectionSeparator :+++
+PNL() 0 : SectionsPerTable :4
+PNL() 0 : StyleSheetName :
+PNL() 0 : TrimCellContents :false
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : StyleSheetName :
+PNL() 0 : WorkDirName :/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101597143249
+PNL() 0 : HTMLFileNames :
+PNL() 0 : - /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101597143249/tab2.html
+0 type=ListItem, linesread=0, key=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101597143249/tab2.html
+PNL() 0 : - /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101597143249/singletab.html
+0 type=ListItem, linesread=0, key=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101597143249/singletab.html
+PNL() 0 : HTMLWorkDirName :
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ## Document
+: ## Document
+0 type=Block, linesread=0, key=document 2
+
+parseblock: parent rosewoodsettings 2 current document 2
+PNL() 0 : ID :
+PNL() 0 : TemplateFileName :
+PNL() 0 : InputDir :
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ### HeadersFooters List
+: ### HeadersFooters List
+0 type=Block, linesread=0, key=headersfooters list 3
+
+parseblock: parent document 2 current headersfooters 3
+PNL() 0 : #### Header11
+: #### Header11
+0 type=Block, linesread=0, key=header11 4
+
+parseblock: parent headersfooters 3 current header11 4
+PNL() 0 : ID :header1
+PNL() 0 : InputDir :
+PNL() 0 : AddPageBreakAfterEachInputFile :false
+PNL() 0 : Contents :${htmldocx: timestamp} text in next line is created using raw xml ${xml:<w:p><w:rPr><w:tab w:val="right" w:leader="dot" w:pos="2160"/></w:rPr><w:r><w:rPr><w:b/><w:i/><w:color w:val="8300ff"/><w:rFonts w:ascii="Courier New" w:hAnsi="Times New Roman" w:cs="Times New Roman"/></w:rPr><w:tab/><w:tab/><w:t>tabbed-bold-italic-magenta-Courier New</w:t></w:r></w:p>}
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : #### Footer12
+: #### Footer12
+0 type=Block, linesread=0, key=footer12 4
+
+parseblock: parent header11 4 current footer12 4
+PNL() 0 : ID :footer1
+PNL() 0 : InputDir :
+PNL() 0 : AddPageBreakAfterEachInputFile :false
+PNL() 0 : Contents :${word: PAGE}
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ### Sections List
+: ### Sections List
+0 type=Block, linesread=0, key=sections list 3
+
+parseblock: parent footer12 4 current sections 3
+PNL() 0 : #### Section11
+: #### Section11
+0 type=Block, linesread=0, key=section11 4
+
+parseblock: parent sections 3 current section11 4
+PNL() 0 : ID :section1
+PNL() 0 : InputDir :
+PNL() 0 : AddPageBreakAfterEachInputFile :true
+PNL() 0 : Contents :<<${include /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101597143249/tab2.html}${include /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101597143249/singletab.html}>>
+PNL() 0 : ##### Props
+: ##### Props
+0 type=Block, linesread=0, key=props 5
+
+parseblock: parent section11 4 current props 5
+PNL() 0 : ###### Size
+: ###### Size
+0 type=Block, linesread=0, key=size 6
+
+parseblock: parent props 5 current size 6
+PNL() 0 : Width :12240
+PNL() 0 : Height :15840
+PNL() 0 : Orientation :portrait
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ###### Margins
+: ###### Margins
+0 type=Block, linesread=0, key=margins 6
+
+parseblock: parent size 6 current margins 6
+PNL() 0 : Top :1440
+PNL() 0 : Right :1440
+PNL() 0 : Bottom :1440
+PNL() 0 : Left :1440
+PNL() 0 : Header :360
+PNL() 0 : Footer :360
+PNL() 0 : Gutter :0
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ###### HeadersFooters List
+: ###### HeadersFooters List
+0 type=Block, linesread=0, key=headersfooters list 6
+
+parseblock: parent margins 6 current headersfooters 6
+PNL() 0 : ####### SectionHeaderFooter1
+: ####### SectionHeaderFooter1
+0 type=Block, linesread=0, key=sectionheaderfooter1 7
+
+parseblock: parent headersfooters 6 current sectionheaderfooter1 7
+PNL() 0 : ID :header1
+PNL() 0 : HFType :default
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ####### SectionHeaderFooter2
+: ####### SectionHeaderFooter2
+0 type=Block, linesread=0, key=sectionheaderfooter2 7
+
+parseblock: parent sectionheaderfooter1 7 current sectionheaderfooter2 7
+PNL() 0 : ID :footer1
+PNL() 0 : HFType :default
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+*********Decoding started
+block: job ,struct type: htmldocx.Job
+  element: KV Pair command
+  element: KV Pair debug
+  element: KV Pair executableversion
+  element: List rwfilenames
+  warning: rwfilenames no suitable field in corresponding struct
+  element: KV Pair overwriteoutputfile
+  element: KV Pair outputfilename
+  element: KV Pair outputformat
+  element: KV Pair preserveworkfiles
+  warning: preserveworkfiles no suitable field in corresponding struct
+  element: KV Pair saveconvertedfile
+  warning: saveconvertedfile no suitable field in corresponding struct
+  element: KV Pair saveconfigfile
+  warning: saveconfigfile no suitable field in corresponding struct
+  element: Block rosewoodsettings
+  warning: rosewoodsettings no suitable field in corresponding struct
+***********decoding ended. Err=  <nil>
+unmarshalled {
+    "FileName": "",
+    "Command": "process",
+    "Debug": 0,
+    "InputFileNames": null,
+    "OverWriteOutputFile": true,
+    "OutputFileName": "fcom.docx",
+    "OutputFormat": "docx",
+    "WorkDirName": "",
+    "Document": {
+        "ID": "",
+        "TemplateFileName": "",
+        "InputDir": "",
+        "HeadersFooters": [
+            {
+                "ID": "header1",
+                "InputDir": "",
+                "AddPageBreakAfterEachInputFile": false,
+                "Contents": "${htmldocx: timestamp} text in next line is created using raw xml ${xml:\u003cw:p\u003e\u003cw:rPr\u003e\u003cw:tab w:val=\"right\" w:leader=\"dot\" w:pos=\"2160\"/\u003e\u003c/w:rPr\u003e\u003cw:r\u003e\u003cw:rPr\u003e\u003cw:b/\u003e\u003cw:i/\u003e\u003cw:color w:val=\"8300ff\"/\u003e\u003cw:rFonts w:ascii=\"Courier New\" w:hAnsi=\"Times New Roman\" w:cs=\"Times New Roman\"/\u003e\u003c/w:rPr\u003e\u003cw:tab/\u003e\u003cw:tab/\u003e\u003cw:t\u003etabbed-bold-italic-magenta-Courier New\u003c/w:t\u003e\u003c/w:r\u003e\u003c/w:p\u003e}"
+            },
+            {
+                "ID": "footer1",
+                "InputDir": "",
+                "AddPageBreakAfterEachInputFile": false,
+                "Contents": "${word: PAGE}"
+            }
+        ],
+        "Sections": [
+            {
+                "ID": "section1",
+                "InputDir": "",
+                "AddPageBreakAfterEachInputFile": true,
+                "Contents": "${include: tab1old.html}",
+                "Props": {
+                    "Size": {
+                        "Width": "12240",
+                        "Height": "15840",
+                        "Orientation": "portrait"
+                    },
+                    "Margins": {
+                        "Top": "1440",
+                        "Right": "1440",
+                        "Bottom": "1440",
+                        "Left": "1440",
+                        "Header": "360",
+                        "Footer": "360",
+                        "Gutter": "0"
+                    },
+                    "HeadersFooters": [
+                        {
+                            "ID": "header1",
+                            "type": "default"
+                        },
+                        {
+                            "ID": "footer1",
+                            "type": "default"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "RunOptions": {
+        "Debug": 3,
+        "JobFileName": "",
+        "DefaultConfigFileName": "htmldocx.mdson"
+    }
+}
+
+htmldocx.Convert() started
+part: section
+full path: tab1old.html  --> /Users/salah/Dropbox/code/go/src/github.com/drgo/rosewood/cmd/tab1old.html
+current settings:
+{
+    "Command": "run",
+    "Debug": 0,
+    "RwFileNames": [
+        "test/singletab.gold",
+        "test/tab2.gold"
+    ],
+    "OverWriteOutputFile": true,
+    "OutputFileName": "fcom.docx",
+    "OutputFormat": "",
+    "PreserveWorkFiles": false,
+    "SaveConvertedFile": false,
+    "SaveConfigFile": false,
+    "RosewoodSettings": {
+        "ConvertOldVersions": false,
+        "ConvertFromVersion": "",
+        "Debug": 3,
+        "DoNotInlineCSS": false,
+        "MandatoryCol": false,
+        "MaxConcurrentWorkers": 24,
+        "PreserveWorkFiles": false,
+        "ReportAllError": false,
+        "SaveConvertedFile": false,
+        "StyleSheetName": "",
+        "TrimCellContents": false
+    },
+    "StyleSheetName": "",
+    "WorkDirName": "",
+    "HTMLFileNames": null,
+    "HTMLWorkDirName": ""
+}
+
+processing 2 file(s) in work dir=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101502809495
+inside file.Parse()
+first line is+++
+Definition of Autoimmune diseases
+inside file.Parse()
++++
+>= 1 admission (ICD-10 codes as below) OR >= 2 physician claims (ICD-9 codes as below) |
+first line is+++
+Disease                     |             ICD9 codes             |     ICD10 codes     |
+                            | Physician claims |  Hospital data  |                     |
+Pernicious anemia           |       281        |      281.0      |        D51.0        |
+Autoimmune hemolytic anemia |       283        |      283.0      |        D59.1        |
+Definition of Autoimmune diseases^1^
+Ankylosing spondylitis      |       720        |      720.0      |         M45         |
++++
++++
+1. Some footnote
+2. Some other footnote
++++
+merge row 1
+merge row 2:2 col 2:3
+merge row 2:3 col 1 
+merge row 2:3 col 4
+style row 1:3 header
+style row 1 red 
+>= 1 admission (ICD-10 codes as below)^2^ OR >= 2 physician claims (ICD-9 codes as below) |
+//merge row 1:2:5 
+Disease                     |             ICD9 codes             |     ICD10 codes     |
+//style row 1:2:5 col 1,2,4 red
++++
+                            | Physician claims |  Hospital data  |                     |
+Pernicious anemia           |       281        |      281.0      |        D51.0        |
+Autoimmune hemolytic anemia |       283        |      **283.0**      |        D59.1        |
+src[14]: :merge row 1->to be parsed
+Ankylosing spondylitis      |       720        |      720.0      |         M45         |
++++
+1. *Some footnote*
+2. Some other footnote~see appendix 1~
++++
+style row 1:3 header
+merge row 1
+merge row 2:2 col 2:3
+merge row 2:3 col 1 
+merge row 2:3 col 4
+style row 1:3 header
+parsed: merge row 1:NA
+style col 1 indent 
+//merge row 1:2:5 
+src[15]: :merge row 2:2 col 2:3->to be parsed
+//style row 1:2:5 col 1,2,4 red
++++
+parsed: merge row 2:2 col 2:3
+src[16]: :merge row 2:3 col 1 ->to be parsed
+src[14]: :style row 1:3 header->to be parsed
+parsed: merge row 2:3 col 1:NA
+src[17]: :merge row 2:3 col 4->to be parsed
+parsed: style row 1:3 header
+src[15]: :merge row 1->to be parsed
+parsed: merge row 2:3 col 4:NA
+src[18]: :style row 1:3 header->parsed: merge row 1:NA
+to be parsed
+src[16]: :merge row 2:2 col 2:3->to be parsed
+parsed: style row 1:3 header
+src[19]: :style row 1 red ->to be parsed
+parsed: merge row 2:2 col 2:3
+src[17]: :merge row 2:3 col 1 ->parsed: style row 1:NA red
+src[20]: ://merge row 1:2:5 ->skipped
+src[21]: ://style row 1:2:5 col 1,2,4 red->skipped
+1 table(s) found
+to be parsed
+parsed: merge row 2:3 col 1:NA
+src[18]: :merge row 2:3 col 4->to be parsed
+caption: Definition of Autoimmune diseases
+footnotes: 1. Some footnote
+2. Some other footnote
+proceeded content: 1,1 (normal) |
+2,1 (normal) |2,2 (normal) |2,3 (normal) |
+3,1 (normal) |3,2 (normal) |3,3 (normal) |3,4 (normal) |
+4,1 (normal) |4,2 (normal) |4,3 (normal) |4,4 (normal) |
+5,1 (normal) |5,2 (normal) |5,3 (normal) |5,4 (normal) |
+6,1 (normal) |6,2 (normal) |6,3 (normal) |6,4 (normal) |
+
+
+parsed: merge row 2:3 col 4:NA
+src[19]: :style row 1:3 header->to be parsed
+parsed: style row 1:3 header
+src[20]: :style col 1 indent ->to be parsed
+parsed: style col 1:NA indent
+src[21]: ://merge row 1:2:5 ->skipped
+src[22]: ://style row 1:2:5 col 1,2,4 red->skipped
+1 table(s) found
+caption: Definition of Autoimmune diseases^1^
+footnotes: 1. *Some footnote*
+2. Some other footnote~see appendix 1~
+proceeded content: 1,1 (normal) |
+2,1 (normal) |2,2 (normal) |2,3 (normal) |
+3,1 (normal) |3,2 (normal) |3,3 (normal) |3,4 (normal) |
+4,1 (normal) |4,2 (normal) |4,3 (normal) |4,4 (normal) |
+5,1 (normal) |5,2 (normal) |5,3 (normal) |5,4 (normal) |
+6,1 (normal) |6,2 (normal) |6,3 (normal) |6,4 (normal) |
+
+
+--------------
+processing test/singletab.gold:...success
+output file: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101502809495/singletab.html
+inside runhtmlfiles result processing loop
+file name=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101502809495/singletab.html
+file size=2424
+--------------
+processing test/tab2.gold:...success
+output file: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101502809495/tab2.html
+inside runhtmlfiles result processing loop
+file name=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101502809495/tab2.html
+file size=2562
+inside DoRun() after returning from runhtmlfiles()
+file name=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101502809495/singletab.html
+file size=2424
+PNL() 0 : # Job
+: # Job
+0 type=Block, linesread=0, key=job 1
+
+parseblock: parent root 0 current job 1
+PNL() 0 : Command :process
+PNL() 0 : Debug :0
+PNL() 0 : ExecutableVersion :
+PNL() 0 : RwFileNames :
+PNL() 0 : - test/singletab.gold
+0 type=ListItem, linesread=0, key=test/singletab.gold
+PNL() 0 : - test/tab2.gold
+0 type=ListItem, linesread=0, key=test/tab2.gold
+PNL() 0 : OverWriteOutputFile :true
+PNL() 0 : OutputFileName :fcom.docx
+PNL() 0 : OutputFormat :docx
+PNL() 0 : PreserveWorkFiles :false
+PNL() 0 : SaveConvertedFile :false
+PNL() 0 : SaveConfigFile :false
+PNL() 0 : ## RosewoodSettings
+: ## RosewoodSettings
+0 type=Block, linesread=0, key=rosewoodsettings 2
+
+parseblock: parent job 1 current rosewoodsettings 2
+PNL() 0 : CheckSyntaxOnly :false
+PNL() 0 : ColumnSeparator :|
+PNL() 0 : ConvertOldVersions :false
+PNL() 0 : ConvertFromVersion :
+PNL() 0 : Debug :3
+PNL() 0 : DoNotInlineCSS :false
+PNL() 0 : MandatoryCol :false
+PNL() 0 : MaxConcurrentWorkers :24
+PNL() 0 : PreserveWorkFiles :false
+PNL() 0 : RangeOperator :58
+PNL() 0 : ReportAllError :false
+PNL() 0 : SaveConvertedFile :false
+PNL() 0 : SectionCapacity :100
+PNL() 0 : SectionSeparator :+++
+PNL() 0 : SectionsPerTable :4
+PNL() 0 : StyleSheetName :
+PNL() 0 : TrimCellContents :false
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : StyleSheetName :
+PNL() 0 : WorkDirName :/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101502809495
+PNL() 0 : HTMLFileNames :
+PNL() 0 : - /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101502809495/singletab.html
+0 type=ListItem, linesread=0, key=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101502809495/singletab.html
+PNL() 0 : - /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101502809495/tab2.html
+0 type=ListItem, linesread=0, key=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101502809495/tab2.html
+PNL() 0 : HTMLWorkDirName :
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ## Document
+: ## Document
+0 type=Block, linesread=0, key=document 2
+
+parseblock: parent rosewoodsettings 2 current document 2
+PNL() 0 : ID :
+PNL() 0 : TemplateFileName :
+PNL() 0 : InputDir :
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ### HeadersFooters List
+: ### HeadersFooters List
+0 type=Block, linesread=0, key=headersfooters list 3
+
+parseblock: parent document 2 current headersfooters 3
+PNL() 0 : #### Header11
+: #### Header11
+0 type=Block, linesread=0, key=header11 4
+
+parseblock: parent headersfooters 3 current header11 4
+PNL() 0 : ID :header1
+PNL() 0 : InputDir :
+PNL() 0 : AddPageBreakAfterEachInputFile :false
+PNL() 0 : Contents :${htmldocx: timestamp}
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : #### Footer12
+: #### Footer12
+0 type=Block, linesread=0, key=footer12 4
+
+parseblock: parent header11 4 current footer12 4
+PNL() 0 : ID :footer1
+PNL() 0 : InputDir :
+PNL() 0 : AddPageBreakAfterEachInputFile :false
+PNL() 0 : Contents :${word: PAGE}
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ### Sections List
+: ### Sections List
+0 type=Block, linesread=0, key=sections list 3
+
+parseblock: parent footer12 4 current sections 3
+PNL() 0 : #### Section11
+: #### Section11
+0 type=Block, linesread=0, key=section11 4
+
+parseblock: parent sections 3 current section11 4
+PNL() 0 : ID :section1
+PNL() 0 : InputDir :
+PNL() 0 : AddPageBreakAfterEachInputFile :true
+PNL() 0 : Contents :<<${include /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101502809495/singletab.html}${include /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101502809495/tab2.html}>>
+PNL() 0 : ##### Props
+: ##### Props
+0 type=Block, linesread=0, key=props 5
+
+parseblock: parent section11 4 current props 5
+PNL() 0 : ###### Size
+: ###### Size
+0 type=Block, linesread=0, key=size 6
+
+parseblock: parent props 5 current size 6
+PNL() 0 : Width :12240
+PNL() 0 : Height :15840
+PNL() 0 : Orientation :portrait
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ###### Margins
+: ###### Margins
+0 type=Block, linesread=0, key=margins 6
+
+parseblock: parent size 6 current margins 6
+PNL() 0 : Top :1440
+PNL() 0 : Right :1440
+PNL() 0 : Bottom :1440
+PNL() 0 : Left :1440
+PNL() 0 : Header :360
+PNL() 0 : Footer :360
+PNL() 0 : Gutter :0
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ###### HeadersFooters List
+: ###### HeadersFooters List
+0 type=Block, linesread=0, key=headersfooters list 6
+
+parseblock: parent margins 6 current headersfooters 6
+PNL() 0 : ####### SectionHeaderFooter1
+: ####### SectionHeaderFooter1
+0 type=Block, linesread=0, key=sectionheaderfooter1 7
+
+parseblock: parent headersfooters 6 current sectionheaderfooter1 7
+PNL() 0 : ID :header1
+PNL() 0 : HFType :default
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : ####### SectionHeaderFooter2
+: ####### SectionHeaderFooter2
+0 type=Block, linesread=0, key=sectionheaderfooter2 7
+
+parseblock: parent sectionheaderfooter1 7 current sectionheaderfooter2 7
+PNL() 0 : ID :footer1
+PNL() 0 : HFType :default
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+PNL() 0 : 
+0 type=Empty, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+0 type=EOF, linesread=0, key=
+*********Decoding started
+block: job ,struct type: htmldocx.Job
+  element: KV Pair command
+  element: KV Pair debug
+  element: KV Pair executableversion
+  element: List rwfilenames
+  warning: rwfilenames no suitable field in corresponding struct
+  element: KV Pair overwriteoutputfile
+  element: KV Pair outputfilename
+  element: KV Pair outputformat
+  element: KV Pair preserveworkfiles
+  warning: preserveworkfiles no suitable field in corresponding struct
+  element: KV Pair saveconvertedfile
+  warning: saveconvertedfile no suitable field in corresponding struct
+  element: KV Pair saveconfigfile
+  warning: saveconfigfile no suitable field in corresponding struct
+  element: Block rosewoodsettings
+  warning: rosewoodsettings no suitable field in corresponding struct
+***********decoding ended. Err=  <nil>
+unmarshalled {
+    "FileName": "",
+    "Command": "process",
+    "Debug": 0,
+    "InputFileNames": null,
+    "OverWriteOutputFile": true,
+    "OutputFileName": "fcom.docx",
+    "OutputFormat": "docx",
+    "WorkDirName": "",
+    "Document": {
+        "ID": "",
+        "TemplateFileName": "",
+        "InputDir": "",
+        "HeadersFooters": [
+            {
+                "ID": "header1",
+                "InputDir": "",
+                "AddPageBreakAfterEachInputFile": false,
+                "Contents": "${htmldocx: timestamp}"
+            },
+            {
+                "ID": "footer1",
+                "InputDir": "",
+                "AddPageBreakAfterEachInputFile": false,
+                "Contents": "${word: PAGE}"
+            }
+        ],
+        "Sections": [
+            {
+                "ID": "section1",
+                "InputDir": "",
+                "AddPageBreakAfterEachInputFile": true,
+                "Contents": "",
+                "Props": {
+                    "Size": {
+                        "Width": "12240",
+                        "Height": "15840",
+                        "Orientation": "portrait"
+                    },
+                    "Margins": {
+                        "Top": "1440",
+                        "Right": "1440",
+                        "Bottom": "1440",
+                        "Left": "1440",
+                        "Header": "360",
+                        "Footer": "360",
+                        "Gutter": "0"
+                    },
+                    "HeadersFooters": [
+                        {
+                            "ID": "header1",
+                            "type": "default"
+                        },
+                        {
+                            "ID": "footer1",
+                            "type": "default"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "RunOptions": {
+        "Debug": 3,
+        "JobFileName": "",
+        "DefaultConfigFileName": "htmldocx.mdson"
+    }
+}
+
+htmldocx.Convert() started
+part: section
+inside validateSectionProps: # headerfooters: 2
+part: header
+part: footer
+htmldocx: converted html files to docx file named:  fcom.docx
+saved to docx fcom.docx
+processed 2 file(s) in 60.118566ms

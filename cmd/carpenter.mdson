@@ -1,57 +1,84 @@
 # Job
-Command: run
-OverWriteOutputFile: true
-OutputFileName: fcon.docx
-Debug: 2
-WorkDirName: 
-InputFileNames:
-- test/tab2.gold
+Debug :0
+RwFileNames :
 - test/singletab.gold
+- test/tab2.gold
+OverWriteOutputFile :true
+OutputFileName :fcom.docx
+OutputFormat :docx
+PreserveWorkFiles :false
+SaveConvertedFile :false
+SaveConfigFile :true
+## RosewoodSettings
+ConvertOldVersions :false
+ConvertFromVersion :
+Debug :3
+DoNotInlineCSS :false
+MaxConcurrentWorkers :24
+PreserveWorkFiles :false
+ReportAllError :false
+SaveConvertedFile :false
+StyleSheetName :
+TrimCellContents :false
+
+StyleSheetName :
+WorkDirName :/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101328036019
+HTMLFileNames :
+- /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101328036019/tab2.html
+- /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101328036019/singletab.html
+HTMLWorkDirName :
 
 ## Document
-TemplateFileName: 
-InputDir: 
+ID :
+TemplateFileName :
+InputDir :
 
 ### Sections List
-#### Section1	  
-InputDir: /Users/salah/Dropbox/code/go/src/github.com/drgo/htmldocx/cmd
-AddPageBreakAfterEachInputFile: true
-Contents: 
-<<${include: tab1old.html}${include: test.html}>>
-
+#### Section1
+ID :section1
+InputDir :/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101328036019
+AddPageBreakAfterEachInputFile :true
+Contents :
+<<${include: tab2.html}${include: singletab.html}>>
 ##### Props
-###### Size 
-Width       : 12240
-Height      : 15840
-Orientation : portrait
+###### Size
+Width :12240
+Height :15840
+Orientation :portrait
 
-###### HeadersFooters List	
-####### HeaderFooter1 
-ID     : header1
-HFType   : default
+###### Margins
+Top :1440
+Right :1440
+Bottom :1440
+Left :1440
+Header :360
+Footer :360
+Gutter :0
 
-### HeaderFooters List 
+
+###### HeadersFooters List
+####### SectionHeaderFooter1
+ID :header1
+HFType :default
+
+####### SectionHeaderFooter2
+ID :footer1
+HFType :default
+
+
+
+
+### HeadersFooters List
 #### Header1
-InputDir: 
-Contents:
-<<${htmldocx: timestamp} text in next line is created using raw xml ${xml:<w:p><w:rPr><w:tab 
-w:val="right" w:leader="dot" w:pos="2160"/></w:rPr><w:r><w:rPr><w:b/><w:i/><w:color 
-w:val="8300ff"/><w:rFonts w:ascii="Courier New" w:hAnsi="Times New Roman" w:cs="Times New 
-Roman"/></w:rPr><w:tab/><w:tab/><w:t>tabbed-bold-italic-magenta-Courier New</w:t></w:r></w:p>}>>
-#### Footer1
-InputDir:
-Contents:
-<<${word: PAGE}
-some other text>>
+ID :header1
+InputDir :
+AddPageBreakAfterEachInputFile :false
+Contents :${htmldocx: timestamp}
 
-## RoseWoodSettings
-ConvertOldVersions: false
-ConvertFromVersion: v01
-DoNotInlineCSS: false
-MandatoryCol: false
-MaxConcurrentWorkers: 30
-PreserveWorkFiles: false
-ReportAllError: true
-SaveConvertedFile: false
-StyleSheetName: 
-TrimCellContents: false
+#### Footer1
+ID :footer1
+InputDir :
+AddPageBreakAfterEachInputFile :false
+Contents :${word: PAGE}
+
+
