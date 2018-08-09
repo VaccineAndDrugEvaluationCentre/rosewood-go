@@ -7,17 +7,17 @@ package main
 const (
 	versionMessage   = "carpenter %s (%s) based on Rosewood version %s\nCopyRight Salah Mahmud 2017\n"
 	longUsageMessage = ` 
-Carpenter parses and renders Rosewood tables as HTML
+Carpenter parses and renders Rosewood tables as HTML or DOCX files.
 
 Usage:
 carpenter [global options] command [command options]
 
 Commands:
-init	  Generates a default carpenter.json file in the current folder 	
+init	  Generates a default carpenter.mdson file in the current folder 	
 check     Parse one or more Rosewood files and print any errors
-run       Generate a printout using specified template and CCV xml files
+run       Parse and render one or more Rosewood files into HTML or DOCX files
+v1tov2 	  Converts most Rosewood v0.1 files to Rosewood v0.2 files 	
 help      Shows a list of commands or help for one command
-v1tov2 	  Converts most Rosewood v0.1 files to Rosewood v0.2 files. 	
 version   Print executable version
 
 Global options:

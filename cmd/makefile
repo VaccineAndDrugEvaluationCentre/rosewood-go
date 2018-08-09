@@ -22,7 +22,7 @@ buildprod:
 
 # Windows build
 buildwin:
-	GOOS=windows GOARCH=amd64 go build  -race ${LDFLAGS} -o ${EXE}.exe	
+	CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build  -race ${LDFLAGS} -o ${EXE}.exe	
 
 buildwinprod:
 	GOOS=windows GOARCH=amd64 go build  ${LDFLAGS} -o ${EXE}.exe	
