@@ -17,13 +17,18 @@ func cfgFailed(err error) error {
 
 //DoInit create a Rosewood job file
 func DoInit(job *rosewood.Job) (string, error) {
-	fileName := job.ConfigFileName()
+	fileName := job.ConfigFileName
 	if fileName == "" {
 		dir, err := os.Getwd()
 		if err != nil {
 			return "", fmt.Errorf("failed to create config file in dir %s: %s", dir, err)
 		}
 		fileName = filepath.Join(dir, ConfigFileBaseName)
+	}
+	if len(job.RwFileNames) > 0 {
+		for _, fn := range job.RwFileNames {
+			job.HTMLFileNames = append(job.HTMLFileNames, fileutils.ReplaceFileExt(fn, "html"))
+		}
 	}
 	return genConfigFile(job, fileName)
 }

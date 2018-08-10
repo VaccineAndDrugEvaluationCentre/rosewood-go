@@ -21,13 +21,12 @@ type Job struct { //IMMUTABLE once initialized; TODO: hide internal details usin
 	OutputFormat        string
 	PreserveWorkFiles   bool
 	SaveConvertedFile   bool
-	SaveConfigFile      bool
 	RosewoodSettings    *RosewoodSettings
 	StyleSheetName      string
 	WorkDirName         string
-	HTMLFileNames       []string //files generated from Rosewood scripts
-	HTMLWorkDirName     string   //dir where HTMLFileNames are stored
-	configFileName      string   //MDSon file that was used to load the config
+	HTMLFileNames       []string `mdson:"-"` //files generated from Rosewood scripts
+	HTMLWorkDirName     string   `mdson:"-"` //dir where HTMLFileNames are stored
+	ConfigFileName      string   `mdson:"-"` //MDSon file that was used to load the config
 }
 
 //DefaultJob returns default job
@@ -68,7 +67,7 @@ func (job *Job) LoadFromMDSonFile(FileName string) error {
 	if err = job.LoadFromMDSon(configFile); err != nil {
 		return fmt.Errorf("failed to parse configuration file %s: %v", FileName, err)
 	}
-	job.configFileName = FileName
+	job.ConfigFileName = FileName
 	if job.RosewoodSettings.Debug >= DebugUpdates {
 		fmt.Println("configuration loaded from " + FileName)
 	}
@@ -107,13 +106,13 @@ func (job *Job) SaveToMDSonFile(FileName string, overwrite bool) error {
 	return nil
 }
 
-//ConfigFileName returns path to the MDSon file used to initialize this Job
-//empty if a file was not used
-func (job *Job) ConfigFileName() string {
-	return job.configFileName
-}
+// //ConfigFileName returns path to the MDSon file used to initialize this Job
+// //empty if a file was not used
+// func (job *Job) ConfigFileName() string {
+// 	return job.ConfigFileName
+// }
 
-//SetConfigFileName sets the MDSon file name
-func (job *Job) SetConfigFileName(fileName string) {
-	job.configFileName = fileName
-}
+// //SetConfigFileName sets the MDSon file name
+// func (job *Job) SetConfigFileName(fileName string) {
+// 	job.ConfigFileName = fileName
+// }

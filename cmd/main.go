@@ -18,9 +18,7 @@ const (
 	ConfigFileBaseName = "carpenter.mdson"
 )
 
-//FIXME: create htmldocx config when invoked from command line
 //FIXME: ensure workdirname is used to find rw files
-//FIXME: ensure overwriteoutputfile flag is respected
 
 //TODO:
 //clean up debug and warnings: Debug=0 silent, 1=warnings only 2= verbose  3=internal debug info
@@ -74,12 +72,14 @@ func RunApp() error {
 			err = fmt.Errorf("one or more errors occurred during file processing: %s", err)
 		}
 	case "init":
-		if _, err = DoInit(job); err != nil {
-			err = fmt.Errorf("one or more errors occurred during configuration initialization: %s", err)
+		configFilename, err := DoInit(job)
+		if err == nil && job.RosewoodSettings.Debug >= rosewood.DebugUpdates {
+			fmt.Printf("configuration saved as '%s'\n", configFilename)
 		}
+		return err
 	case "version":
 		fmt.Println(getVersion())
-	case "help":
+	case "help", "h":
 		helpMessage(job.RwFileNames, getVersion())
 	default:
 		helpMessage(nil, getVersion())

@@ -1,18 +1,16 @@
 # Job
 Debug :0
 RwFileNames :
-- test/singletab.gold
-- test/tab2.gold
 OverWriteOutputFile :true
-OutputFileName :fcom.docx
-OutputFormat :docx
+OutputFileName :
+OutputFormat :
 PreserveWorkFiles :false
 SaveConvertedFile :false
-SaveConfigFile :true
+SaveConfigFile :false
 ## RosewoodSettings
 ConvertOldVersions :false
 ConvertFromVersion :
-Debug :3
+Debug :0
 DoNotInlineCSS :false
 MaxConcurrentWorkers :24
 PreserveWorkFiles :false
@@ -22,10 +20,8 @@ StyleSheetName :
 TrimCellContents :false
 
 StyleSheetName :
-WorkDirName :/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101573411433
+WorkDirName :
 HTMLFileNames :
-- /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101573411433/tab2.html
-- /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101573411433/singletab.html
 HTMLWorkDirName :
 
 ## Document
@@ -36,10 +32,9 @@ InputDir :
 ### Sections List
 #### Section1
 ID :section1
-InputDir :/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101573411433
+InputDir :
 AddPageBreakAfterEachInputFile :true
 Contents :
-<<${include: tab2.html}${include: singletab.html}>>
 ##### Props
 ###### Size
 Width :12240

@@ -77,7 +77,7 @@ func DoRun(job *rosewood.Job) error {
 	if job.RosewoodSettings.Debug >= rosewood.DebugUpdates {
 		fmt.Printf("processed %d file(s) in %s\n", len(job.RwFileNames), time.Since(start).String())
 	}
-	if job.SaveConfigFile {
+	if job.ConfigFileName != "" {
 		configFilename, err := DoInit(job)
 		if job.RosewoodSettings.Debug >= rosewood.DebugAll {
 			fmt.Println("SaveConfigFile:", configFilename, err)
@@ -211,7 +211,7 @@ func runFile(ri *rosewood.Interpreter, in io.ReadSeeker, out io.Writer) error {
 //outputAsDocx caution: modifies job, not thread-safe
 func outputAsDocx(processedFiles []string, job *rosewood.Job) error {
 	var err error
-	configFileName := job.ConfigFileName()
+	configFileName := job.ConfigFileName
 	fmt.Println("current configFileName", configFileName)
 	job.HTMLFileNames = processedFiles
 	if configFileName == "" { //from commandline, create temp config file
