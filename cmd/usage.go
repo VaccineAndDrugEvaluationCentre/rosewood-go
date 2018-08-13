@@ -2,7 +2,6 @@
 
 package main
 
-//TODO: update with new options
 //TODO: spell check and streamline text
 const (
 	versionMessage   = "carpenter %s (%s) based on rosewood lib version %s\nCopyRight Salah Mahmud 2018\n"
@@ -16,6 +15,7 @@ Commands:
 init	  Generates a default carpenter.mdson file in the current folder 	
 check     Parse one or more Rosewood files and print any errors
 run       Parse and render one or more Rosewood files into HTML or DOCX files
+do		  Run using specified mdson file
 v1tov2 	  Converts most Rosewood v0.1 files to Rosewood v0.2 files 	
 help      Shows this screen or help for a command if help [command] was specified
 version   Print executable version
@@ -29,7 +29,7 @@ Global options:
 -max-threads, -mt  specifies the maximum numbers of Rosewood files that can be processed concurrently. Default=25.	
 
 Notes:
-- typing carpetner without any command line options will run carpenter using carpenter.mdson in the current directory.
+- typing carpetner without any command line options will run carpenter using carpenter.mdson in the current directory (equivalent to 'carpenter do carpenter.mdson')
  `
 	runUsageMessage = `
 run: prints the results of applying one or more templates to one or more CCV xml files.
@@ -90,6 +90,7 @@ Usage:
 carpenter [global options] init rosewoodfilenames [command options]
 
 Options:
+-config, cfg        specifies filename for saving configuration mdson file
 -convert-old, co    v0.1 files will be converted to current version and proceesed
 -keep-temp, k       keep all temporary HTML files generated during processing. Useful for debugging
 -no-inlined-css     link to the CSS file instead of embeding CSS in the generated html file
@@ -98,6 +99,5 @@ Options:
 -save-converted, sc save a copy of the converted Rosewood v0.1 file
 -style, -s          Style sheet file name in CSS format
 -work-dir, w        used as the default dir name for Rosewood files specified with incomplete path
--config, cfg        specifies filename for saving configuration mdson file
 `
 )

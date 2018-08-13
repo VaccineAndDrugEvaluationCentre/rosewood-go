@@ -41,7 +41,6 @@ func DoRun(job *rosewood.Job) error {
 		//Dangerous: could remove an entire folder if there is a bug somewhere
 		if !job.PreserveWorkFiles && strings.Contains(job.WorkDirName, "rw-temp101") { //baseDir is temp, schedule removing it but only if we created it
 			defer os.RemoveAll(job.WorkDirName)
-
 		}
 	}
 
@@ -164,10 +163,6 @@ func htmlRunner(task task, resChan chan result) {
 		out *os.File
 		err error //not returned, used to decide whether the output file should be saved or not
 	)
-	//TODO: check stdin processing
-	// if inputFileName == "" { //reading from stdin
-	// 	inputFileName = "<stdin>"
-	// }
 	iDesc := DefaultRwInputDescriptor(task.settings).SetFileName(task.inputFileName)
 	if in, err = getValidInputReader(iDesc); err != nil {
 		resChan <- task.getResult(err) //signal end of task run

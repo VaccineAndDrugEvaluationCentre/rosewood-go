@@ -5,8 +5,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/drgo/fileutils"
 	rosewood "github.com/drgo/rosewood/lib"
@@ -24,14 +22,11 @@ const (
 //clean up debug and warnings: Debug=0 silent, 1=warnings only 2= verbose  3=internal debug info
 // allow quoted argument in style command
 // move all utilities to appropriate packages
-// document new arguments
 // add support for settings in package types
 // clean-up all tests.
 // use consistent errors types and constants eg NewError()
 //add gracefull shutdown https://golang.org/pkg/os/signal/ along with a pointer to an optional cleanup function
 // add support for processing subfolder if arg==./..
-//?? add support for automerge; merged cells proceesed correctly even if there were no merge commands
-// expand doInit to create word sections from input files in command line or current folder
 // add command run to run an external rw file on the table; useful for formatting many similar tables
 
 func main() {
@@ -44,7 +39,7 @@ func main() {
 //WARNING: not thread-safe; this is the only function allowed to change the job configuration
 func RunApp() error {
 	if len(os.Args) == 1 { //no command line arguments
-		return DoFromConfigFile()
+		return DoFromConfigFile("")
 	}
 	job, err := LoadConfigFromCommandLine()
 	if err != nil {
@@ -55,7 +50,10 @@ func RunApp() error {
 	}
 	switch job.Command { //TODO: check command is case insensitive
 	case "do":
-		if err = DoFromConfigFile(); err != nil {
+		if len(job.RwFileNames) == 0 {
+			return fmt.Errorf("must specify an MDSon configuration file")
+		}
+		if err = DoFromConfigFile(job.RwFileNames[0]); err != nil {
 			return err
 		}
 	case "check":
@@ -89,30 +87,10 @@ func RunApp() error {
 }
 
 //DoFromConfigFile runs a job using a config file (not command line options)
-func DoFromConfigFile() error {
-	var (
-		configFileName string
-		err            error
-	)
-	if len(os.Args) == 1 { //only app name passed, use ConfigFileBaseName in current folder
-		//FIXME: replace getfullpath with os.Abs() if os.Abs can handle empty argument
+func DoFromConfigFile(configFileName string) error {
+	var err error
+	if configFileName == "" {
 		if configFileName, err = fileutils.GetFullPath(ConfigFileBaseName); err != nil {
-			return err
-		}
-	} else {
-		//  we must have been called with app name + do + a json file
-		if strings.TrimSpace(strings.ToLower(os.Args[1])) != "do" {
-			return fmt.Errorf("invalid command %s", os.Args[1])
-		}
-		if len(os.Args) < 3 {
-			return fmt.Errorf("must specify an MDSon configuration file")
-		}
-		configFileName = os.Args[2]
-		if ext := strings.ToLower(filepath.Ext(configFileName)); ext != ".mdson" {
-			return fmt.Errorf("invalid config file name [%s] passed", configFileName)
-		}
-		//FIXME: replace getfullpath with os.Abs()
-		if configFileName, err = fileutils.GetFullPath(configFileName); err != nil {
 			return err
 		}
 	}
@@ -146,32 +124,3 @@ func LoadConfigFromCommandLine() (*rosewood.Job, error) {
 	}
 	return job, nil
 }
-
-// func interactive() {
-// 	usage(-1)
-// 	in := bufio.NewScanner(os.Stdin)
-// 	out := os.Stdout
-// 	echo := func(s string, status rosewood.ReportStatus) { //prints s to out followed by linefeed
-// 		io.WriteString(out, s)
-// 		io.WriteString(out, EOL)
-// 	}
-// 	settings := rosewood.DefaultSettings()
-// 	settings.Report = echo
-// 	rwi := rosewood.NewInterpreter(settings)
-// 	for {
-// 		trace.Printf("\n>>")
-// 		if !in.Scan() || strings.ToLower(in.Text()) == "q" {
-// 			return
-// 		}
-// 		err := rwi.Parse(strings.NewReader(in.Text()), "stdin")
-// 		if err != nil {
-// 			continue
-// 		}
-// 		//echo(cmdList[0].String())
-// 		//		err = p.Run(cmdList)
-// 		if err != nil {
-// 			//			echo(fmt.Sprintf("runtime error: %s", err)) //show the first error only
-// 			continue
-// 		}
-// 	}
-// }

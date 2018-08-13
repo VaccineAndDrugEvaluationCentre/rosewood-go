@@ -1,12 +1,12 @@
 # Job
-Debug :0
-RwFileNames :
+Debug :3
+RwFileNames list:
+- test/tab2.gold
 OverWriteOutputFile :true
 OutputFileName :
-OutputFormat :
-PreserveWorkFiles :false
+OutputFormat :html
+PreserveWorkFiles :true
 SaveConvertedFile :false
-SaveConfigFile :false
 ## RosewoodSettings
 ConvertOldVersions :false
 ConvertFromVersion :
@@ -20,9 +20,7 @@ StyleSheetName :
 TrimCellContents :false
 
 StyleSheetName :
-WorkDirName :
-HTMLFileNames :
-HTMLWorkDirName :
+WorkDirName :/Users/salah/Dropbox/code/go/src/github.com/drgo/rosewood/cmd
 
 ## Document
 ID :
@@ -32,9 +30,10 @@ InputDir :
 ### Sections List
 #### Section1
 ID :section1
-InputDir :
+InputDir :test
 AddPageBreakAfterEachInputFile :true
 Contents :
+<<${include: test/tab2.html}>>
 ##### Props
 ###### Size
 Width :12240

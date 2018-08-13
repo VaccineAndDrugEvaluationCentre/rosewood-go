@@ -67,7 +67,6 @@ func (job *Job) LoadFromMDSonFile(FileName string) error {
 	if err = job.LoadFromMDSon(configFile); err != nil {
 		return fmt.Errorf("failed to parse configuration file %s: %v", FileName, err)
 	}
-	job.ConfigFileName = FileName
 	if job.RosewoodSettings.Debug >= DebugUpdates {
 		fmt.Println("configuration loaded from " + FileName)
 	}
