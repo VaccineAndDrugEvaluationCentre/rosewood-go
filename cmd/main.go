@@ -5,6 +5,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
 
 	"github.com/drgo/fileutils"
 	rosewood "github.com/drgo/rosewood/lib"
@@ -118,9 +121,26 @@ func LoadConfigFromCommandLine() (*rosewood.Job, error) {
 		return nil, err
 	}
 	job.Command = flg.Name()
-	//TODO: validate command line inputs; use in RunfromConfigFile too?!
-	for _, fileName := range flg.Args() {
-		job.RwFileNames = append(job.RwFileNames, fileName)
+	if len(flg.Args()) == 0 {
+		return job, nil
+	}
+	switch runtime.GOOS {
+	case "windows":
+		job.RwFileNames, err = WinArgsToFileNames(flg.Args()[0])
+		if err != nil {
+			return nil, err
+		}
+	default:
+		for _, fileName := range flg.Args() {
+			job.RwFileNames = append(job.RwFileNames, fileName)
+		}
 	}
 	return job, nil
+}
+
+func WinArgsToFileNames(args string) ([]string, error) {
+	if !strings.ContainsAny(args, "*?") {
+		return []string{args}, nil
+	}
+	return filepath.Glob(args)
 }
