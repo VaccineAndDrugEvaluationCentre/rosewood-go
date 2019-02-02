@@ -2,14 +2,13 @@ package table
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/drgo/rosewood/lib/types"
 )
 
 //createMergedGridTable creates the underlying grid table and applies merging ranges to it
-func createMergedGridTable(Contents *TableContents, mrlist []types.Range) (*TableContents, error) {
-	grid := NewBlankTableContents(Contents.RowCount(), Contents.MaxFieldCount())
+func createMergedGridTable(src *TableContents, mrlist []types.Range) (*TableContents, error) {
+	grid := NewBlankTableContents(src.RowCount(), src.MaxFieldCount())
 	//validate the ranges with respect to this table
 	if err := grid.ValidateRanges(mrlist); err != nil {
 		return nil, err
@@ -51,22 +50,14 @@ func createMergedGridTable(Contents *TableContents, mrlist []types.Range) (*Tabl
 	if debug == types.DebugAll {
 		fmt.Printf("Grid after merging:\n %+v\n", grid.DebugString()) //DEBUG
 	}
-	//now copy the text of each cell in contents to the corresponding cell in grid
-	for r := 1; r <= Contents.RowCount(); r++ {
-		for c := 1; c <= Contents.Row(r).cellCount(); c++ {
-			srcCell := Contents.cell(r, c)
-			if debug == types.DebugAll {
-				fmt.Printf("copying contents of cell %s\n", srcCell.DebugString()) //DEBUG
-			}
-			if strings.TrimSpace(srcCell.text) == "" {
-				if debug == types.DebugAll {
-					fmt.Printf("     nothing to copy\n") //DEBUG
-				}
-				continue
-			}
-			if err := copyToValidCell(grid, srcCell); err != nil {
-				return nil, err
-			}
+
+	//now fill each non-merged cell in the grid with the content of available cells in the raw contents
+	for r := 1; r <= src.RowCount(); r++ {
+		if debug == types.DebugAll {
+			fmt.Printf("copying contents of row %d\n", r) //DEBUG
+		}
+		if err := copyRowContents(grid, src, r); err != nil {
+			return nil, err
 		}
 	}
 	if debug == types.DebugAll {
@@ -75,33 +66,77 @@ func createMergedGridTable(Contents *TableContents, mrlist []types.Range) (*Tabl
 	return grid, nil
 }
 
-//TODO: move to TableContents?
-func copyToValidCell(grid *TableContents, srcCell *Cell) error {
-	r, c := srcCell.row, srcCell.col
-	destCell := grid.CellorPanic(r, c)
-	// if debug == types.DebugAll {
-	// 	fmt.Printf("copying contents of cell %s", srcCell.DebugString()) //DEBUG
-	// }
-	if destCell.State() != CsMerged { //found cell and it's not merged
-		destCell.text = srcCell.text
-		if debug == types.DebugAll {
-			fmt.Printf("     copied to cell %d,%d\n", r, c) //DEBUG
-		}
-		return nil
-	}
-	//otherwise, find the next non-merged cell in this row
-	for j := c + 1; j <= grid.Row(r).cellCount(); j++ {
-		if grid.cell(r, j).state == CsMerged { //find the next non-merged cell if any
+func copyRowContents(grid, src *TableContents, r int) error {
+	destRowLen := grid.Row(r).cellCount()
+	// srcRowLen := src.Row(r).cellCount()
+	srcC := 1
+	for c := 1; c <= destRowLen; c++ {
+		destCell := grid.cell(r, c)
+		if destCell.State() == CsMerged {
 			if debug == types.DebugAll {
-				fmt.Printf("     skipped cell %d,%d\n", r, j) //DEBUG
+				fmt.Printf("     skipped merged cell %d,%d\n", r, c) //DEBUG
 			}
 			continue
 		}
-		grid.cell(r, j).text = srcCell.text
-		if debug == types.DebugAll {
-			fmt.Printf("     copied to cell %d,%d\n", r, j) //DEBUG
+		if !src.isValidCoordinate(r, srcC) { //usually because src row has fewer cells
+			break
 		}
-		return nil
+		srcCell := src.cell(r, srcC)
+		destCell.text = srcCell.text
+		if debug == types.DebugAll {
+			fmt.Printf("     copied cell %d,%d to cell %d,%d\n", r, srcC, r, c) //DEBUG
+		}
+		srcC++
 	}
-	return fmt.Errorf("could not copy the contents of cell %d:%d", r, c)
+	return nil
 }
+
+//TODO: delete old code
+// func copyToValidCell(grid *TableContents, srcCell *Cell) error {
+// 	r, c := srcCell.row, srcCell.col
+// 	destCell := grid.CellorPanic(r, c)
+// 	// if debug == types.DebugAll {
+// 	// 	fmt.Printf("copying contents of cell %s", srcCell.DebugString()) //DEBUG
+// 	// }
+// 	if destCell.State() != CsMerged { //found cell and it's not merged
+// 		destCell.text = srcCell.text
+// 		if debug == types.DebugAll {
+// 			fmt.Printf("     copied to cell %d,%d\n", r, c) //DEBUG
+// 		}
+// 		return nil
+// 	}
+// 	//otherwise, find the next non-merged cell in this row
+// 	for j := c + 1; j <= grid.Row(r).cellCount(); j++ {
+// 		if grid.cell(r, j).state == CsMerged { //find the next non-merged cell if any
+// 			if debug == types.DebugAll {
+// 				fmt.Printf("     skipped cell %d,%d\n", r, j) //DEBUG
+// 			}
+// 			continue
+// 		}
+// 		grid.cell(r, j).text = srcCell.text
+// 		if debug == types.DebugAll {
+// 			fmt.Printf("     copied to cell %d,%d\n", r, j) //DEBUG
+// 		}
+// 		return nil
+// 	}
+// 	return fmt.Errorf("could not copy the contents of cell %d:%d", r, c)
+// }
+
+// //now copy the text of each cell in contents to the corresponding cell in grid
+// for r := 1; r <= Contents.RowCount(); r++ {
+// 	for c := 1; c <= Contents.Row(r).cellCount(); c++ {
+// 		srcCell := Contents.cell(r, c)
+// 		if debug == types.DebugAll {
+// 			fmt.Printf("copying contents of cell %s\n", srcCell.DebugString()) //DEBUG
+// 		}
+// 		if strings.TrimSpace(srcCell.text) == "" {
+// 			if debug == types.DebugAll {
+// 				fmt.Printf("     nothing to copy\n") //DEBUG
+// 			}
+// 			continue
+// 		}
+// 		if err := copyToValidCell(grid, srcCell); err != nil {
+// 			return nil, err
+// 		}
+// 	}
+// }
