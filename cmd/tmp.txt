@@ -1,4 +1,4 @@
-Started on 2019-02-02 16:35:52.901959 -0600 CST m=+0.003686947
+Started on 2019-02-02 16:55:29.7692 -0600 CST m=+0.003666295
 current settings:
 {
     "Command": "run",
@@ -244,27 +244,28 @@ Grid after merging:
 8,9 (n) : |
 
 
-copying contents of row 1
+copying contents
+row 1:
      copied cell 1,1 to cell 1,1
      copied cell 1,2 to cell 1,2
-     skipping merged cell 1,3
-     skipping merged cell 1,4
-     skipping merged cell 1,5
-     skipping merged cell 1,6
-     skipping merged cell 1,7
-     skipping merged cell 1,8
-     skipping merged cell 1,9
-copying contents of row 2
+     skipped merged cell 1,3
+     skipped merged cell 1,4
+     skipped merged cell 1,5
+     skipped merged cell 1,6
+     skipped merged cell 1,7
+     skipped merged cell 1,8
+     skipped merged cell 1,9
+row 2:
      copied cell 2,1 to cell 2,1
      copied cell 2,2 to cell 2,2
-     skipping merged cell 2,3
+     skipped merged cell 2,3
      copied cell 2,3 to cell 2,4
-     skipping merged cell 2,5
+     skipped merged cell 2,5
      copied cell 2,4 to cell 2,6
-     skipping merged cell 2,7
+     skipped merged cell 2,7
      copied cell 2,5 to cell 2,8
-     skipping merged cell 2,9
-copying contents of row 3
+     skipped merged cell 2,9
+row 3:
      copied cell 3,1 to cell 3,1
      copied cell 3,2 to cell 3,2
      copied cell 3,3 to cell 3,3
@@ -274,13 +275,13 @@ copying contents of row 3
      copied cell 3,7 to cell 3,7
      copied cell 3,8 to cell 3,8
      copied cell 3,9 to cell 3,9
-copying contents of row 4
+row 4:
      copied cell 4,1 to cell 4,1
-     skipping merged cell 4,2
-     skipping merged cell 4,3
-     skipping merged cell 4,4
-     skipping merged cell 4,5
-copying contents of row 5
+     skipped merged cell 4,2
+     skipped merged cell 4,3
+     skipped merged cell 4,4
+     skipped merged cell 4,5
+row 5:
      copied cell 5,1 to cell 5,1
      copied cell 5,2 to cell 5,2
      copied cell 5,3 to cell 5,3
@@ -290,7 +291,7 @@ copying contents of row 5
      copied cell 5,7 to cell 5,7
      copied cell 5,8 to cell 5,8
      copied cell 5,9 to cell 5,9
-copying contents of row 6
+row 6:
      copied cell 6,1 to cell 6,1
      copied cell 6,2 to cell 6,2
      copied cell 6,3 to cell 6,3
@@ -300,7 +301,7 @@ copying contents of row 6
      copied cell 6,7 to cell 6,7
      copied cell 6,8 to cell 6,8
      copied cell 6,9 to cell 6,9
-copying contents of row 7
+row 7:
      copied cell 7,1 to cell 7,1
      copied cell 7,2 to cell 7,2
      copied cell 7,3 to cell 7,3
@@ -310,7 +311,7 @@ copying contents of row 7
      copied cell 7,7 to cell 7,7
      copied cell 7,8 to cell 7,8
      copied cell 7,9 to cell 7,9
-copying contents of row 8
+row 8:
      copied cell 8,1 to cell 8,1
      copied cell 8,2 to cell 8,2
      copied cell 8,3 to cell 8,3
@@ -566,4 +567,4 @@ file size=4807
 inside DoRun() after returning from runhtmlfiles()
 file name=/Users/salah/Dropbox/code/go/src/github.com/drgo/rosewood/cmd/bug-omitted-column-headers.html
 file size=4807
-processed 1 file(s) in 9.667223ms
+processed 1 file(s) in 9.836578ms

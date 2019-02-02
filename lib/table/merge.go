@@ -52,9 +52,12 @@ func createMergedGridTable(src *TableContents, mrlist []types.Range) (*TableCont
 	}
 
 	//now fill each non-merged cell in the grid with the content of available cells in the raw contents
+	if debug == types.DebugAll {
+		fmt.Println("copying contents") //DEBUG
+	}
 	for r := 1; r <= src.RowCount(); r++ {
 		if debug == types.DebugAll {
-			fmt.Printf("copying contents of row %d\n", r) //DEBUG
+			fmt.Printf("row %d:\n", r) //DEBUG
 		}
 		if err := copyRowContents(grid, src, r); err != nil {
 			return nil, err
