@@ -1,5 +1,5 @@
 EXE=carpenter
-VERSION=0.6.0
+VERSION=0.6.1
 BUILD := $(shell git describe --always --long --dirty)
 BUILD_DATE=$(shell date)
 
