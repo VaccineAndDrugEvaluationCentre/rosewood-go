@@ -1,0 +1,37 @@
++++
+Crude and adjusted^1^ vaccine effectiveness (%) of current and previous season vaccination against lab-confirmed influenza stratified by age and vaccine uptake 2 to 5 seasons ago
++++
+                                                           |                                                                                                                  Age                                                                                                                  |
+                                                           |                            <5                           |                           5-17                          |                          18-64                          |                           65+                           |
+                                                           |     Crude VE % (95% CI)    |  Adjusted^1^ VE % (95% CI) |     Crude VE % (95% CI)    |  Adjusted^1^ VE % (95% CI) |     Crude VE % (95% CI)    |  Adjusted^1^ VE % (95% CI) |     Crude VE % (95% CI)    |  Adjusted^1^ VE % (95% CI) |
+Any vaccination status in prior 2-5 seasons ago                                         |
+  Unvaccinated current and 1 prior season                  |            ref.            |            ref.            |            ref.            |            ref.            |            ref.            |            ref.            |            ref.            |            ref.            |
+  Only vaccinated 1 prior season                           |       -111 (-333--3)       |       -112 (-243--31)      |         16 (-51-54)        |        -10 (-80-33)        |         48 (32-60)         |         39 (22-52)         |          26 (5-43)         |         31 (10-47)         |
+  Only vaccinated current season                           |         59 (21-78)         |          40 (5-62)         |         86 (64-95)         |         66 (21-85)         |         66 (53-76)         |         61 (47-71)         |          27 (5-43)         |         40 (20-54)         |
+  Vaccinated current and 1 prior season                    |         81 (47-93)         |         71 (38-87)         |         69 (39-84)         |         23 (-33-56)        |         54 (41-64)         |         47 (33-58)         |          16 (0-29)         |         31 (16-43)         |
+
++++
+^1^ = Adjusted for gender, income quintile top 60%, vaccine-providing physicians per 10,000 population, relative local age distribution, healthcare utilization, in long term care, one or more chronic conditions and season
++++
+//merge row 1:3 col 1
+style row 1 col 1 header
+merge row 1 col 2:9
+style row 1 col 2 header
+merge row 2 col 4:5
+style row 2 col 4 header
+merge row 2 col 6:7
+style row 2 col 6 header
+merge row 2 col 8:9
+merge row 2 col 2:3
+style row 2 col 2 header
+style row 2 col 8 header
+style row 3 col 2 header
+style row 3 col 3 header
+style row 3 col 4 header
+style row 3 col 5 header
+style row 3 col 6 header
+style row 3 col 7 header
+style row 3 col 8 header
+style row 3 col 9 header
+merge row 4 col 1:5
++++
