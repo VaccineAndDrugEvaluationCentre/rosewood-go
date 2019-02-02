@@ -8,7 +8,7 @@ const (
 )
 
 const (
-	ErrWrongCommand  = "must specify a valid command. For a list of commands, type carpenter help"
+	ErrWrongCommand  = "must specify a valid command. For a list of commands, type %s help"
 	ErrOpenInFile    = "error opening input file %s: %s"
 	ErrOpenOutFile   = "error opening output file %s: %s"
 	ErrMissingInFile = "no input file specified and nothing is piped in"

@@ -10,7 +10,7 @@ import (
 	rosewood "github.com/drgo/rosewood/lib"
 )
 
-//TODO: move this file to fileUtils; replace with generic file descriptors
+//TODO: move this file to files; replace with generic file descriptors
 
 type RwInputDescriptor struct {
 	FileName           string
@@ -51,7 +51,7 @@ func getValidInputReader(iDesc *RwInputDescriptor) (*os.File, error) {
 	// //this check here rather than in the interpreter because we need access to *File to rewind it
 	// //where as the interpreter uses io.Reader which does not support seek
 	// //TODO: change pass acceptable type(s) as a parameter; "" means do not check
-	// if err = fileutils.CheckTextStream(in, iDesc.MinFileSize); err != nil {
+	// if err = files.CheckTextStream(in, iDesc.MinFileSize); err != nil {
 	// 	return nil, err
 	// }
 	// //TODO: clean up extra-check
@@ -114,7 +114,8 @@ func GetValidFormat(job *rosewood.Job) (string, error) {
 	return format, nil
 }
 
-// //TODO: clean temp dir if any on start
+//TODO: add command clean
+//clean temp dir if any on start
 // func start() {
 // 	tmp := filepath.Join(os.TempDir(), "mydir")
 // 	os.RemoveAll(tmp)

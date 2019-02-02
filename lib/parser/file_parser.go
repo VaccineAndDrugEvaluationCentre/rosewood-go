@@ -7,12 +7,13 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"reflect"
 	"strings"
 	"text/scanner"
 
-	"github.com/drgo/errors"
-	"github.com/drgo/fileutils"
+	"github.com/drgo/core"
+	"github.com/drgo/core/errors"
+	"github.com/drgo/core/files"
+	"github.com/drgo/rosewood/lib/table"
 	"github.com/drgo/rosewood/lib/types"
 )
 
@@ -23,12 +24,12 @@ var (
 	unknownPos = Position{"", -1, -1, -1}
 )
 
-const (
-	//SectionsPerTable the number of section per table
-	SectionsPerTable = 4
-	//RwMinFileSize the size of the smallest possible rosewood file
-	RwMinFileSize = SectionsPerTable * 3 // at least 3 separator chars per section
-)
+// const (
+// 	//SectionsPerTable the number of section per table
+// 	SectionsPerTable = 4
+// 	//RwMinFileSize the size of the smallest possible rosewood file
+// 	RwMinFileSize = SectionsPerTable * 3 // at least 3 separator chars per section
+// )
 
 //File holds information on currently parsed Rosewood file
 type File struct {
@@ -36,7 +37,7 @@ type File struct {
 	sections []*types.Section //holds raw lines
 	parser   *CommandParser
 	settings *types.RosewoodSettings
-	tables   []*types.Table //holds parsed tables and commands
+	tables   []*table.Table //holds parsed tables and commands
 }
 
 //NewFile returns a Rosewood File
@@ -46,11 +47,6 @@ func NewFile(fileName string, settings *types.RosewoodSettings) *File {
 		settings: settings}
 }
 
-func isNil(a interface{}) bool {
-	defer func() { recover() }()
-	return a == nil || reflect.ValueOf(a).IsNil()
-}
-
 //Parse parses an io.ReadSeeker streaming a Rosewood file and returns any found tables
 func (f *File) Parse(r io.ReadSeeker) error {
 	//TODO: add a test file that starts with empty space or other stuff
@@ -58,11 +54,11 @@ func (f *File) Parse(r io.ReadSeeker) error {
 		s       *types.Section
 		lineNum int
 	)
-	if isNil(r) {
+	if core.IsNil(r) {
 		panic("nil io.ReadSeeker passed to file.Parse()")
 	}
 	if f.settings.Debug == types.DebugAll {
-		fmt.Println("inside file.Parse()")
+		fmt.Println("*** file parsing started")
 	}
 	scanner := bufio.NewScanner(r)
 	//check file version
@@ -80,6 +76,9 @@ func (f *File) Parse(r io.ReadSeeker) error {
 	case "unknown":
 		return NewError(ErrSyntaxError, unknownPos, "file does not start by a valid section separator")
 	case "v0.1":
+		if f.settings.Debug == types.DebugAll {
+			fmt.Println("found possible version 0.1 file")
+		}
 		if !f.settings.ConvertOldVersions {
 			return NewError(ErrSyntaxError, unknownPos, "possibly version 0.1 file")
 		}
@@ -97,9 +96,9 @@ func (f *File) Parse(r io.ReadSeeker) error {
 	for scanner.Scan() {
 		lineNum++
 		line := scanner.Text()
-		if f.settings.Debug == types.DebugAll {
-			fmt.Println(line)
-		}
+		// if f.settings.Debug == types.DebugAll {
+		// 	fmt.Println(line)
+		// }
 		if f.isSectionSeparatorLine(line) { //start of a new section
 			if s != nil { //there is an active section, append it to the sections array
 				f.sections = append(f.sections, s)
@@ -128,8 +127,8 @@ func (f *File) convertFromVersionZero1(r io.ReadSeeker) (*bytes.Buffer, error) {
 		return nil, NewError(ErrSyntaxError, unknownPos, err.Error())
 	}
 	if f.settings.SaveConvertedFile {
-		v2FileName := fileutils.ConstructFileName(f.FileName, "rw", "", "-autogen")
-		out, err := fileutils.CreateFile(v2FileName, false /* do not overwrite files*/)
+		v2FileName := files.ConstructFileName(f.FileName, "rw", "", "-autogen")
+		out, err := files.CreateFile(v2FileName, false /* do not overwrite files*/)
 		if err != nil {
 			return nil, fmt.Errorf("unable to create converted v0.2 file [%s]: %s", v2FileName, err)
 		}
@@ -152,19 +151,20 @@ func (f *File) createTables() error {
 	if f.SectionCount() == 0 || f.SectionCount()%f.settings.SectionsPerTable != 0 {
 		return fmt.Errorf("incorrect number of sections: %d", f.SectionCount())
 	}
-	var t *types.Table
+	var t *table.Table
 	var err error
 	for i, s := range f.sections {
 		ii := i + 1 //i is zero-based, section numbers should be one-based
-		kind := types.SectionDescriptor(i%f.settings.SectionsPerTable + 1)
-		// fmt.Printf("kind: %d\n", kind)
-		// fmt.Printf("section: %s\n", s)
-		switch kind {
+		s.Kind = types.SectionDescriptor(i%f.settings.SectionsPerTable + 1)
+		if f.settings.Debug == types.DebugAll {
+			fmt.Println("**** processing " + s.DebugString())
+		}
+		switch s.Kind {
 		case types.SectionCaption:
-			t = types.NewTable()
+			t = table.NewTable()
 			t.Caption = s
 		case types.SectionBody:
-			if t.Contents, err = types.NewTableContents(s.String()); err != nil {
+			if t.Contents, err = table.NewTableContents(s.String()); err != nil {
 				return NewError(ErrSyntaxError, unknownPos, fmt.Sprintf("error parsing table in section #%d: %s ", ii, err))
 			}
 		case types.SectionFootNotes:
@@ -175,7 +175,8 @@ func (f *File) createTables() error {
 			}
 			f.tables = append(f.tables, t)
 		default:
-			panic(fmt.Sprintf("invalid switch case [%v] in File.CreateTables()", kind))
+			//shoud never happen
+			panic(fmt.Sprintf("invalid switch case [%v] in File.CreateTables()", s.Kind))
 		}
 	}
 	return nil
@@ -187,7 +188,7 @@ func (f *File) TableCount() int {
 }
 
 //Tables returns an array of pointers to parsed Tables
-func (f *File) Tables() []*types.Table {
+func (f *File) Tables() []*table.Table {
 	return f.tables
 }
 
@@ -200,25 +201,3 @@ func (f *File) Errors() *errors.ErrorList {
 func (f *File) Err() error {
 	return f.parser.errors.Err()
 }
-
-// removed to force the first line to be always a section separator
-// find a line that starts with a SectionSeparator
-// for {
-// 	more := scanner.Scan()
-// 	if !more && scanner.Err() == nil { //EOF reached before a SectionSeparator was found
-// 		return NewError(ErrSyntaxError, unknownPos, "file is empty or does not start by a section separator: "+f.settings.SectionSeparator)
-// 	}
-// 	lineNum++
-// 	line := strings.TrimSpace(scanner.Text())
-// 	if line == "" || strings.HasPrefix(line, "//") {
-// 		continue //skip comments and empty lines
-// 	}
-
-// 	if strings.HasPrefix(line, f.settings.SectionSeparator) {
-// 		s = types.NewSection(types.SectionUnknown, lineNum+1) //found the first section
-// 		break                                                 //SectionSeparator was in the first valid line
-// 	}
-// 	//other text found
-// 	fmt.Println("//EOF reached first") //
-// 	return NewError(ErrSyntaxError, unknownPos, "file is empty or does not start by a section separator: "+f.settings.SectionSeparator)
-// }

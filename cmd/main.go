@@ -8,8 +8,10 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
-	"github.com/drgo/fileutils"
+	"github.com/drgo/core/args"
+	"github.com/drgo/core/files"
 	rosewood "github.com/drgo/rosewood/lib"
 	_ "github.com/drgo/rosewood/renderers/html" //include needed renderers
 )
@@ -44,11 +46,13 @@ func RunApp() error {
 	if len(os.Args) == 1 { //no command line arguments
 		return DoFromConfigFile("")
 	}
+	exeName := os.Args[0]
 	job, err := LoadConfigFromCommandLine()
 	if err != nil {
 		return err
 	}
 	if job.RosewoodSettings.Debug == rosewood.DebugAll {
+		fmt.Printf("Started on %s\n", time.Now())
 		fmt.Printf("current settings:\n%s\n", job)
 	}
 	switch job.Command { //TODO: check command is case insensitive
@@ -84,7 +88,7 @@ func RunApp() error {
 		helpMessage(job.RwFileNames, getVersion())
 	default:
 		helpMessage(nil, getVersion())
-		return fmt.Errorf(ErrWrongCommand)
+		return fmt.Errorf(ErrWrongCommand, exeName)
 	}
 	return err
 }
@@ -93,7 +97,7 @@ func RunApp() error {
 func DoFromConfigFile(configFileName string) error {
 	var err error
 	if configFileName == "" {
-		if configFileName, err = fileutils.GetFullPath(ConfigFileBaseName); err != nil {
+		if configFileName, err = files.GetFullPath(ConfigFileBaseName); err != nil {
 			return err
 		}
 	}
@@ -103,6 +107,7 @@ func DoFromConfigFile(configFileName string) error {
 		return fmt.Errorf("failed to parse configuration file %s: %v", configFileName, err)
 	}
 	if job.RosewoodSettings.Debug >= rosewood.DebugAll {
+
 		fmt.Printf("current configuration: \n %s\n", job)
 	}
 	if err = DoRun(job); rosewood.Errors().IsParsingError(err) {
@@ -111,11 +116,12 @@ func DoFromConfigFile(configFileName string) error {
 	return err
 }
 
-//LoadConfigFromCommandLine creates a object using command line arguments
+//LoadConfigFromCommandLine creates a job object using command line arguments
 func LoadConfigFromCommandLine() (*rosewood.Job, error) {
-	job := rosewood.DefaultJob(rosewood.DefaultSettings()) //TODO: ensure all defaults are reasonable
+	//TODO: ensure all defaults are reasonable
+	job := rosewood.DefaultJob(rosewood.DefaultSettings())
 	flgSets, _ := setupCommandFlag(job)
-	flg, err := ParseCommandLine(flgSets[0], flgSets[1:]...)
+	flg, err := args.ParseCommandLine(flgSets[0], flgSets[1:]...)
 
 	if err != nil {
 		return nil, err

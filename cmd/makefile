@@ -1,10 +1,10 @@
-# EXE is binary name
 EXE=carpenter
 VERSION=0.6.0
 BUILD := $(shell git describe --always --long --dirty)
 BUILD_DATE=$(shell date)
 
-
+# disable gomodule for now
+# export GO111MODULE=off
 #PKG := github.com/drgo/rosewood 
 #PKG_LIST := $(shell go list ${PKG}/... )
 #GO_FILES := $(shell find . -name '*.go' )

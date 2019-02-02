@@ -4,7 +4,7 @@ package main
 
 //TODO: spell check and streamline text
 const (
-	versionMessage   = "carpenter %s (%s) based on rosewood lib version %s\nCopyRight Salah Mahmud 2018\n"
+	versionMessage   = "carpenter %s (%s) based on rosewood lib version %s\nCopyRight 2018-2019 Salah Mahmud \n"
 	longUsageMessage = ` 
 Carpenter parses and renders Rosewood tables as HTML or DOCX files.
 

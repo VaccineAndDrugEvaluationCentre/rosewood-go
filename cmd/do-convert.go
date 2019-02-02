@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/drgo/errors"
-	"github.com/drgo/fileutils"
+	"github.com/drgo/core/errors"
+	"github.com/drgo/core/files"
 	rosewood "github.com/drgo/rosewood/lib"
 )
 
@@ -33,7 +33,7 @@ func V1toV2(job *rosewood.Job) error {
 	go func() {
 		for _, inputFile := range job.RwFileNames {
 			//FIXME: constructfilename does not work for files with path
-			task := getTask(inputFile, fileutils.ConstructFileName(inputFile, "rw", "", "-converted-v1-2-v2"), job)
+			task := getTask(inputFile, files.ConstructFileName(inputFile, "rw", "", "-converted-v1-2-v2"), job)
 			tokens.Reserve(1)
 			go convertFile(*task, resChan)
 		}
@@ -78,7 +78,7 @@ func convertFile(task task, resChan chan result) {
 	}
 	defer func() {
 		if err == nil { //do not save file if runFile below failed
-			if closeErr := fileutils.CloseAndRename(out, task.outputFileName, task.OverWriteOutputFile); closeErr != nil {
+			if closeErr := files.CloseAndRename(out, task.outputFileName, task.OverWriteOutputFile); closeErr != nil {
 				resChan <- task.getResult(closeErr)
 			}
 		}

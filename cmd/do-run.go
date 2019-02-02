@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/drgo/fileutils"
+	"github.com/drgo/core/files"
 	"github.com/drgo/htmldocx"
 	rosewood "github.com/drgo/rosewood/lib"
 )
@@ -58,7 +58,7 @@ func DoRun(job *rosewood.Job) error {
 	}
 	if job.RosewoodSettings.Debug >= rosewood.DebugAll {
 		fmt.Println("inside DoRun() after returning from runhtmlfiles()")
-		if err = fileutils.PrintFileStat(processedFiles[0]); err != nil {
+		if err = files.PrintFileStat(processedFiles[0]); err != nil {
 			fmt.Printf("inside DoRun() failed to print stats of: %v\n", err)
 		}
 	}
@@ -109,7 +109,7 @@ func runHTMLFiles(job *rosewood.Job) ([]string, error) {
 	go func() {
 		for _, inputFile := range job.RwFileNames {
 			task := getTask(inputFile, filepath.Join(job.WorkDirName,
-				fileutils.ReplaceFileExt(filepath.Base(inputFile), "html")), job) //assume outputfile is html file with path= job.WorkdirName+ same base name as inputfile
+				files.ReplaceFileExt(filepath.Base(inputFile), "html")), job) //assume outputfile is html file with path= job.WorkdirName+ same base name as inputfile
 			switch {
 			case job.OutputFileName == "": //no output file assume html file with the same base name as inputfile
 			case job.OutputFormat == "docx": //create temp html files in the basedir
@@ -142,7 +142,7 @@ func runHTMLFiles(job *rosewood.Job) ([]string, error) {
 		if res.error == nil {
 			if job.RosewoodSettings.Debug >= rosewood.DebugAll {
 				fmt.Println("inside runhtmlfiles result processing loop")
-				if err = fileutils.PrintFileStat(res.task.outputFileName); err != nil {
+				if err = files.PrintFileStat(res.task.outputFileName); err != nil {
 					fmt.Printf("inside runhtmlfiles failed to print stats of: %v\n", err)
 				}
 			}
@@ -183,8 +183,8 @@ func htmlRunner(task task, resChan chan result) {
 	}
 	ri := rosewood.NewInterpreter(task.settings).SetScriptIdentifer(task.inputFileName)
 	if err = runFile(ri, in, out); err == nil && !task.settings.CheckSyntaxOnly {
-		err = fileutils.CloseAndRename(out, task.outputFileName, task.OverWriteOutputFile)
-		// if err = fileutils.PrintFileStat(task.outputFileName); err != nil {
+		err = files.CloseAndRename(out, task.outputFileName, task.OverWriteOutputFile)
+		// if err = files.PrintFileStat(task.outputFileName); err != nil {
 		// 	fmt.Printf("failed to print stats of: %v\n", err)
 		// }
 	}
@@ -193,7 +193,7 @@ func htmlRunner(task task, resChan chan result) {
 
 func runFile(ri *rosewood.Interpreter, in io.ReadSeeker, out io.Writer) error {
 	file, err := ri.Parse(in, ri.ScriptIdentifer())
-	if err != nil || ri.Setting().CheckSyntaxOnly {
+	if err != nil || ri.Settings().CheckSyntaxOnly {
 		return ri.ReportError(err)
 	}
 	hr, err := rosewood.GetRendererByName("html") //TODO: get from settings

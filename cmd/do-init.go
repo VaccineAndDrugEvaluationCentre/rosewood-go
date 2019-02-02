@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/drgo/fileutils"
+	"github.com/drgo/core/files"
 	"github.com/drgo/htmldocx"
 	rosewood "github.com/drgo/rosewood/lib"
 )
@@ -27,7 +27,7 @@ func DoInit(job *rosewood.Job) (string, error) {
 	}
 	if len(job.RwFileNames) > 0 {
 		for _, fn := range job.RwFileNames {
-			job.HTMLFileNames = append(job.HTMLFileNames, fileutils.ReplaceFileExt(fn, "html"))
+			job.HTMLFileNames = append(job.HTMLFileNames, files.ReplaceFileExt(fn, "html"))
 		}
 	}
 	return genConfigFile(job, fileName)
@@ -43,7 +43,7 @@ func genConfigFile(job *rosewood.Job, pFileName string) (fileName string, err er
 		if fileName == "" {
 			fileName = file.Name()
 		}
-		errC := fileutils.CloseAndRename(file, fileName, job.OverWriteOutputFile)
+		errC := files.CloseAndRename(file, fileName, job.OverWriteOutputFile)
 		if errC != nil {
 			err = cfgFailed(errC)
 			fileName = ""

@@ -4,7 +4,6 @@ package types
 
 import (
 	"fmt"
-	"sort"
 )
 
 //Span holds info on a physical range of a Rosewood table
@@ -152,7 +151,6 @@ func (s *Span) ExpandSpanToRanges() (rList []Range, err error) {
 	return deduplicateRangeList(rList), nil
 }
 
-//TODO: optimize
 //deduplicateRangeList returns deduplicated (unique topleft, bottomright combo) range List
 func deduplicateRangeList(rList []Range) []Range {
 	if len(rList) < 2 { //nothing to deduplicate
@@ -185,91 +183,3 @@ func genAllPossibleRangePoints(p1, p2, step int) (pList []int) {
 	}
 	return pList
 }
-
-//TODO: Add to types.Table
-//spanToRangeList converts the spans specified in each command of type cmdType into a list of Type.Range ready for use
-func getAllRanges(cmdList []*Command, cmdType RwKeyWord) (allRangesList []Range, err error) {
-	for _, cmd := range cmdList {
-		if cmd.token != cmdType {
-			continue
-		}
-		rList, err := cmd.cellSpan.ExpandSpanToRanges()
-		//fmt.Printf("%d %s --> len(rlist)=%d \n", cmdType, cmd.cellSpan, len(rList)) //DEBUG
-		if err != nil {
-			return nil, err
-		}
-		//attach styles to all ranges
-		for i := range rList {
-			if cmdType == KwStyle {
-				rList[i].addStyle(cmd.Args()...)
-			}
-		}
-		allRangesList = append(allRangesList, rList...)
-	}
-	sort.Slice(allRangesList, func(i, j int) bool {
-		return allRangesList[i].less(allRangesList[j])
-	})
-	return allRangesList, nil
-}
-
-//TODO: remove OLD CODE
-//deduplicateSpanList returns deduplicated (unique r1,r2,c1,c2) span List
-// func deduplicateSpanList(sList []*Span) []*Span {
-// 	set := make(map[string]*Span, len(sList))
-// 	i := 0
-// 	for _, s := range sList {
-// 		if _, exists := set[s.String()]; exists {
-// 			continue
-// 		}
-// 		set[s.String()] = s
-// 		sList[i] = s
-// 		i++
-// 	}
-// 	return sList[:i]
-// }
-
-// //ExpandSpan convert by and comma list spans into simple (topleft, bottomright only) spans
-// func (s *Span) ExpandSpan() (sList []*Span, err error) {
-// 	var rPoints, cPoints []int
-// 	//if skipped span (eg 1:2:10), generate Lists of all row and col points included
-// 	if s.rby != RwMissing {
-// 		if rPoints = genAllPossibleRangePoints(s.r1, s.r2, s.rby); rPoints == nil {
-// 			return nil, fmt.Errorf("invalid span %s", s)
-// 		}
-// 	}
-// 	if s.cby != RwMissing {
-// 		if cPoints = genAllPossibleRangePoints(s.c1, s.c2, s.cby); cPoints == nil {
-// 			return nil, fmt.Errorf("invalid span %s", s)
-// 		}
-// 	}
-// 	//if comma-separated, add to above Lists (which could be empty)
-// 	rPoints = append(rPoints, s.rcl...)
-// 	cPoints = append(cPoints, s.ccl...)
-
-// 	switch {
-// 	//scenario 1: simple (no steps or comma list) span, eg style row 1:3 col 1:2, return it
-// 	case len(rPoints) == 0 && len(cPoints) == 0:
-// 		sList = append(sList, s)
-// 	//scenario 2: both columns and rows are complex, create a span for each affected row and col combination
-// 	//eg style row 1:2:6 col 1:2:6 --> row 1:1 col 1:1; row 3:3 col 1:1; row 5:5 col 1:1, repeat for col 3:3 & 5:5
-// 	case len(rPoints) != 0 && len(cPoints) != 0:
-// 		for _, r := range rPoints {
-// 			for _, c := range cPoints {
-// 				sList = append(sList, MakeSpan(r, r, c, c))
-// 			}
-// 		}
-// 	//scenario 3: rows complex but cols simple, create a span for each affected row
-// 	//eg style row 1:2:6 col 1:1 --> row 1:1 col 1:1; row 3:3 col 1:1; row 5:5 col 1:1
-// 	case rPoints != nil:
-// 		for _, r := range rPoints {
-// 			sList = append(sList, MakeSpan(r, r, s.c1, s.c2))
-// 		}
-// 	//scenario 4: rows simple but cols complex, create a span for each affected col
-// 	//eg row 1:1 col 1:2:6 --> row 1:1 col 1:1; row 1:1 col 3:3; row 1:1 col 5:5
-// 	case cPoints != nil:
-// 		for _, c := range cPoints {
-// 			sList = append(sList, MakeSpan(s.r1, s.r2, c, c))
-// 		}
-// 	}
-// 	return deduplicateSpanList(sList), nil
-// }

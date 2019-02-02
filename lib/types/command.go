@@ -1,6 +1,6 @@
-//Package types implements data structures essential for parsing and rendering Rosewood tables and commands
 // Copyright 2017 Salah Mahmud and Colleagues. All rights reserved.
 
+//Package types implements data structures essential for parsing and rendering Rosewood tables and commands
 package types
 
 import (
@@ -43,6 +43,16 @@ func (c *Command) String() string {
 		fmt.Fprintf(buf, "%s", c.args)
 	}
 	return strings.TrimSpace(buf.String())
+}
+
+//ID returns command id
+func (c *Command) ID() RwKeyWord {
+	return c.token
+}
+
+//Span returns a span struct describing the span of cells the command applies to
+func (c *Command) Span() *Span {
+	return c.cellSpan
 }
 
 //AddSpanSegment adds a SpanSegment to the command

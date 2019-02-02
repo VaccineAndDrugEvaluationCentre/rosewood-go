@@ -10,7 +10,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/drgo/core/md"
 	rosewood "github.com/drgo/rosewood/lib"
+	"github.com/drgo/rosewood/lib/table"
 	"github.com/drgo/rosewood/lib/types"
 )
 
@@ -37,24 +39,24 @@ func init() {
 		Name:     "html",
 		Renderer: makeHTMLRenderer,
 	}
-	rosewood.Register(&config)
+	rosewood.RegisterRenderer(&config)
 }
 
-//htmlRenderer implements types.Renderer for HTML output
+//htmlRenderer implements table.Renderer for HTML output
 type htmlRenderer struct {
 	bw        io.Writer
 	settings  *types.RosewoodSettings
-	tables    []*types.Table
+	tables    []*table.Table
 	htmlError error //tracks errors
 }
 
 //makeHTMLRenderer factory functions according to the renderer registration requirements
-func makeHTMLRenderer() (types.Renderer, error) {
+func makeHTMLRenderer() (table.Renderer, error) {
 	return NewHTMLRenderer(), nil
 }
 
 //NewHTMLRenderer create a new htmlRenderer and return it as a Renderer
-func NewHTMLRenderer() types.Renderer {
+func NewHTMLRenderer() table.Renderer {
 	return &htmlRenderer{}
 }
 
@@ -68,7 +70,7 @@ func (hr *htmlRenderer) SetSettings(settings *types.RosewoodSettings) error {
 	return nil
 }
 
-func (hr *htmlRenderer) SetTables(tables []*types.Table) error {
+func (hr *htmlRenderer) SetTables(tables []*table.Table) error {
 	hr.tables = tables
 	return nil
 }
@@ -121,7 +123,7 @@ func (hr *htmlRenderer) EndFile() error {
 	return hr.write(htmlFooter)
 }
 
-func (hr *htmlRenderer) StartTable(t *types.Table) error {
+func (hr *htmlRenderer) StartTable(t *table.Table) error {
 	hr.write(`<table class="rw-table">
 		`)
 	if t.Caption != nil {
@@ -134,7 +136,7 @@ func (hr *htmlRenderer) StartTable(t *types.Table) error {
 	return hr.Err()
 }
 
-func (hr *htmlRenderer) EndTable(t *types.Table) error {
+func (hr *htmlRenderer) EndTable(t *table.Table) error {
 	hr.write("</table>\n")
 	if t.Footnotes != nil {
 		hr.write(`<div class="rw-footnotes">` + "\n")
@@ -146,25 +148,27 @@ func (hr *htmlRenderer) EndTable(t *types.Table) error {
 	return hr.Err()
 }
 
-func (hr *htmlRenderer) StartRow(r *types.Row) error {
+func (hr *htmlRenderer) StartRow(r *table.Row) error {
 	return hr.write(`<tr class="rw-row">` + "\n")
 }
 
-func (hr *htmlRenderer) EndRow(r *types.Row) error {
+func (hr *htmlRenderer) EndRow(r *table.Row) error {
 	return hr.write("</tr>\n")
 }
 
 func (hr *htmlRenderer) renderText(s string) string {
-	txt, err := InlinedMdToHTML(s, nil)
+	txt, err := md.InlinedMdToHTML(s, nil)
 	if err != nil {
 		hr.htmlError = fmt.Errorf("error in parsing the following text: %s; error is %s ", strconv.Quote(s), err)
 	}
 	return string(txt)
 }
 
-func (hr *htmlRenderer) OutputCell(c *types.Cell) error {
-	//fmt.Printf("%s\n", c.DebugString()) //DEBUG
-	if c.State() == types.CsMerged {
+func (hr *htmlRenderer) OutputCell(c *table.Cell) error {
+	// if hr.settings.Debug == types.DebugAll {
+	// 	fmt.Printf("%s\n", c.DebugString()) //DEBUG
+	// }
+	if c.State() == table.CsMerged {
 		return nil
 	}
 	tag := "td"
@@ -187,13 +191,6 @@ func (hr *htmlRenderer) OutputCell(c *types.Cell) error {
 	if c.ColSpan() > 1 {
 		b.WriteString(` colspan=` + strconv.Itoa(c.ColSpan()) + string('"')) // eg colspan="2"
 	}
-	// txt, err := InlinedMdToHTML(c.Text(), nil)
-	// if err != nil {
-	// 	hr.htmlError = fmt.Errorf("error in parsing the following text: %s; error is %s ", strconv.Quote(c.Text()), err)
-	// }
-	//	if hr.settings.TrimCellContents {
-	//txt = strings.TrimSpace(txt)
-	//	}
 	b.WriteString(">" + hr.renderText(c.Text()) + "</" + tag + ">\n") //eg "> text </td>"
 	hr.write(b.String())
 	return hr.Err()

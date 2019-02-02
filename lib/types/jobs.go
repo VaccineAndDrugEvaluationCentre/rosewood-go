@@ -32,9 +32,7 @@ type Job struct { //IMMUTABLE once initialized; TODO: hide internal details usin
 //DefaultJob returns default job
 func DefaultJob(settings *RosewoodSettings) *Job {
 	return &Job{
-		Command: "run",
-		//FIXME: update this via ? option if needed.
-		// ExecutableVersion: Version,
+		Command:          "run",
 		RosewoodSettings: settings,
 	}
 }
@@ -104,14 +102,3 @@ func (job *Job) SaveToMDSonFile(FileName string, overwrite bool) error {
 	}
 	return nil
 }
-
-// //ConfigFileName returns path to the MDSon file used to initialize this Job
-// //empty if a file was not used
-// func (job *Job) ConfigFileName() string {
-// 	return job.ConfigFileName
-// }
-
-// //SetConfigFileName sets the MDSon file name
-// func (job *Job) SetConfigFileName(fileName string) {
-// 	job.ConfigFileName = fileName
-// }

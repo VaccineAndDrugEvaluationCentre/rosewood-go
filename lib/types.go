@@ -31,19 +31,13 @@ func DefaultSettings() *Settings {
 	return types.DefaultRosewoodSettings()
 }
 
-// const (
-// 	ErrGeneric     = parser.ErrGeneric
-// 	ErrSyntaxError = parser.ErrSyntaxError
-// 	ErrEmpty       = parser.ErrEmpty
-// 	ErrUnknown     = parser.ErrUnknown
-// )
-
+//FIXME: replace with package errors
 type errorManager struct {
 }
 
 var errorsManager = errorManager{}
 
-//Errors() provides access to an internal struct that exposes several utility functions for handling
+//Errors provides access to an internal struct that exposes several utility functions for handling
 //rosewood errors
 func Errors() errorManager {
 	return errorsManager

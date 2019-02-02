@@ -7,11 +7,13 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/drgo/rosewood/lib/types"
+	"github.com/drgo/rosewood/lib/table"
 )
 
-type RendererFactory func() (types.Renderer, error)
+//RendererFactory function signature for a func that creates a renderer
+type RendererFactory func() (table.Renderer, error)
 
+//RendererConfig holds info on this renderer
 type RendererConfig struct {
 	Name     string
 	Renderer RendererFactory
@@ -22,11 +24,10 @@ var (
 	renderers   = make(map[string]*RendererConfig)
 )
 
-//TODO: rename to RegisterRenderer
-// Register makes an output renderer available by the provided name.
+// RegisterRenderer makes an output renderer available by the provided name.
 // If Register is called twice with the same name or if renderer is nil,
 // it panics.
-func Register(config *RendererConfig) {
+func RegisterRenderer(config *RendererConfig) {
 	renderersMu.Lock()
 	defer renderersMu.Unlock()
 	if config.Renderer == nil {
@@ -44,9 +45,8 @@ func unregisterAllRenderers() {
 	renderers = make(map[string]*RendererConfig)
 }
 
-//TODO: rename to GetRenderersList
-// Renderers returns a sorted list of the names of the registered renderers.
-func Renderers() []string {
+// GetRenderersList returns a sorted list of the names of the registered renderers.
+func GetRenderersList() []string {
 	renderersMu.RLock()
 	defer renderersMu.RUnlock()
 	var list []string
@@ -58,7 +58,7 @@ func Renderers() []string {
 }
 
 // GetRendererByName returns a renderer specified by its name
-func GetRendererByName(name string) (types.Renderer, error) {
+func GetRendererByName(name string) (table.Renderer, error) {
 	renderersMu.RLock()
 	rendererConfig, ok := renderers[name]
 	renderersMu.RUnlock()

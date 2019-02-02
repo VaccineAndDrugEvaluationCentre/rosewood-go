@@ -7,14 +7,16 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/drgo/errors"
+	"github.com/drgo/core/errors"
 	"github.com/drgo/rosewood/lib/parser"
+	"github.com/drgo/rosewood/lib/table"
 	"github.com/drgo/rosewood/lib/types"
 )
 
 //Version of this library
-const version = "0.5.0"
+const version = "0.5.1"
 
+//LibVersion version of Rosewood lib
 func LibVersion() string {
 	return version
 }
@@ -31,6 +33,8 @@ func NewInterpreter(settings *types.RosewoodSettings) *Interpreter {
 	if settings == nil {
 		settings = DefaultSettings()
 	}
+	// set debug flag of internal packages
+	table.SetDebug(types.DebugAll)
 	return &Interpreter{settings, ""}
 }
 
@@ -42,17 +46,17 @@ func (ri *Interpreter) Parse(r io.ReadSeeker, scriptIdentifer string) (*parser.F
 		return nil, err
 	}
 	if ri.settings.Debug == types.DebugAll {
-		fmt.Printf("%d table(s) found\n", file.TableCount())
-		tables := file.Tables()
-		for i := 0; i < len(tables); i++ {
-			fmt.Printf("%v\n", tables[i])
+		fmt.Printf("***Parsing finished: %d table(s) found\n", file.TableCount())
+		for i, t := range file.Tables() {
+			fmt.Printf("****Contents of table %d\n", i+1)
+			fmt.Printf("%v\n", t)
 		}
 	}
 	return file, nil
 }
 
-//RenderTables renders 1 or more tables into a Writer using the passed Renderer
-func (ri *Interpreter) Render(w io.Writer, file *parser.File, hr types.Renderer) error {
+//Render renders 1 or more tables into a Writer using the passed Renderer
+func (ri *Interpreter) Render(w io.Writer, file *parser.File, hr table.Renderer) error {
 	var err error
 	bw := bufio.NewWriter(w) //buffer the writer to speed up writing
 	tables := file.Tables()
@@ -60,12 +64,16 @@ func (ri *Interpreter) Render(w io.Writer, file *parser.File, hr types.Renderer)
 	hr.SetSettings(ri.settings)
 	hr.SetTables(tables)
 	err = hr.StartFile()
-	for _, t := range tables {
+	for i, t := range tables {
 		if err = t.Run(); err != nil {
 			return fmt.Errorf("failed to run one or more commands for table: %s", err)
 		}
+		if ri.settings.Debug == types.DebugAll {
+			fmt.Printf("****processed contents of table %d\n", i+1)
+			fmt.Printf("%v\n", t.ProcessedTableContents().DebugString())
+		}
 		if err = t.Render(w, hr); err != nil {
-			return fmt.Errorf("failed to render table: %s", err)
+			return fmt.Errorf("failed to render table %d: %s", i+1, err)
 		}
 	}
 	err = hr.EndFile()
@@ -73,6 +81,7 @@ func (ri *Interpreter) Render(w io.Writer, file *parser.File, hr types.Renderer)
 	return err
 }
 
+//ReportError returns a list of errors encountered during running
 func (ri *Interpreter) ReportError(err error) error {
 	return errors.ErrorsToError(err)
 }
@@ -82,13 +91,14 @@ func (ri *Interpreter) ScriptIdentifer() string {
 	return ri.scriptIdentifer
 }
 
+//SetScriptIdentifer sets the name of the running script
 func (ri *Interpreter) SetScriptIdentifer(scriptIdentifer string) *Interpreter {
 	ri.scriptIdentifer = scriptIdentifer
 	return ri
 }
 
 //Settings returns currently active interpreter settings
-func (ri *Interpreter) Setting() *types.RosewoodSettings {
+func (ri *Interpreter) Settings() *types.RosewoodSettings {
 	return ri.settings
 }
 
@@ -103,7 +113,7 @@ func ConvertToCurrentVersion(settings *types.RosewoodSettings, in io.Reader, out
 
 //TODO: remove old code
 // //RenderTables renders 1 or more tables into a Writer using the passed Renderer
-// func (ri *Interpreter) RenderTables(w io.Writer, tables []*types.Table, hr types.Renderer) error {
+// func (ri *Interpreter) RenderTables(w io.Writer, tables []*types.Table, hr table.Renderer) error {
 // 	var err error
 // 	hr.SetWriter(w)
 // 	hr.SetSettings(ri.settings)

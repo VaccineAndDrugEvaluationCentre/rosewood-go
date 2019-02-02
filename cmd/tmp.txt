@@ -1,0 +1,271 @@
+Started on 2019-02-01 18:55:24.302729 -0600 CST m=+0.003542784
+current settings:
+{
+    "Command": "run",
+    "Debug": 0,
+    "ExecutableVersion": "",
+    "RwFileNames": [
+        "../test-files/temp1.txt"
+    ],
+    "OverWriteOutputFile": true,
+    "OutputFileName": "",
+    "OutputFormat": "",
+    "PreserveWorkFiles": false,
+    "SaveConvertedFile": false,
+    "RosewoodSettings": {
+        "CheckSyntaxOnly": false,
+        "ColumnSeparator": "|",
+        "ConvertOldVersions": false,
+        "ConvertFromVersion": "",
+        "Debug": 3,
+        "DoNotInlineCSS": false,
+        "MandatoryCol": false,
+        "MaxConcurrentWorkers": 24,
+        "PreserveWorkFiles": false,
+        "RangeOperator": 58,
+        "ReportAllError": false,
+        "SaveConvertedFile": false,
+        "SectionCapacity": 100,
+        "SectionSeparator": "+++",
+        "SectionsPerTable": 4,
+        "StyleSheetName": "",
+        "TrimCellContents": false
+    },
+    "StyleSheetName": "",
+    "WorkDirName": "",
+    "HTMLFileNames": null,
+    "HTMLWorkDirName": "",
+    "ConfigFileName": ""
+}
+
+processing 1 file(s) in work dir=/Users/salah/Dropbox/code/go/src/github.com/drgo/rosewood/cmd
+*** file parsing started
+first line is+++
+**** processing Caption section starts in line 1 and ends in line 1
+**** processing Body section starts in line 3 and ends in line 6
+**** processing FootNotes section starts in line 7 and ends in line 7
+**** processing Control section starts in line 8 and ends in line 14
+src[8]:merge row 1:3 col 1->parsed as: merge row 1:3 col 1:NA
+src[9]:merge row 1 col 2:9->parsed as: merge row 1:NA col 2:9
+src[10]:merge row 2 col 2:3->parsed as: merge row 2:NA col 2:3
+src[11]:merge row 2 col 4:5->parsed as: merge row 2:NA col 4:5
+src[12]:merge row 2 col 6:7->parsed as: merge row 2:NA col 6:7
+src[13]:merge row 2 col 8:9->parsed as: merge row 2:NA col 8:9
+***Parsing finished: 1 table(s) found
+****Contents of table 1
+caption: 
+footnotes: 
+raw content: 
+1,1 (n) : |
+1,2 (n) :                                                                                                                  Age                                                                                                                   |
+
+2,1 (n) : |
+2,2 (n) :                            <5                            |
+2,3 (n) :                           5-17                           |
+2,4 (n) :                          18-64                           |
+2,5 (n) :                           65+                            |
+
+3,1 (n) : |
+3,2 (n) :     C     |
+3,3 (n) :  A  |
+3,4 (n) :     C     |
+3,5 (n) :  A  |
+3,6 (n) :     C     |
+3,7 (n) :  A  |
+3,8 (n) :     C     |
+3,9 (n) :  A  |
+
+
+
+List of ranges defined in script:
+row 1:3 col 1:1
+row 1:1 col 2:9
+row 2:2 col 2:3
+row 2:2 col 4:5
+row 2:2 col 6:7
+row 2:2 col 8:9
+processing range: row 1:3 col 1:1
+cell 2,1 status= merged
+cell 3,1 status= merged
+processing range: row 1:1 col 2:9
+cell 1,3 status= merged
+cell 1,4 status= merged
+cell 1,5 status= merged
+cell 1,6 status= merged
+cell 1,7 status= merged
+cell 1,8 status= merged
+cell 1,9 status= merged
+processing range: row 2:2 col 2:3
+cell 2,3 status= merged
+processing range: row 2:2 col 4:5
+cell 2,5 status= merged
+processing range: row 2:2 col 6:7
+cell 2,7 status= merged
+processing range: row 2:2 col 8:9
+cell 2,9 status= merged
+Grid after merging:
+ 1,1 (s) : |
+1,2 (s) : |
+1,3 (m) : |
+1,4 (m) : |
+1,5 (m) : |
+1,6 (m) : |
+1,7 (m) : |
+1,8 (m) : |
+1,9 (m) : |
+
+2,1 (m) : |
+2,2 (s) : |
+2,3 (m) : |
+2,4 (s) : |
+2,5 (m) : |
+2,6 (s) : |
+2,7 (m) : |
+2,8 (s) : |
+2,9 (m) : |
+
+3,1 (m) : |
+3,2 (n) : |
+3,3 (n) : |
+3,4 (n) : |
+3,5 (n) : |
+3,6 (n) : |
+3,7 (n) : |
+3,8 (n) : |
+3,9 (n) : |
+
+
+copying contents of cell 1,1 (n): 
+     nothing to copy
+copying contents of cell 1,2 (n): Age
+     copied to cell 1,2
+copying contents of cell 2,1 (n): 
+     nothing to copy
+copying contents of cell 2,2 (n): <5
+     copied to cell 2,2
+copying contents of cell 2,3 (n): 5-17
+     copied to cell 2,4
+copying contents of cell 2,4 (n): 18-64
+     copied to cell 2,4
+copying contents of cell 2,5 (n): 65+
+     copied to cell 2,6
+copying contents of cell 3,1 (n): 
+     nothing to copy
+copying contents of cell 3,2 (n): C
+     copied to cell 3,2
+copying contents of cell 3,3 (n): A
+     copied to cell 3,3
+copying contents of cell 3,4 (n): C
+     copied to cell 3,4
+copying contents of cell 3,5 (n): A
+     copied to cell 3,5
+copying contents of cell 3,6 (n): C
+     copied to cell 3,6
+copying contents of cell 3,7 (n): A
+     copied to cell 3,7
+copying contents of cell 3,8 (n): C
+     copied to cell 3,8
+copying contents of cell 3,9 (n): A
+     copied to cell 3,9
+Grid after copying contents:
+ 1,1 (s) : |
+1,2 (s) :                                                                                                                  Age                                                                                                                   |
+1,3 (m) : |
+1,4 (m) : |
+1,5 (m) : |
+1,6 (m) : |
+1,7 (m) : |
+1,8 (m) : |
+1,9 (m) : |
+
+2,1 (m) : |
+2,2 (s) :                            <5                            |
+2,3 (m) : |
+2,4 (s) :                          18-64                           |
+2,5 (m) : |
+2,6 (s) :                           65+                            |
+2,7 (m) : |
+2,8 (s) : |
+2,9 (m) : |
+
+3,1 (m) : |
+3,2 (n) :     C     |
+3,3 (n) :  A  |
+3,4 (n) :     C     |
+3,5 (n) :  A  |
+3,6 (n) :     C     |
+3,7 (n) :  A  |
+3,8 (n) :     C     |
+3,9 (n) :  A  |
+
+
+****processed contents of table 1
+1,1 (s) : |
+1,2 (s) :                                                                                                                  Age                                                                                                                   |
+1,3 (m) : |
+1,4 (m) : |
+1,5 (m) : |
+1,6 (m) : |
+1,7 (m) : |
+1,8 (m) : |
+1,9 (m) : |
+
+2,1 (m) : |
+2,2 (s) :                            <5                            |
+2,3 (m) : |
+2,4 (s) :                          18-64                           |
+2,5 (m) : |
+2,6 (s) :                           65+                            |
+2,7 (m) : |
+2,8 (s) : |
+2,9 (m) : |
+
+3,1 (m) : |
+3,2 (n) :     C     |
+3,3 (n) :  A  |
+3,4 (n) :     C     |
+3,5 (n) :  A  |
+3,6 (n) :     C     |
+3,7 (n) :  A  |
+3,8 (n) :     C     |
+3,9 (n) :  A  |
+
+
+***starting rendering table
+0,0:1,1 (s): 
+0,1:1,2 (s): Age
+0,2:1,3 (m): 
+0,3:1,4 (m): 
+0,4:1,5 (m): 
+0,5:1,6 (m): 
+0,6:1,7 (m): 
+0,7:1,8 (m): 
+0,8:1,9 (m): 
+1,0:2,1 (m): 
+1,1:2,2 (s): <5
+1,2:2,3 (m): 
+1,3:2,4 (s): 18-64
+1,4:2,5 (m): 
+1,5:2,6 (s): 65+
+1,6:2,7 (m): 
+1,7:2,8 (s): 
+1,8:2,9 (m): 
+2,0:3,1 (m): 
+2,1:3,2 (n): C
+2,2:3,3 (n): A
+2,3:3,4 (n): C
+2,4:3,5 (n): A
+2,5:3,6 (n): C
+2,6:3,7 (n): A
+2,7:3,8 (n): C
+2,8:3,9 (n): A
+--------------
+processing ../test-files/temp1.txt:...success
+output file: /Users/salah/Dropbox/code/go/src/github.com/drgo/rosewood/cmd/temp1.html
+inside runhtmlfiles result processing loop
+file name=/Users/salah/Dropbox/code/go/src/github.com/drgo/rosewood/cmd/temp1.html
+file size=2232
+inside DoRun() after returning from runhtmlfiles()
+file name=/Users/salah/Dropbox/code/go/src/github.com/drgo/rosewood/cmd/temp1.html
+file size=2232
+processed 1 file(s) in 4.92095ms

@@ -56,8 +56,8 @@ Estimated Schedule Effort 1.701942 months
 Estimated People Required 0.213597
 -------------------------------------------------------------------------------
 
-➜  core cd ../fileutils
-➜  fileutils git:(master) ✗ scc --wl=go    
+➜  core cd ../files
+➜  files git:(master) ✗ scc --wl=go    
 -------------------------------------------------------------------------------
 Language                 Files     Lines     Code  Comments   Blanks Complexity
 -------------------------------------------------------------------------------

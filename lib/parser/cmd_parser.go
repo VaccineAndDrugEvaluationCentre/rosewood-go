@@ -9,8 +9,9 @@ import (
 	"strings"
 	"text/scanner"
 
+	"github.com/drgo/core/errors"
 	"github.com/drgo/core/trace"
-	"github.com/drgo/errors"
+	"github.com/drgo/rosewood/lib/table"
 	"github.com/drgo/rosewood/lib/types"
 )
 
@@ -22,7 +23,7 @@ type CommandParser struct {
 	settings     *types.RosewoodSettings
 	position     Position
 	currentToken rune
-	tables       []*types.TableContents //list of all loaded tables
+	tables       []*table.TableContents //list of all loaded tables
 }
 
 //NewCommandParser initializes and returns a CommandParser
@@ -76,12 +77,12 @@ func (p *CommandParser) ParseCommandLines(s *types.Section) ([]*types.Command, e
 	var err error
 	for i, line := range s.Lines {
 		p.position.Line = i
-		p.trace.Printf("src[%d]: :%v->", i+s.Offset, line)
+		//TODO: remove p.trace or use everywhere?!
+		p.trace.Printf("src[%d]:%v->", i+s.Offset, line)
 		if !isCommandLine(line) {
 			p.trace.Println("skipped")
 			continue
 		}
-		p.trace.Println("to be parsed")
 		p.init(strings.NewReader(line))
 		errOffset := p.errors.Len()
 		cmdName, cmdToken := p.acceptCommandName()
@@ -96,7 +97,7 @@ func (p *CommandParser) ParseCommandLines(s *types.Section) ([]*types.Command, e
 			p.addSyntaxError(err.Error())
 			p.trace.Printf("parsing error: %s\n", err.Error())
 		}
-		p.trace.Printf("parsed: %v\n", cmd)
+		p.trace.Printf("parsed as: %v\n", cmd)
 		if p.errors.Len() > errOffset { //errors were detected during parsing; stop here
 			continue
 		}

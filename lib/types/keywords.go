@@ -31,6 +31,6 @@ func LookupKeyword(name string) (RwKeyWord, bool) {
 }
 
 //IsTableCommand returns true if the token describes a command that manipulates table contents or format
-func IsTableCommand(token RwKeyWord) bool {
-	return token > catTableCmdBegin && token < catTableCmdEnd
+func IsTableCommand(cmd *Command) bool {
+	return cmd.token > catTableCmdBegin && cmd.token < catTableCmdEnd
 }

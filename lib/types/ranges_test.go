@@ -20,9 +20,8 @@ func Test_genAllPossibleRangePoints(t *testing.T) {
 	}{
 		{"1:2:10", args{1, 10, 2}, []int{1, 3, 5, 7, 9}},
 		{"0:2:10", args{0, 10, 2}, []int{0, 2, 4, 6, 8, 10}},
-		{"1:11:10", args{1, 10, 11}, nil},
-		{"1:11:0", args{1, 11, 0}, nil},
-		{"1:11:11", args{1, 11, 11}, nil},
+		{"1:11:10", args{1, 10, 11}, []int{1}},
+		{"1:11:11", args{1, 11, 11}, []int{1}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
