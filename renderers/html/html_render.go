@@ -168,7 +168,7 @@ func (hr *htmlRenderer) OutputCell(c *table.Cell) error {
 	// if hr.settings.Debug == types.DebugAll {
 	// 	fmt.Printf("%s\n", c.DebugString()) //DEBUG
 	// }
-	if c.State() == table.CsMerged {
+	if c.State() == table.CsHMerged || c.State() == table.CsVMerged {
 		return nil
 	}
 	tag := "td"

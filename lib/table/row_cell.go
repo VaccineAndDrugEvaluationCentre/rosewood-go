@@ -47,12 +47,14 @@ const (
 	CsNormal CellState = iota
 	//CsSpanned cell included in a span
 	CsSpanned
-	//CsMerged cell is merged
-	CsMerged
+	//CsHMerged cell is part of a col merge eg merge col 1:3
+	CsHMerged
+	//CsVMerged cell is part of a row merge eg merge row 1:3
+	CsVMerged
 )
 
 // cellStateLabel: normal, spanned or merged
-var cellStateLabel = []string{"n", "s", "m"}
+var cellStateLabel = []string{"n", "s", "hm", "vm"}
 
 //Cell holds information on each table cell
 type Cell struct {

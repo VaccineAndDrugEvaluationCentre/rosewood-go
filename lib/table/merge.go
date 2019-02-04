@@ -13,14 +13,14 @@ func createMergedGridTable(src *TableContents, mrlist []types.Range) (*TableCont
 	if err := grid.ValidateRanges(mrlist); err != nil {
 		return nil, err
 	}
-	//fmt.Printf("%+v\n", grid.DebugString())
+
 	for _, mr := range mrlist {
-		//the topleft cell will hold the row/col span info so state = csSpanned. Error if it is previously merged or spanned
+		//the topleft cell will hold the row/col span info, so state = csSpanned. Error if it is previously merged or spanned
 		topleft := grid.CellorPanic(mr.TopLeft.Row, mr.TopLeft.Col)
 		if debug == types.DebugAll {
 			fmt.Printf("processing range: %+v\n", mr) //DEBUG
 		}
-		if topleft.state == CsMerged {
+		if topleft.state == CsHMerged || topleft.state == CsVMerged {
 			return nil, fmt.Errorf("invalid merge range [%s]: attempting to span a merged cell [%s]", mr.String(), topleft)
 		}
 		if topleft.state == CsSpanned {
@@ -29,6 +29,11 @@ func createMergedGridTable(src *TableContents, mrlist []types.Range) (*TableCont
 		topleft.state = CsSpanned
 		topleft.colSpan = mr.BottomRight.Col - mr.TopLeft.Col + 1
 		topleft.rowSpan = mr.BottomRight.Row - mr.TopLeft.Row + 1
+		// find out type of merge range: horinzontal or vertical
+		mergeType := CsHMerged
+		if topleft.rowSpan > 1 {
+			mergeType = CsVMerged
+		}
 		//hide the other cells in the merge range. Error if it is previously merged or spanned.
 		for r := mr.TopLeft.Row; r <= mr.BottomRight.Row; r++ {
 			for c := mr.TopLeft.Col; c <= mr.BottomRight.Col; c++ {
@@ -36,12 +41,14 @@ func createMergedGridTable(src *TableContents, mrlist []types.Range) (*TableCont
 				if cell == topleft {
 					continue //skip the spanned cell
 				}
+				// if the to-be-merged range includes a spanned cell return an error
 				if cell.state == CsSpanned {
 					return nil, fmt.Errorf("invalid merge range [%s]: it hides a spanned cell [%s]", mr.String(), cell)
 				}
-				cell.state = CsMerged
+				// cell is merged
+				cell.state = mergeType
 				if debug == types.DebugAll {
-					fmt.Printf("cell %d,%d status= merged\n", r, c) //DEBUG
+					fmt.Printf("cell %d,%d merged, vertically %t \n", r, c, mergeType == CsVMerged) //DEBUG
 				}
 			}
 		}
@@ -75,9 +82,9 @@ func copyRowContents(grid, src *TableContents, r int) error {
 	srcC := 1
 	for c := 1; c <= destRowLen; c++ {
 		destCell := grid.cell(r, c)
-		if destCell.State() == CsMerged {
+		if destCell.State() == CsHMerged {
 			if debug == types.DebugAll {
-				fmt.Printf("     skipped merged cell %d,%d\n", r, c) //DEBUG
+				fmt.Printf("     skipped horizontally merged cell %d,%d\n", r, c) //DEBUG
 			}
 			continue
 		}
