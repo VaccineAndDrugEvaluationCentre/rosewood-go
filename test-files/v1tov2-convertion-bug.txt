@@ -1,0 +1,16 @@
+---
+Number (%) of lab-confirmed influenza cases, test-negative controls and season characteristics by influenza season
+---
+       Influenza season       |        Cases       |      Controls      | Season severity^a^ | Dominant strain^b^ |Antigenic similarity between vaccine and circulating strains^b^|
+---
+2010/2011                     |     384 (30.0%)    |     894 (70.0%)    |      moderate      |        H3N2        |            similar           |
+2011/2012                     |     234 (21.0%)    |     882 (79.0%)    |         low        |          B         |           distinct           |
+2012/2013                     |     572 (30.6%)    |    1,297 (69.4%)   |      moderate      |        H3N2        |            similar           |
+2013/2014                     |     641 (28.7%)    |    1,594 (71.3%)   |      moderate      |        H1N1        |            similar           |
+2014/2015                     |    1,141 (40.2%)   |    1,697 (59.8%)   |        high        |        H3N2        |           distinct           |
+2015/2016                     |     936 (31.6%)    |    2,028 (68.4%)   |      moderate      |        H1N1        |            similar           |
+---
+^a^ Source: https://www.cdc.gov/flu/professionals/classifies-flu-severity.htm
+^b^ Source: https://www.gov.mb.ca/health/publichealth/surveillance/influenza/annual.html
+---
+---

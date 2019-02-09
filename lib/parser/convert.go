@@ -32,7 +32,7 @@ var RWSyntaxVdotzero2 = RWSyntax{
 	ColumnSeparator:  "|",
 }
 
-//ConvertToCurrentVersion utility to convert two current Rosewood version
+//ConvertToCurrentVersion converts to current Rosewood version and saves results to io.Writer
 func ConvertToCurrentVersion(settings *types.RosewoodSettings, oldSyntax RWSyntax, in io.Reader, out io.Writer) error {
 	newCode, err := ConvertVersion(settings, RWSyntaxVdotzero2, oldSyntax, in)
 	if err != nil {
@@ -46,16 +46,18 @@ func ConvertToCurrentVersion(settings *types.RosewoodSettings, oldSyntax RWSynta
 	return w.Flush()
 }
 
-//ConvertVersion utility to convert between two Rosewood versions
+//ConvertVersion convert between two Rosewood version
 func ConvertVersion(settings *types.RosewoodSettings, newSyntax RWSyntax, oldSyntax RWSyntax, in io.Reader) ([]string, error) {
 	newCode := make([]string, 0, 256)
+	lineNum, sectionNum := 0,0
+	headerStart, headerEnd, tableStart, tableEnd, footnoteStart, rulesStart := -1, -1, -1, -1, -1, -1
+	// utility for debugging
 	output := func(line string) {
 		newCode = append(newCode, line)
-		if settings.Debug == types.DebugAll {
-			fmt.Println(line)
+		if settings.Debug == types.DebugAll {			
+			fmt.Printf("%d:%s\n",lineNum, line)
 		}
 	}
-	var lineNum, sectionNum, headerStart, headerEnd, tableStart, tableEnd, footnoteStart, rulesStart int
 	scanner := bufio.NewScanner(in)
 	//process the first line
 	if !scanner.Scan() {
@@ -81,20 +83,20 @@ func ConvertVersion(settings *types.RosewoodSettings, newSyntax RWSyntax, oldSyn
 			sectionNum++
 			output(newSyntax.SectionSeparator)
 		case "merge", "plain", "indent":
-			if rulesStart == 0 {
+			if rulesStart == -1 {
 				rulesStart = lineNum
 			}
 			output(fixCommandRule(orgLine, firstToken))
 		default:
 			if strings.Contains(orgLine, oldSyntax.ColumnSeparator) { //found a table row
-				if tableStart == 0 {
+				if tableStart == -1 {
 					tableStart = lineNum //table section started
 					tableEnd = lineNum
 				} else {
 					tableEnd++
 				}
 			} else { //non-table text after a table has started; must be a footnote
-				if footnoteStart == 0 && tableStart > 0 {
+				if footnoteStart == -1 && tableEnd > 0 {
 					footnoteStart = lineNum
 				}
 			}
@@ -107,22 +109,15 @@ func ConvertVersion(settings *types.RosewoodSettings, newSyntax RWSyntax, oldSyn
 	//validate the table structure
 	switch {
 	case sectionNum > 6:
-		return nil, fmt.Errorf("too many section separator;multiple tables? not supported")
+		return nil, fmt.Errorf("too many section separators;multiple tables? not supported")
 	case len(newCode) == 0:
 		return nil, fmt.Errorf("empty file")
-	case tableStart == 0:
+	case tableStart == -1:
 		return nil, fmt.Errorf("file does contain a valid table section")
 	default:
 	}
-	if settings.Debug == types.DebugAll {
-		fmt.Printf("table had %d section separators, table starts on line %d and ends on line %d, header starts on line %d and ends on line %d, foototes section starts on line %d\n, rules section starts on line %d\n", sectionNum, tableStart, tableEnd, headerStart, headerEnd, footnoteStart, rulesStart)
-	}
-	//add comment to the beginning of the generated code
-	if rulesStart == 0 { //no rulese section,
-		rulesStart = len(newCode) // it should start where the last section separator is located in the output
-	}
-	newCode = str.InsertToStringSlice(newCode, rulesStart-1, fmt.Sprintf("//Automatically converted by Carpenter from version 0.1 on %s", time.Now().Format("2006-01-02 15:04:05")))
-	//now insert style header command, if a header was found, after the comment
+
+	//find a header so that we can convert it into a style header command later on
 	for i := tableStart; i <= tableEnd; i++ {
 		if strings.HasPrefix(newCode[i], newSyntax.SectionSeparator) {
 			headerEnd = i
@@ -132,17 +127,24 @@ func ConvertVersion(settings *types.RosewoodSettings, newSyntax RWSyntax, oldSyn
 		}
 	}
 	//if a footnote section is missing, create an empty one
-	if footnoteStart == 0 {
+	if footnoteStart == -1 {
 		newCode = str.InsertToStringSlice(newCode, tableEnd+1, newSyntax.SectionSeparator)
 	}
+
+	//add comment to the beginning of the generated code
+	if rulesStart == -1 { //no rulese section,
+		rulesStart = len(newCode) // it should start where the last section separator is located in the output
+	}
+	newCode = str.InsertToStringSlice(newCode, rulesStart-1, fmt.Sprintf("//Automatically converted by Carpenter from version 0.1 on %s", time.Now().Format("2006-01-02 15:04:05")))
+
 	//TODO: change "header" to strconv.Quote("header") to produce a quoted string for css class name
-	if headerStart > 0 {
-		newCode = str.InsertToStringSlice(newCode, rulesStart, fmt.Sprintf("style row %d:%d %s", headerStart, headerEnd, "header"))
+	if headerStart > -1 {
+		newCode = str.InsertToStringSlice(newCode, rulesStart, fmt.Sprintf("style row %d:%d %s", 1, headerEnd-headerStart+1, "header"))
 		//remove the header start section separator //TODO: refactor as RemovefromSlice
 		newCode = append(newCode[:headerEnd], newCode[headerEnd+1:]...)
 	}
 	if settings.Debug == types.DebugAll {
-		fmt.Printf("table had %d section separators, table starts on line %d and ends on line %d, header starts on line %d and ends on line %d, foototes section starts on line %d\n, rules section starts on line %d\n", sectionNum, tableStart, tableEnd, headerStart, headerEnd, footnoteStart, rulesStart)
+		fmt.Printf("File had %d section separators, table starts on line %d and ends on line %d, header starts on line %d and ends on line %d, footnotes section starts on line %d, rules section starts on line %d\n", sectionNum, tableStart, tableEnd, headerStart, headerEnd, footnoteStart, rulesStart)
 	}
 	return newCode, nil
 }
