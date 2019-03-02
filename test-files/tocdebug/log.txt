@@ -1,0 +1,1329 @@
+loading configuration file: /Users/salah/Dropbox/code/go/src/github.com/drgo/rosewood/test-files/tocdebug/carpenter.mdson
+parseNextLine() 1 : # Job
+: # Job {job 1}
+1 type=Block, lineNum=1, key=job 1
+
+after advance()-->line 1 type=Block, lineNum=1, key=job 1
+
+parseblock: parent root 0 current job 1
+parseNextLine() 2 : Debug :0
+after advance()-->line 2 type=KV Pair, lineNum=2, key=debug: 0
+inside parseBlock.ttkvpair: debug 0
+parseNextLine() 3 : RwFileNames List :
+3 type=List, lineNum=3, key=rwfilenames list
+after advance()-->line 3 type=List, lineNum=3, key=rwfilenames list
+parseNextLine() 4 : - paper4-table-ve-overall-flu.txt
+4 type=ListItem, lineNum=4, key= paper4-table-ve-overall-flu.txt
+parseNextLine() 5 : OverWriteOutputFile :true
+after advance()-->line 5 type=KV Pair, lineNum=5, key=overwriteoutputfile: true
+inside parseBlock.ttkvpair: overwriteoutputfile true
+parseNextLine() 6 : OutputFileName : test1.docx
+after advance()-->line 6 type=KV Pair, lineNum=6, key=outputfilename: test1.docx
+inside parseBlock.ttkvpair: outputfilename test1.docx
+parseNextLine() 7 : OutputFormat :
+after advance()-->line 7 type=KV Pair, lineNum=7, key=outputformat: 
+inside parseBlock.ttkvpair: outputformat 
+parseNextLine() 8 : PreserveWorkFiles :false
+after advance()-->line 8 type=KV Pair, lineNum=8, key=preserveworkfiles: false
+inside parseBlock.ttkvpair: preserveworkfiles false
+parseNextLine() 9 : SaveConvertedFile :false
+after advance()-->line 9 type=KV Pair, lineNum=9, key=saveconvertedfile: false
+inside parseBlock.ttkvpair: saveconvertedfile false
+parseNextLine() 10 : ## RosewoodSettings
+: ## RosewoodSettings {rosewoodsettings 2}
+10 type=Block, lineNum=10, key=rosewoodsettings 2
+
+after advance()-->line 10 type=Block, lineNum=10, key=rosewoodsettings 2
+
+parseblock: parent job 1 current rosewoodsettings 2
+parseNextLine() 11 : ConvertOldVersions :true
+after advance()-->line 11 type=KV Pair, lineNum=11, key=convertoldversions: true
+inside parseBlock.ttkvpair: convertoldversions true
+parseNextLine() 12 : ConvertFromVersion :
+after advance()-->line 12 type=KV Pair, lineNum=12, key=convertfromversion: 
+inside parseBlock.ttkvpair: convertfromversion 
+parseNextLine() 13 : Debug :3
+after advance()-->line 13 type=KV Pair, lineNum=13, key=debug: 3
+inside parseBlock.ttkvpair: debug 3
+parseNextLine() 14 : DoNotInlineCSS :false
+after advance()-->line 14 type=KV Pair, lineNum=14, key=donotinlinecss: false
+inside parseBlock.ttkvpair: donotinlinecss false
+parseNextLine() 15 : MaxConcurrentWorkers :24
+after advance()-->line 15 type=KV Pair, lineNum=15, key=maxconcurrentworkers: 24
+inside parseBlock.ttkvpair: maxconcurrentworkers 24
+parseNextLine() 16 : PreserveWorkFiles :false
+after advance()-->line 16 type=KV Pair, lineNum=16, key=preserveworkfiles: false
+inside parseBlock.ttkvpair: preserveworkfiles false
+parseNextLine() 17 : ReportAllError :false
+after advance()-->line 17 type=KV Pair, lineNum=17, key=reportallerror: false
+inside parseBlock.ttkvpair: reportallerror false
+parseNextLine() 18 : SaveConvertedFile :false
+after advance()-->line 18 type=KV Pair, lineNum=18, key=saveconvertedfile: false
+inside parseBlock.ttkvpair: saveconvertedfile false
+parseNextLine() 19 : StyleSheetName :
+after advance()-->line 19 type=KV Pair, lineNum=19, key=stylesheetname: 
+inside parseBlock.ttkvpair: stylesheetname 
+parseNextLine() 20 : TrimCellContents :false
+after advance()-->line 20 type=KV Pair, lineNum=20, key=trimcellcontents: false
+inside parseBlock.ttkvpair: trimcellcontents false
+parseNextLine() 21 : 
+21 type=Empty, lineNum=21, key=
+after advance()-->line 21 type=Empty, lineNum=21, key=
+parseNextLine() 22 : StyleSheetName :
+after advance()-->line 22 type=KV Pair, lineNum=22, key=stylesheetname: 
+inside parseBlock.ttkvpair: stylesheetname 
+parseNextLine() 23 : WorkDirName :
+after advance()-->line 23 type=KV Pair, lineNum=23, key=workdirname: 
+inside parseBlock.ttkvpair: workdirname 
+parseNextLine() 24 : 
+24 type=Empty, lineNum=24, key=
+after advance()-->line 24 type=Empty, lineNum=24, key=
+parseNextLine() 25 : ## Document
+: ## Document {document 2}
+25 type=Block, lineNum=25, key=document 2
+
+after advance()-->line 25 type=Block, lineNum=25, key=document 2
+
+parseblock: parent rosewoodsettings 2 current document 2
+parseNextLine() 26 : ID :
+after advance()-->line 26 type=KV Pair, lineNum=26, key=id: 
+inside parseBlock.ttkvpair: id 
+parseNextLine() 27 : TemplateFileName :
+after advance()-->line 27 type=KV Pair, lineNum=27, key=templatefilename: 
+inside parseBlock.ttkvpair: templatefilename 
+parseNextLine() 28 : InputDir :
+after advance()-->line 28 type=KV Pair, lineNum=28, key=inputdir: 
+inside parseBlock.ttkvpair: inputdir 
+parseNextLine() 29 : 
+29 type=Empty, lineNum=29, key=
+after advance()-->line 29 type=Empty, lineNum=29, key=
+parseNextLine() 30 : ### Sections List
+: ### Sections List {sections list 3}
+30 type=Block, lineNum=30, key=sections list 3
+
+after advance()-->line 30 type=Block, lineNum=30, key=sections list 3
+
+parseblock: parent document 2 current sections 3
+parseNextLine() 31 : #### Section1
+: #### Section1 {section1 4}
+31 type=Block, lineNum=31, key=section1 4
+
+after advance()-->line 31 type=Block, lineNum=31, key=section1 4
+
+parseblock: parent sections 3 current section1 4
+parseNextLine() 32 : ID :section1
+after advance()-->line 32 type=KV Pair, lineNum=32, key=id: section1
+inside parseBlock.ttkvpair: id section1
+parseNextLine() 33 : InputDir : text-output
+after advance()-->line 33 type=KV Pair, lineNum=33, key=inputdir: text-output
+inside parseBlock.ttkvpair: inputdir text-output
+parseNextLine() 34 : AddPageBreakAfterEachInputFile :true
+after advance()-->line 34 type=KV Pair, lineNum=34, key=addpagebreakaftereachinputfile: true
+inside parseBlock.ttkvpair: addpagebreakaftereachinputfile true
+parseNextLine() 35 : Contents :
+after advance()-->line 35 type=KV Pair, lineNum=35, key=contents: 
+inside parseBlock.ttkvpair: contents 
+type=LiteralString, lineNum=0, key=contents:  Hello ${word: TOC \\h \\z \\c \"Table\"}${include: paper4-table-ve-overall-flu.html}
+parseNextLine() 37 : ##### Props
+: ##### Props {props 5}
+37 type=Block, lineNum=37, key=props 5
+
+after advance()-->line 37 type=Block, lineNum=37, key=props 5
+
+parseblock: parent section1 4 current props 5
+parseNextLine() 38 : ###### Size
+: ###### Size {size 6}
+38 type=Block, lineNum=38, key=size 6
+
+after advance()-->line 38 type=Block, lineNum=38, key=size 6
+
+parseblock: parent props 5 current size 6
+parseNextLine() 39 : Width :12240
+after advance()-->line 39 type=KV Pair, lineNum=39, key=width: 12240
+inside parseBlock.ttkvpair: width 12240
+parseNextLine() 40 : Height :15840
+after advance()-->line 40 type=KV Pair, lineNum=40, key=height: 15840
+inside parseBlock.ttkvpair: height 15840
+parseNextLine() 41 : Orientation :portrait
+after advance()-->line 41 type=KV Pair, lineNum=41, key=orientation: portrait
+inside parseBlock.ttkvpair: orientation portrait
+parseNextLine() 42 : 
+42 type=Empty, lineNum=42, key=
+after advance()-->line 42 type=Empty, lineNum=42, key=
+parseNextLine() 43 : ###### Margins
+: ###### Margins {margins 6}
+43 type=Block, lineNum=43, key=margins 6
+
+after advance()-->line 43 type=Block, lineNum=43, key=margins 6
+
+parseblock: parent size 6 current margins 6
+parseNextLine() 44 : Top :1440
+after advance()-->line 44 type=KV Pair, lineNum=44, key=top: 1440
+inside parseBlock.ttkvpair: top 1440
+parseNextLine() 45 : Right :1440
+after advance()-->line 45 type=KV Pair, lineNum=45, key=right: 1440
+inside parseBlock.ttkvpair: right 1440
+parseNextLine() 46 : Bottom :1440
+after advance()-->line 46 type=KV Pair, lineNum=46, key=bottom: 1440
+inside parseBlock.ttkvpair: bottom 1440
+parseNextLine() 47 : Left :1440
+after advance()-->line 47 type=KV Pair, lineNum=47, key=left: 1440
+inside parseBlock.ttkvpair: left 1440
+parseNextLine() 48 : Header :360
+after advance()-->line 48 type=KV Pair, lineNum=48, key=header: 360
+inside parseBlock.ttkvpair: header 360
+parseNextLine() 49 : Footer :360
+after advance()-->line 49 type=KV Pair, lineNum=49, key=footer: 360
+inside parseBlock.ttkvpair: footer 360
+parseNextLine() 50 : Gutter :0
+after advance()-->line 50 type=KV Pair, lineNum=50, key=gutter: 0
+inside parseBlock.ttkvpair: gutter 0
+parseNextLine() 51 : 
+51 type=Empty, lineNum=51, key=
+after advance()-->line 51 type=Empty, lineNum=51, key=
+parseNextLine() 52 : 
+52 type=Empty, lineNum=52, key=
+after advance()-->line 52 type=Empty, lineNum=52, key=
+parseNextLine() 53 : ###### HeadersFooters List
+: ###### HeadersFooters List {headersfooters list 6}
+53 type=Block, lineNum=53, key=headersfooters list 6
+
+after advance()-->line 53 type=Block, lineNum=53, key=headersfooters list 6
+
+parseblock: parent margins 6 current headersfooters 6
+parseNextLine() 54 : ####### SectionHeaderFooter1
+: ####### SectionHeaderFooter1 {sectionheaderfooter1 7}
+54 type=Block, lineNum=54, key=sectionheaderfooter1 7
+
+after advance()-->line 54 type=Block, lineNum=54, key=sectionheaderfooter1 7
+
+parseblock: parent headersfooters 6 current sectionheaderfooter1 7
+parseNextLine() 55 : ID :header1
+after advance()-->line 55 type=KV Pair, lineNum=55, key=id: header1
+inside parseBlock.ttkvpair: id header1
+parseNextLine() 56 : HFType :default
+after advance()-->line 56 type=KV Pair, lineNum=56, key=hftype: default
+inside parseBlock.ttkvpair: hftype default
+parseNextLine() 57 : 
+57 type=Empty, lineNum=57, key=
+after advance()-->line 57 type=Empty, lineNum=57, key=
+parseNextLine() 58 : ####### SectionHeaderFooter2
+: ####### SectionHeaderFooter2 {sectionheaderfooter2 7}
+58 type=Block, lineNum=58, key=sectionheaderfooter2 7
+
+after advance()-->line 58 type=Block, lineNum=58, key=sectionheaderfooter2 7
+
+parseblock: parent sectionheaderfooter1 7 current sectionheaderfooter2 7
+parseNextLine() 59 : ID :footer1
+after advance()-->line 59 type=KV Pair, lineNum=59, key=id: footer1
+inside parseBlock.ttkvpair: id footer1
+parseNextLine() 60 : HFType :default
+after advance()-->line 60 type=KV Pair, lineNum=60, key=hftype: default
+inside parseBlock.ttkvpair: hftype default
+parseNextLine() 61 : 
+61 type=Empty, lineNum=61, key=
+after advance()-->line 61 type=Empty, lineNum=61, key=
+parseNextLine() 62 : 
+62 type=Empty, lineNum=62, key=
+after advance()-->line 62 type=Empty, lineNum=62, key=
+parseNextLine() 63 : 
+63 type=Empty, lineNum=63, key=
+after advance()-->line 63 type=Empty, lineNum=63, key=
+parseNextLine() 64 : 
+64 type=Empty, lineNum=64, key=
+after advance()-->line 64 type=Empty, lineNum=64, key=
+parseNextLine() 65 : ### HeadersFooters List
+: ### HeadersFooters List {headersfooters list 3}
+65 type=Block, lineNum=65, key=headersfooters list 3
+
+after advance()-->line 65 type=Block, lineNum=65, key=headersfooters list 3
+
+parseblock: parent sectionheaderfooter2 7 current headersfooters 3
+parseNextLine() 66 : #### Header1
+: #### Header1 {header1 4}
+66 type=Block, lineNum=66, key=header1 4
+
+after advance()-->line 66 type=Block, lineNum=66, key=header1 4
+
+parseblock: parent headersfooters 3 current header1 4
+parseNextLine() 67 : ID :header1
+after advance()-->line 67 type=KV Pair, lineNum=67, key=id: header1
+inside parseBlock.ttkvpair: id header1
+parseNextLine() 68 : InputDir :
+after advance()-->line 68 type=KV Pair, lineNum=68, key=inputdir: 
+inside parseBlock.ttkvpair: inputdir 
+parseNextLine() 69 : AddPageBreakAfterEachInputFile :false
+after advance()-->line 69 type=KV Pair, lineNum=69, key=addpagebreakaftereachinputfile: false
+inside parseBlock.ttkvpair: addpagebreakaftereachinputfile false
+parseNextLine() 70 : Contents :${htmldocx: timestamp}
+after advance()-->line 70 type=KV Pair, lineNum=70, key=contents: ${htmldocx: timestamp}
+inside parseBlock.ttkvpair: contents ${htmldocx: timestamp}
+parseNextLine() 71 : 
+71 type=Empty, lineNum=71, key=
+after advance()-->line 71 type=Empty, lineNum=71, key=
+parseNextLine() 72 : #### Footer1
+: #### Footer1 {footer1 4}
+72 type=Block, lineNum=72, key=footer1 4
+
+after advance()-->line 72 type=Block, lineNum=72, key=footer1 4
+
+parseblock: parent header1 4 current footer1 4
+parseNextLine() 73 : ID :footer1
+after advance()-->line 73 type=KV Pair, lineNum=73, key=id: footer1
+inside parseBlock.ttkvpair: id footer1
+parseNextLine() 74 : InputDir :
+after advance()-->line 74 type=KV Pair, lineNum=74, key=inputdir: 
+inside parseBlock.ttkvpair: inputdir 
+parseNextLine() 75 : AddPageBreakAfterEachInputFile :false
+after advance()-->line 75 type=KV Pair, lineNum=75, key=addpagebreakaftereachinputfile: false
+inside parseBlock.ttkvpair: addpagebreakaftereachinputfile false
+parseNextLine() 76 : Contents :${word: PAGE}
+after advance()-->line 76 type=KV Pair, lineNum=76, key=contents: ${word: page}
+inside parseBlock.ttkvpair: contents ${word: page}
+parseNextLine() 77 : 
+77 type=Empty, lineNum=77, key=
+after advance()-->line 77 type=Empty, lineNum=77, key=
+parseNextLine() 78 : 
+78 type=Empty, lineNum=78, key=
+after advance()-->line 78 type=Empty, lineNum=78, key=
+78 type=EOF, lineNum=78, key=
+after advance()-->line 78 type=EOF, lineNum=78, key=
+78 type=EOF, lineNum=78, key=
+after advance()-->line 78 type=EOF, lineNum=78, key=
+78 type=EOF, lineNum=78, key=
+after advance()-->line 78 type=EOF, lineNum=78, key=
+78 type=EOF, lineNum=78, key=
+after advance()-->line 78 type=EOF, lineNum=78, key=
+78 type=EOF, lineNum=78, key=
+after advance()-->line 78 type=EOF, lineNum=78, key=
+*********Decoding started
+block: job ,struct type: types.Job
+  element: KV Pair debug
+  element: List rwfilenames
+  list: rwfilenames []string el-type string n-items 1
+  item  0 = type=ListItem, lineNum=4, key= paper4-table-ve-overall-flu.txt
+  element: KV Pair overwriteoutputfile
+  element: KV Pair outputfilename
+  element: KV Pair outputformat
+  element: KV Pair preserveworkfiles
+  element: KV Pair saveconvertedfile
+  element: Block rosewoodsettings
+  block: rosewoodsettings ,struct type: types.RosewoodSettings
+    element: KV Pair convertoldversions
+    element: KV Pair convertfromversion
+    element: KV Pair debug
+    element: KV Pair donotinlinecss
+    element: KV Pair maxconcurrentworkers
+    element: KV Pair preserveworkfiles
+    element: KV Pair reportallerror
+    element: KV Pair saveconvertedfile
+    element: KV Pair stylesheetname
+    element: KV Pair trimcellcontents
+    element: KV Pair stylesheetname
+    element: KV Pair workdirname
+    warning: workdirname no suitable field in corresponding struct
+  element: Block document
+  warning: document no suitable field in corresponding struct
+***********decoding ended. Err=  <nil>
+decoded struct: {
+    "Command": "run",
+    "Debug": 0,
+    "ExecutableVersion": "",
+    "RwFileNames": [
+        "paper4-table-ve-overall-flu.txt"
+    ],
+    "OverWriteOutputFile": true,
+    "OutputFileName": "test1.docx",
+    "OutputFormat": "",
+    "PreserveWorkFiles": false,
+    "SaveConvertedFile": false,
+    "RosewoodSettings": {
+        "CheckSyntaxOnly": false,
+        "ColumnSeparator": "|",
+        "ConvertOldVersions": true,
+        "ConvertFromVersion": "",
+        "Debug": 3,
+        "DoNotInlineCSS": false,
+        "MandatoryCol": false,
+        "MaxConcurrentWorkers": 24,
+        "PreserveWorkFiles": false,
+        "RangeOperator": 58,
+        "ReportAllError": false,
+        "SaveConvertedFile": false,
+        "SectionCapacity": 100,
+        "SectionSeparator": "+++",
+        "SectionsPerTable": 4,
+        "StyleSheetName": "",
+        "TrimCellContents": false
+    },
+    "StyleSheetName": "",
+    "WorkDirName": "",
+    "HTMLFileNames": null,
+    "HTMLWorkDirName": "",
+    "ConfigFileName": ""
+}
+
+configuration loaded from /Users/salah/Dropbox/code/go/src/github.com/drgo/rosewood/test-files/tocdebug/carpenter.mdson
+Started on 2019-03-02 16:09:20.49186 -0600 CST m=+0.013568235
+current settings:
+{
+    "Command": "run",
+    "Debug": 0,
+    "ExecutableVersion": "",
+    "RwFileNames": [
+        "paper4-table-ve-overall-flu.txt"
+    ],
+    "OverWriteOutputFile": true,
+    "OutputFileName": "test1.docx",
+    "OutputFormat": "",
+    "PreserveWorkFiles": false,
+    "SaveConvertedFile": false,
+    "RosewoodSettings": {
+        "CheckSyntaxOnly": false,
+        "ColumnSeparator": "|",
+        "ConvertOldVersions": true,
+        "ConvertFromVersion": "",
+        "Debug": 3,
+        "DoNotInlineCSS": false,
+        "MandatoryCol": false,
+        "MaxConcurrentWorkers": 24,
+        "PreserveWorkFiles": false,
+        "RangeOperator": 58,
+        "ReportAllError": false,
+        "SaveConvertedFile": false,
+        "SectionCapacity": 100,
+        "SectionSeparator": "+++",
+        "SectionsPerTable": 4,
+        "StyleSheetName": "",
+        "TrimCellContents": false
+    },
+    "StyleSheetName": "",
+    "WorkDirName": "",
+    "HTMLFileNames": null,
+    "HTMLWorkDirName": "",
+    "ConfigFileName": ""
+}
+
+processing 1 file(s) in work dir=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932
+*** file parsing started
+first line is+++
+**** processing Caption section starts in line 1 and ends in line 2
+**** processing Body section starts in line 4 and ends in line 8
+**** processing FootNotes section starts in line 9 and ends in line 16
+**** processing Control section starts in line 17 and ends in line 28
+src[17]:style row 1 col 1 header->parsed as: style row 1:NA col 1:NA header
+src[18]:style row 1 col 2 header->parsed as: style row 1:NA col 2:NA header
+src[19]:style row 1 col 3 header->parsed as: style row 1:NA col 3:NA header
+src[20]:style row 1 col 4 header->parsed as: style row 1:NA col 4:NA header
+src[21]:style row 1 col 5 header->parsed as: style row 1:NA col 5:NA header
+src[22]:style row 1 col 6 header->parsed as: style row 1:NA col 6:NA header
+src[23]:style row 1 col 7 header->parsed as: style row 1:NA col 7:NA header
+src[24]:style row 1 col 8 header->parsed as: style row 1:NA col 8:NA header
+src[25]:style row 1 col 9 header->parsed as: style row 1:NA col 9:NA header
+src[26]:style row 1 col 10 header->parsed as: style row 1:NA col 10:NA header
+src[27]:style row 1 col 11 header->parsed as: style row 1:NA col 11:NA header
+***Parsing finished: 1 table(s) found
+****Contents of table 1
+caption: Crude and adjusted vaccine effectiveness (%, 95% confidence interval) of vaccine/statin group against lab-confirmed influenza, 2010/11 to 2015/16 seasons.
+footnotes: Model 1 - Adjusted for age and gender.
+Model 2 - Adjusted for Model 1, income quintile top 60%, healthcare utilization, vaccine-providing physicians per 10,000 population and relative local age distribution.
+Model 3 - Adjusted for Model 2, one or more chronic conditions and in long term care.
+Model 4 - Adjusted for Model 3 and season.
+Model 4+ - Also adjusted for previous season vaccination.
+Model 5 - Adjusted for Model 4 and specimen collection month.
+Model 5+ - Also adjusted for previous season vaccination.
+raw content: 
+1,1 (n) :Vaccine/statin group                                        |
+1,2 (n) :   Cases   |
+1,3 (n) : Controls  |
+1,4 (n) :             Crude             |
+1,5 (n) :            Model 1            |
+1,6 (n) :            Model 2            |
+1,7 (n) :            Model 3            |
+1,8 (n) :            Model 4            |
+1,9 (n) :           Model 4+            |
+1,10 (n) :            Model 5            |
+1,11 (n) :           Model 5+            |
+
+2,1 (n) :Unvaccinated                                                |
+2,2 (n) :   1,210   |
+2,3 (n) :   2,248   |
+2,4 (n) :             ref.              |
+2,5 (n) :             ref.              |
+2,6 (n) :             ref.              |
+2,7 (n) :             ref.              |
+2,8 (n) :             ref.              |
+2,9 (n) :             ref.              |
+2,10 (n) :             ref.              |
+2,11 (n) :             ref.              |
+
+3,1 (n) :Vaccinated and statin nonuser                               |
+3,2 (n) :    719    |
+3,3 (n) :   1,592   |
+3,4 (n) :           16 (6-25)           |
+3,5 (n) :          24 (14-33)           |
+3,6 (n) :          25 (15-34)           |
+3,7 (n) :          27 (17-36)           |
+3,8 (n) :          32 (22-40)           |
+3,9 (n) :          28 (16-37)           |
+3,10 (n) :          34 (24-42)           |
+3,11 (n) :          30 (19-39)           |
+
+4,1 (n) :Vaccinated and statin user                                  |
+4,2 (n) :    223    |
+4,3 (n) :    602    |
+4,4 (n) :          31 (19-42)           |
+4,5 (n) :          34 (21-44)           |
+4,6 (n) :          29 (15-40)           |
+4,7 (n) :          26 (11-38)           |
+4,8 (n) :          31 (17-43)           |
+4,9 (n) :          27 (11-40)           |
+4,10 (n) :          32 (17-43)           |
+4,11 (n) :          28 (12-41)           |
+
+
+
+List of ranges defined in script:
+Grid after merging:
+ 1,1 (n) : |
+1,2 (n) : |
+1,3 (n) : |
+1,4 (n) : |
+1,5 (n) : |
+1,6 (n) : |
+1,7 (n) : |
+1,8 (n) : |
+1,9 (n) : |
+1,10 (n) : |
+1,11 (n) : |
+
+2,1 (n) : |
+2,2 (n) : |
+2,3 (n) : |
+2,4 (n) : |
+2,5 (n) : |
+2,6 (n) : |
+2,7 (n) : |
+2,8 (n) : |
+2,9 (n) : |
+2,10 (n) : |
+2,11 (n) : |
+
+3,1 (n) : |
+3,2 (n) : |
+3,3 (n) : |
+3,4 (n) : |
+3,5 (n) : |
+3,6 (n) : |
+3,7 (n) : |
+3,8 (n) : |
+3,9 (n) : |
+3,10 (n) : |
+3,11 (n) : |
+
+4,1 (n) : |
+4,2 (n) : |
+4,3 (n) : |
+4,4 (n) : |
+4,5 (n) : |
+4,6 (n) : |
+4,7 (n) : |
+4,8 (n) : |
+4,9 (n) : |
+4,10 (n) : |
+4,11 (n) : |
+
+
+copying contents
+row 1:
+     copied cell 1,1 to cell 1,1
+     copied cell 1,2 to cell 1,2
+     copied cell 1,3 to cell 1,3
+     copied cell 1,4 to cell 1,4
+     copied cell 1,5 to cell 1,5
+     copied cell 1,6 to cell 1,6
+     copied cell 1,7 to cell 1,7
+     copied cell 1,8 to cell 1,8
+     copied cell 1,9 to cell 1,9
+     copied cell 1,10 to cell 1,10
+     copied cell 1,11 to cell 1,11
+row 2:
+     copied cell 2,1 to cell 2,1
+     copied cell 2,2 to cell 2,2
+     copied cell 2,3 to cell 2,3
+     copied cell 2,4 to cell 2,4
+     copied cell 2,5 to cell 2,5
+     copied cell 2,6 to cell 2,6
+     copied cell 2,7 to cell 2,7
+     copied cell 2,8 to cell 2,8
+     copied cell 2,9 to cell 2,9
+     copied cell 2,10 to cell 2,10
+     copied cell 2,11 to cell 2,11
+row 3:
+     copied cell 3,1 to cell 3,1
+     copied cell 3,2 to cell 3,2
+     copied cell 3,3 to cell 3,3
+     copied cell 3,4 to cell 3,4
+     copied cell 3,5 to cell 3,5
+     copied cell 3,6 to cell 3,6
+     copied cell 3,7 to cell 3,7
+     copied cell 3,8 to cell 3,8
+     copied cell 3,9 to cell 3,9
+     copied cell 3,10 to cell 3,10
+     copied cell 3,11 to cell 3,11
+row 4:
+     copied cell 4,1 to cell 4,1
+     copied cell 4,2 to cell 4,2
+     copied cell 4,3 to cell 4,3
+     copied cell 4,4 to cell 4,4
+     copied cell 4,5 to cell 4,5
+     copied cell 4,6 to cell 4,6
+     copied cell 4,7 to cell 4,7
+     copied cell 4,8 to cell 4,8
+     copied cell 4,9 to cell 4,9
+     copied cell 4,10 to cell 4,10
+     copied cell 4,11 to cell 4,11
+Grid after copying contents:
+ 1,1 (n) :Vaccine/statin group                                        |
+1,2 (n) :   Cases   |
+1,3 (n) : Controls  |
+1,4 (n) :             Crude             |
+1,5 (n) :            Model 1            |
+1,6 (n) :            Model 2            |
+1,7 (n) :            Model 3            |
+1,8 (n) :            Model 4            |
+1,9 (n) :           Model 4+            |
+1,10 (n) :            Model 5            |
+1,11 (n) :           Model 5+            |
+
+2,1 (n) :Unvaccinated                                                |
+2,2 (n) :   1,210   |
+2,3 (n) :   2,248   |
+2,4 (n) :             ref.              |
+2,5 (n) :             ref.              |
+2,6 (n) :             ref.              |
+2,7 (n) :             ref.              |
+2,8 (n) :             ref.              |
+2,9 (n) :             ref.              |
+2,10 (n) :             ref.              |
+2,11 (n) :             ref.              |
+
+3,1 (n) :Vaccinated and statin nonuser                               |
+3,2 (n) :    719    |
+3,3 (n) :   1,592   |
+3,4 (n) :           16 (6-25)           |
+3,5 (n) :          24 (14-33)           |
+3,6 (n) :          25 (15-34)           |
+3,7 (n) :          27 (17-36)           |
+3,8 (n) :          32 (22-40)           |
+3,9 (n) :          28 (16-37)           |
+3,10 (n) :          34 (24-42)           |
+3,11 (n) :          30 (19-39)           |
+
+4,1 (n) :Vaccinated and statin user                                  |
+4,2 (n) :    223    |
+4,3 (n) :    602    |
+4,4 (n) :          31 (19-42)           |
+4,5 (n) :          34 (21-44)           |
+4,6 (n) :          29 (15-40)           |
+4,7 (n) :          26 (11-38)           |
+4,8 (n) :          31 (17-43)           |
+4,9 (n) :          27 (11-40)           |
+4,10 (n) :          32 (17-43)           |
+4,11 (n) :          28 (12-41)           |
+
+
+****processed contents of table 1
+1,1 (n) :Vaccine/statin group                                        |
+1,2 (n) :   Cases   |
+1,3 (n) : Controls  |
+1,4 (n) :             Crude             |
+1,5 (n) :            Model 1            |
+1,6 (n) :            Model 2            |
+1,7 (n) :            Model 3            |
+1,8 (n) :            Model 4            |
+1,9 (n) :           Model 4+            |
+1,10 (n) :            Model 5            |
+1,11 (n) :           Model 5+            |
+
+2,1 (n) :Unvaccinated                                                |
+2,2 (n) :   1,210   |
+2,3 (n) :   2,248   |
+2,4 (n) :             ref.              |
+2,5 (n) :             ref.              |
+2,6 (n) :             ref.              |
+2,7 (n) :             ref.              |
+2,8 (n) :             ref.              |
+2,9 (n) :             ref.              |
+2,10 (n) :             ref.              |
+2,11 (n) :             ref.              |
+
+3,1 (n) :Vaccinated and statin nonuser                               |
+3,2 (n) :    719    |
+3,3 (n) :   1,592   |
+3,4 (n) :           16 (6-25)           |
+3,5 (n) :          24 (14-33)           |
+3,6 (n) :          25 (15-34)           |
+3,7 (n) :          27 (17-36)           |
+3,8 (n) :          32 (22-40)           |
+3,9 (n) :          28 (16-37)           |
+3,10 (n) :          34 (24-42)           |
+3,11 (n) :          30 (19-39)           |
+
+4,1 (n) :Vaccinated and statin user                                  |
+4,2 (n) :    223    |
+4,3 (n) :    602    |
+4,4 (n) :          31 (19-42)           |
+4,5 (n) :          34 (21-44)           |
+4,6 (n) :          29 (15-40)           |
+4,7 (n) :          26 (11-38)           |
+4,8 (n) :          31 (17-43)           |
+4,9 (n) :          27 (11-40)           |
+4,10 (n) :          32 (17-43)           |
+4,11 (n) :          28 (12-41)           |
+
+
+***starting rendering table
+0,0:1,1 (n): Vaccine/statin group
+0,1:1,2 (n): Cases
+0,2:1,3 (n): Controls
+0,3:1,4 (n): Crude
+0,4:1,5 (n): Model 1
+0,5:1,6 (n): Model 2
+0,6:1,7 (n): Model 3
+0,7:1,8 (n): Model 4
+0,8:1,9 (n): Model 4+
+0,9:1,10 (n): Model 5
+0,10:1,11 (n): Model 5+
+1,0:2,1 (n): Unvaccinated
+1,1:2,2 (n): 1,210
+1,2:2,3 (n): 2,248
+1,3:2,4 (n): ref.
+1,4:2,5 (n): ref.
+1,5:2,6 (n): ref.
+1,6:2,7 (n): ref.
+1,7:2,8 (n): ref.
+1,8:2,9 (n): ref.
+1,9:2,10 (n): ref.
+1,10:2,11 (n): ref.
+2,0:3,1 (n): Vaccinated and statin nonuser
+2,1:3,2 (n): 719
+2,2:3,3 (n): 1,592
+2,3:3,4 (n): 16 (6-25)
+2,4:3,5 (n): 24 (14-33)
+2,5:3,6 (n): 25 (15-34)
+2,6:3,7 (n): 27 (17-36)
+2,7:3,8 (n): 32 (22-40)
+2,8:3,9 (n): 28 (16-37)
+2,9:3,10 (n): 34 (24-42)
+2,10:3,11 (n): 30 (19-39)
+3,0:4,1 (n): Vaccinated and statin user
+3,1:4,2 (n): 223
+3,2:4,3 (n): 602
+3,3:4,4 (n): 31 (19-42)
+3,4:4,5 (n): 34 (21-44)
+3,5:4,6 (n): 29 (15-40)
+3,6:4,7 (n): 26 (11-38)
+3,7:4,8 (n): 31 (17-43)
+3,8:4,9 (n): 27 (11-40)
+3,9:4,10 (n): 32 (17-43)
+3,10:4,11 (n): 28 (12-41)
+--------------
+processing paper4-table-ve-overall-flu.txt:...success
+output file: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html
+inside runhtmlfiles result processing loop
+file name=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html
+file size=2624
+inside DoRun() after returning from runhtmlfiles()
+file name=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html
+file size=2624
+current configFileName 
+  encodeStruct: Job types.Job 1
+  Job fld : Debug 0x13bf800 1
+  Job fld : RwFileNames 0x13bf800 1
+  primitve type: true
+  Job fld : OverWriteOutputFile 0x13bf800 1
+  Job fld : OutputFileName 0x13bf800 1
+  Job fld : OutputFormat 0x13bf800 1
+  Job fld : PreserveWorkFiles 0x13bf800 1
+  Job fld : SaveConvertedFile 0x13bf800 1
+  Job fld : RosewoodSettings 0x13bf800 1
+    encodeStruct: RosewoodSettings types.RosewoodSettings 2
+    RosewoodSettings fld : ConvertOldVersions 0x13bf800 2
+    RosewoodSettings fld : ConvertFromVersion 0x13bf800 2
+    RosewoodSettings fld : Debug 0x13bf800 2
+    RosewoodSettings fld : DoNotInlineCSS 0x13bf800 2
+    RosewoodSettings fld : MaxConcurrentWorkers 0x13bf800 2
+    RosewoodSettings fld : PreserveWorkFiles 0x13bf800 2
+    RosewoodSettings fld : ReportAllError 0x13bf800 2
+    RosewoodSettings fld : SaveConvertedFile 0x13bf800 2
+    RosewoodSettings fld : StyleSheetName 0x13bf800 2
+    RosewoodSettings fld : TrimCellContents 0x13bf800 2
+  Job fld : StyleSheetName 0x13bf800 1
+  Job fld : WorkDirName 0x13bf800 1
+    encodeStruct: Document htmldocx.Document 2
+    Document fld : ID 0x13bf800 2
+    Document fld : TemplateFileName 0x13bf800 2
+    Document fld : InputDir 0x13bf800 2
+    Document fld : Sections 0x13bf800 2
+        encodeStruct: Section1 htmldocx.Section 4
+        Section1 fld : DocumentPart 0x13bf800 4
+        encodeStruct: DocumentPart htmldocx.DocumentPart 4
+        DocumentPart fld : ID 0x13bf800 4
+        DocumentPart fld : InputDir 0x13bf800 4
+        DocumentPart fld : AddPageBreakAfterEachInputFile 0x13bf800 4
+        DocumentPart fld : Contents 0x13bf800 4
+        Section1 fld : Props 0x13bf800 4
+          encodeStruct: Props htmldocx.SectionProps 5
+          Props fld : Size 0x13bf800 5
+            encodeStruct: Size htmldocx.PageSize 6
+            Size fld : Width 0x13bf800 6
+            Size fld : Height 0x13bf800 6
+            Size fld : Orientation 0x13bf800 6
+          Props fld : Margins 0x13bf800 5
+            encodeStruct: Margins htmldocx.PageMargins 6
+            Margins fld : Top 0x13bf800 6
+            Margins fld : Right 0x13bf800 6
+            Margins fld : Bottom 0x13bf800 6
+            Margins fld : Left 0x13bf800 6
+            Margins fld : Header 0x13bf800 6
+            Margins fld : Footer 0x13bf800 6
+            Margins fld : Gutter 0x13bf800 6
+          Props fld : HeadersFooters 0x13bf800 5
+              encodeStruct: SectionHeaderFooter1 htmldocx.SectionHeaderFooter 7
+              SectionHeaderFooter1 fld : ID 0x13bf800 7
+              SectionHeaderFooter1 fld : HFType 0x13bf800 7
+              encodeStruct: SectionHeaderFooter2 htmldocx.SectionHeaderFooter 7
+              SectionHeaderFooter2 fld : ID 0x13bf800 7
+              SectionHeaderFooter2 fld : HFType 0x13bf800 7
+    Document fld : HeadersFooters 0x13bf800 2
+        encodeStruct: Header1 htmldocx.HeaderFooter 4
+        Header1 fld : DocumentPart 0x13bf800 4
+        encodeStruct: DocumentPart htmldocx.DocumentPart 4
+        DocumentPart fld : ID 0x13bf800 4
+        DocumentPart fld : InputDir 0x13bf800 4
+        DocumentPart fld : AddPageBreakAfterEachInputFile 0x13bf800 4
+        DocumentPart fld : Contents 0x13bf800 4
+        encodeStruct: Footer1 htmldocx.HeaderFooter 4
+        Footer1 fld : DocumentPart 0x13bf800 4
+        encodeStruct: DocumentPart htmldocx.DocumentPart 4
+        DocumentPart fld : ID 0x13bf800 4
+        DocumentPart fld : InputDir 0x13bf800 4
+        DocumentPart fld : AddPageBreakAfterEachInputFile 0x13bf800 4
+        DocumentPart fld : Contents 0x13bf800 4
+created htmldocx config file /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp016450046
+inside MakeDocxFromMdsonFile: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp016450046
+parseNextLine() 1 : # Job
+: # Job {job 1}
+1 type=Block, lineNum=1, key=job 1
+
+after advance()-->line 1 type=Block, lineNum=1, key=job 1
+
+parseblock: parent root 0 current job 1
+parseNextLine() 2 : Debug :0
+after advance()-->line 2 type=KV Pair, lineNum=2, key=debug: 0
+inside parseBlock.ttkvpair: debug 0
+parseNextLine() 3 : RwFileNames List :
+3 type=List, lineNum=3, key=rwfilenames list
+after advance()-->line 3 type=List, lineNum=3, key=rwfilenames list
+parseNextLine() 4 : - paper4-table-ve-overall-flu.txt
+4 type=ListItem, lineNum=4, key= paper4-table-ve-overall-flu.txt
+parseNextLine() 5 : OverWriteOutputFile :true
+after advance()-->line 5 type=KV Pair, lineNum=5, key=overwriteoutputfile: true
+inside parseBlock.ttkvpair: overwriteoutputfile true
+parseNextLine() 6 : OutputFileName :test1.docx
+after advance()-->line 6 type=KV Pair, lineNum=6, key=outputfilename: test1.docx
+inside parseBlock.ttkvpair: outputfilename test1.docx
+parseNextLine() 7 : OutputFormat :docx
+after advance()-->line 7 type=KV Pair, lineNum=7, key=outputformat: docx
+inside parseBlock.ttkvpair: outputformat docx
+parseNextLine() 8 : PreserveWorkFiles :false
+after advance()-->line 8 type=KV Pair, lineNum=8, key=preserveworkfiles: false
+inside parseBlock.ttkvpair: preserveworkfiles false
+parseNextLine() 9 : SaveConvertedFile :false
+after advance()-->line 9 type=KV Pair, lineNum=9, key=saveconvertedfile: false
+inside parseBlock.ttkvpair: saveconvertedfile false
+parseNextLine() 10 : ## RosewoodSettings
+: ## RosewoodSettings {rosewoodsettings 2}
+10 type=Block, lineNum=10, key=rosewoodsettings 2
+
+after advance()-->line 10 type=Block, lineNum=10, key=rosewoodsettings 2
+
+parseblock: parent job 1 current rosewoodsettings 2
+parseNextLine() 11 : ConvertOldVersions :true
+after advance()-->line 11 type=KV Pair, lineNum=11, key=convertoldversions: true
+inside parseBlock.ttkvpair: convertoldversions true
+parseNextLine() 12 : ConvertFromVersion :
+after advance()-->line 12 type=KV Pair, lineNum=12, key=convertfromversion: 
+inside parseBlock.ttkvpair: convertfromversion 
+parseNextLine() 13 : Debug :3
+after advance()-->line 13 type=KV Pair, lineNum=13, key=debug: 3
+inside parseBlock.ttkvpair: debug 3
+parseNextLine() 14 : DoNotInlineCSS :false
+after advance()-->line 14 type=KV Pair, lineNum=14, key=donotinlinecss: false
+inside parseBlock.ttkvpair: donotinlinecss false
+parseNextLine() 15 : MaxConcurrentWorkers :24
+after advance()-->line 15 type=KV Pair, lineNum=15, key=maxconcurrentworkers: 24
+inside parseBlock.ttkvpair: maxconcurrentworkers 24
+parseNextLine() 16 : PreserveWorkFiles :false
+after advance()-->line 16 type=KV Pair, lineNum=16, key=preserveworkfiles: false
+inside parseBlock.ttkvpair: preserveworkfiles false
+parseNextLine() 17 : ReportAllError :false
+after advance()-->line 17 type=KV Pair, lineNum=17, key=reportallerror: false
+inside parseBlock.ttkvpair: reportallerror false
+parseNextLine() 18 : SaveConvertedFile :false
+after advance()-->line 18 type=KV Pair, lineNum=18, key=saveconvertedfile: false
+inside parseBlock.ttkvpair: saveconvertedfile false
+parseNextLine() 19 : StyleSheetName :
+after advance()-->line 19 type=KV Pair, lineNum=19, key=stylesheetname: 
+inside parseBlock.ttkvpair: stylesheetname 
+parseNextLine() 20 : TrimCellContents :false
+after advance()-->line 20 type=KV Pair, lineNum=20, key=trimcellcontents: false
+inside parseBlock.ttkvpair: trimcellcontents false
+parseNextLine() 21 : 
+21 type=Empty, lineNum=21, key=
+after advance()-->line 21 type=Empty, lineNum=21, key=
+parseNextLine() 22 : StyleSheetName :
+after advance()-->line 22 type=KV Pair, lineNum=22, key=stylesheetname: 
+inside parseBlock.ttkvpair: stylesheetname 
+parseNextLine() 23 : WorkDirName :/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932
+after advance()-->line 23 type=KV Pair, lineNum=23, key=workdirname: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101881021932
+inside parseBlock.ttkvpair: workdirname /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101881021932
+parseNextLine() 24 : 
+24 type=Empty, lineNum=24, key=
+after advance()-->line 24 type=Empty, lineNum=24, key=
+parseNextLine() 25 : ## Document
+: ## Document {document 2}
+25 type=Block, lineNum=25, key=document 2
+
+after advance()-->line 25 type=Block, lineNum=25, key=document 2
+
+parseblock: parent rosewoodsettings 2 current document 2
+parseNextLine() 26 : ID :
+after advance()-->line 26 type=KV Pair, lineNum=26, key=id: 
+inside parseBlock.ttkvpair: id 
+parseNextLine() 27 : TemplateFileName :
+after advance()-->line 27 type=KV Pair, lineNum=27, key=templatefilename: 
+inside parseBlock.ttkvpair: templatefilename 
+parseNextLine() 28 : InputDir :
+after advance()-->line 28 type=KV Pair, lineNum=28, key=inputdir: 
+inside parseBlock.ttkvpair: inputdir 
+parseNextLine() 29 : 
+29 type=Empty, lineNum=29, key=
+after advance()-->line 29 type=Empty, lineNum=29, key=
+parseNextLine() 30 : ### Sections List
+: ### Sections List {sections list 3}
+30 type=Block, lineNum=30, key=sections list 3
+
+after advance()-->line 30 type=Block, lineNum=30, key=sections list 3
+
+parseblock: parent document 2 current sections 3
+parseNextLine() 31 : #### Section1
+: #### Section1 {section1 4}
+31 type=Block, lineNum=31, key=section1 4
+
+after advance()-->line 31 type=Block, lineNum=31, key=section1 4
+
+parseblock: parent sections 3 current section1 4
+parseNextLine() 32 : ID :section1
+after advance()-->line 32 type=KV Pair, lineNum=32, key=id: section1
+inside parseBlock.ttkvpair: id section1
+parseNextLine() 33 : InputDir :/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932
+after advance()-->line 33 type=KV Pair, lineNum=33, key=inputdir: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101881021932
+inside parseBlock.ttkvpair: inputdir /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101881021932
+parseNextLine() 34 : AddPageBreakAfterEachInputFile :true
+after advance()-->line 34 type=KV Pair, lineNum=34, key=addpagebreakaftereachinputfile: true
+inside parseBlock.ttkvpair: addpagebreakaftereachinputfile true
+parseNextLine() 35 : Contents :
+after advance()-->line 35 type=KV Pair, lineNum=35, key=contents: 
+inside parseBlock.ttkvpair: contents 
+type=LiteralString, lineNum=0, key=contents: ${include: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html}
+parseNextLine() 37 : ##### Props
+: ##### Props {props 5}
+37 type=Block, lineNum=37, key=props 5
+
+after advance()-->line 37 type=Block, lineNum=37, key=props 5
+
+parseblock: parent section1 4 current props 5
+parseNextLine() 38 : ###### Size
+: ###### Size {size 6}
+38 type=Block, lineNum=38, key=size 6
+
+after advance()-->line 38 type=Block, lineNum=38, key=size 6
+
+parseblock: parent props 5 current size 6
+parseNextLine() 39 : Width :12240
+after advance()-->line 39 type=KV Pair, lineNum=39, key=width: 12240
+inside parseBlock.ttkvpair: width 12240
+parseNextLine() 40 : Height :15840
+after advance()-->line 40 type=KV Pair, lineNum=40, key=height: 15840
+inside parseBlock.ttkvpair: height 15840
+parseNextLine() 41 : Orientation :portrait
+after advance()-->line 41 type=KV Pair, lineNum=41, key=orientation: portrait
+inside parseBlock.ttkvpair: orientation portrait
+parseNextLine() 42 : 
+42 type=Empty, lineNum=42, key=
+after advance()-->line 42 type=Empty, lineNum=42, key=
+parseNextLine() 43 : ###### Margins
+: ###### Margins {margins 6}
+43 type=Block, lineNum=43, key=margins 6
+
+after advance()-->line 43 type=Block, lineNum=43, key=margins 6
+
+parseblock: parent size 6 current margins 6
+parseNextLine() 44 : Top :1440
+after advance()-->line 44 type=KV Pair, lineNum=44, key=top: 1440
+inside parseBlock.ttkvpair: top 1440
+parseNextLine() 45 : Right :1440
+after advance()-->line 45 type=KV Pair, lineNum=45, key=right: 1440
+inside parseBlock.ttkvpair: right 1440
+parseNextLine() 46 : Bottom :1440
+after advance()-->line 46 type=KV Pair, lineNum=46, key=bottom: 1440
+inside parseBlock.ttkvpair: bottom 1440
+parseNextLine() 47 : Left :1440
+after advance()-->line 47 type=KV Pair, lineNum=47, key=left: 1440
+inside parseBlock.ttkvpair: left 1440
+parseNextLine() 48 : Header :360
+after advance()-->line 48 type=KV Pair, lineNum=48, key=header: 360
+inside parseBlock.ttkvpair: header 360
+parseNextLine() 49 : Footer :360
+after advance()-->line 49 type=KV Pair, lineNum=49, key=footer: 360
+inside parseBlock.ttkvpair: footer 360
+parseNextLine() 50 : Gutter :0
+after advance()-->line 50 type=KV Pair, lineNum=50, key=gutter: 0
+inside parseBlock.ttkvpair: gutter 0
+parseNextLine() 51 : 
+51 type=Empty, lineNum=51, key=
+after advance()-->line 51 type=Empty, lineNum=51, key=
+parseNextLine() 52 : 
+52 type=Empty, lineNum=52, key=
+after advance()-->line 52 type=Empty, lineNum=52, key=
+parseNextLine() 53 : ###### HeadersFooters List
+: ###### HeadersFooters List {headersfooters list 6}
+53 type=Block, lineNum=53, key=headersfooters list 6
+
+after advance()-->line 53 type=Block, lineNum=53, key=headersfooters list 6
+
+parseblock: parent margins 6 current headersfooters 6
+parseNextLine() 54 : ####### SectionHeaderFooter1
+: ####### SectionHeaderFooter1 {sectionheaderfooter1 7}
+54 type=Block, lineNum=54, key=sectionheaderfooter1 7
+
+after advance()-->line 54 type=Block, lineNum=54, key=sectionheaderfooter1 7
+
+parseblock: parent headersfooters 6 current sectionheaderfooter1 7
+parseNextLine() 55 : ID :header1
+after advance()-->line 55 type=KV Pair, lineNum=55, key=id: header1
+inside parseBlock.ttkvpair: id header1
+parseNextLine() 56 : HFType :default
+after advance()-->line 56 type=KV Pair, lineNum=56, key=hftype: default
+inside parseBlock.ttkvpair: hftype default
+parseNextLine() 57 : 
+57 type=Empty, lineNum=57, key=
+after advance()-->line 57 type=Empty, lineNum=57, key=
+parseNextLine() 58 : ####### SectionHeaderFooter2
+: ####### SectionHeaderFooter2 {sectionheaderfooter2 7}
+58 type=Block, lineNum=58, key=sectionheaderfooter2 7
+
+after advance()-->line 58 type=Block, lineNum=58, key=sectionheaderfooter2 7
+
+parseblock: parent sectionheaderfooter1 7 current sectionheaderfooter2 7
+parseNextLine() 59 : ID :footer1
+after advance()-->line 59 type=KV Pair, lineNum=59, key=id: footer1
+inside parseBlock.ttkvpair: id footer1
+parseNextLine() 60 : HFType :default
+after advance()-->line 60 type=KV Pair, lineNum=60, key=hftype: default
+inside parseBlock.ttkvpair: hftype default
+parseNextLine() 61 : 
+61 type=Empty, lineNum=61, key=
+after advance()-->line 61 type=Empty, lineNum=61, key=
+parseNextLine() 62 : 
+62 type=Empty, lineNum=62, key=
+after advance()-->line 62 type=Empty, lineNum=62, key=
+parseNextLine() 63 : 
+63 type=Empty, lineNum=63, key=
+after advance()-->line 63 type=Empty, lineNum=63, key=
+parseNextLine() 64 : 
+64 type=Empty, lineNum=64, key=
+after advance()-->line 64 type=Empty, lineNum=64, key=
+parseNextLine() 65 : ### HeadersFooters List
+: ### HeadersFooters List {headersfooters list 3}
+65 type=Block, lineNum=65, key=headersfooters list 3
+
+after advance()-->line 65 type=Block, lineNum=65, key=headersfooters list 3
+
+parseblock: parent sectionheaderfooter2 7 current headersfooters 3
+parseNextLine() 66 : #### Header1
+: #### Header1 {header1 4}
+66 type=Block, lineNum=66, key=header1 4
+
+after advance()-->line 66 type=Block, lineNum=66, key=header1 4
+
+parseblock: parent headersfooters 3 current header1 4
+parseNextLine() 67 : ID :header1
+after advance()-->line 67 type=KV Pair, lineNum=67, key=id: header1
+inside parseBlock.ttkvpair: id header1
+parseNextLine() 68 : InputDir :
+after advance()-->line 68 type=KV Pair, lineNum=68, key=inputdir: 
+inside parseBlock.ttkvpair: inputdir 
+parseNextLine() 69 : AddPageBreakAfterEachInputFile :false
+after advance()-->line 69 type=KV Pair, lineNum=69, key=addpagebreakaftereachinputfile: false
+inside parseBlock.ttkvpair: addpagebreakaftereachinputfile false
+parseNextLine() 70 : Contents :${htmldocx: timestamp}
+after advance()-->line 70 type=KV Pair, lineNum=70, key=contents: ${htmldocx: timestamp}
+inside parseBlock.ttkvpair: contents ${htmldocx: timestamp}
+parseNextLine() 71 : 
+71 type=Empty, lineNum=71, key=
+after advance()-->line 71 type=Empty, lineNum=71, key=
+parseNextLine() 72 : #### Footer1
+: #### Footer1 {footer1 4}
+72 type=Block, lineNum=72, key=footer1 4
+
+after advance()-->line 72 type=Block, lineNum=72, key=footer1 4
+
+parseblock: parent header1 4 current footer1 4
+parseNextLine() 73 : ID :footer1
+after advance()-->line 73 type=KV Pair, lineNum=73, key=id: footer1
+inside parseBlock.ttkvpair: id footer1
+parseNextLine() 74 : InputDir :
+after advance()-->line 74 type=KV Pair, lineNum=74, key=inputdir: 
+inside parseBlock.ttkvpair: inputdir 
+parseNextLine() 75 : AddPageBreakAfterEachInputFile :false
+after advance()-->line 75 type=KV Pair, lineNum=75, key=addpagebreakaftereachinputfile: false
+inside parseBlock.ttkvpair: addpagebreakaftereachinputfile false
+parseNextLine() 76 : Contents :${word: PAGE}
+after advance()-->line 76 type=KV Pair, lineNum=76, key=contents: ${word: page}
+inside parseBlock.ttkvpair: contents ${word: page}
+parseNextLine() 77 : 
+77 type=Empty, lineNum=77, key=
+after advance()-->line 77 type=Empty, lineNum=77, key=
+parseNextLine() 78 : 
+78 type=Empty, lineNum=78, key=
+after advance()-->line 78 type=Empty, lineNum=78, key=
+78 type=EOF, lineNum=78, key=
+after advance()-->line 78 type=EOF, lineNum=78, key=
+78 type=EOF, lineNum=78, key=
+after advance()-->line 78 type=EOF, lineNum=78, key=
+78 type=EOF, lineNum=78, key=
+after advance()-->line 78 type=EOF, lineNum=78, key=
+78 type=EOF, lineNum=78, key=
+after advance()-->line 78 type=EOF, lineNum=78, key=
+78 type=EOF, lineNum=78, key=
+after advance()-->line 78 type=EOF, lineNum=78, key=
+*********Decoding started
+block: job ,struct type: htmldocx.Job
+  element: KV Pair debug
+  element: List rwfilenames
+  warning: rwfilenames no suitable field in corresponding struct
+  element: KV Pair overwriteoutputfile
+  element: KV Pair outputfilename
+  element: KV Pair outputformat
+  element: KV Pair preserveworkfiles
+  warning: preserveworkfiles no suitable field in corresponding struct
+  element: KV Pair saveconvertedfile
+  warning: saveconvertedfile no suitable field in corresponding struct
+  element: Block rosewoodsettings
+  warning: rosewoodsettings no suitable field in corresponding struct
+  element: Block document
+  block: document ,struct type: htmldocx.Document
+    found ID field. Set to document
+    element: KV Pair id
+    element: KV Pair templatefilename
+    element: KV Pair inputdir
+    element: Block sections
+    array: sections []*htmldocx.Section
+      block: section1 ,struct type: htmldocx.Section
+        found ID field. Set to section1
+        element: KV Pair id
+        element: KV Pair inputdir
+        element: KV Pair addpagebreakaftereachinputfile
+        element: LiteralString contents
+        element: Block props
+        block: props ,struct type: htmldocx.SectionProps
+          element: Block size
+          block: size ,struct type: htmldocx.PageSize
+            element: KV Pair width
+            element: KV Pair height
+            element: KV Pair orientation
+          element: Block margins
+          block: margins ,struct type: htmldocx.PageMargins
+            element: KV Pair top
+            element: KV Pair right
+            element: KV Pair bottom
+            element: KV Pair left
+            element: KV Pair header
+            element: KV Pair footer
+            element: KV Pair gutter
+          element: Block headersfooters
+          array: headersfooters []*htmldocx.SectionHeaderFooter
+            block: sectionheaderfooter1 ,struct type: htmldocx.SectionHeaderFooter
+              element: KV Pair id
+              element: KV Pair hftype
+            block: sectionheaderfooter2 ,struct type: htmldocx.SectionHeaderFooter
+              element: KV Pair id
+              element: KV Pair hftype
+    element: Block headersfooters
+    array: headersfooters []*htmldocx.HeaderFooter
+      block: header1 ,struct type: htmldocx.HeaderFooter
+        found ID field. Set to header1
+        element: KV Pair id
+        element: KV Pair inputdir
+        element: KV Pair addpagebreakaftereachinputfile
+        element: KV Pair contents
+      block: footer1 ,struct type: htmldocx.HeaderFooter
+        found ID field. Set to footer1
+        element: KV Pair id
+        element: KV Pair inputdir
+        element: KV Pair addpagebreakaftereachinputfile
+        element: KV Pair contents
+***********decoding ended. Err=  <nil>
+decoded struct: {
+    "FileName": "",
+    "Command": "run",
+    "Debug": 0,
+    "ExecutableVersion": "",
+    "InputFileNames": null,
+    "OverWriteOutputFile": true,
+    "OutputFileName": "test1.docx",
+    "OutputFormat": "docx",
+    "WorkDirName": "",
+    "Document": {
+        "ID": "document",
+        "TemplateFileName": "",
+        "InputDir": "",
+        "Sections": [
+            {
+                "ID": "section1",
+                "InputDir": "/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101881021932",
+                "AddPageBreakAfterEachInputFile": true,
+                "Contents": "${include: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html}",
+                "Props": {
+                    "Size": {
+                        "Width": "12240",
+                        "Height": "15840",
+                        "Orientation": "portrait"
+                    },
+                    "Margins": {
+                        "Top": "1440",
+                        "Right": "1440",
+                        "Bottom": "1440",
+                        "Left": "1440",
+                        "Header": "360",
+                        "Footer": "360",
+                        "Gutter": "0"
+                    },
+                    "HeadersFooters": [
+                        {
+                            "ID": "header1",
+                            "type": "default"
+                        },
+                        {
+                            "ID": "footer1",
+                            "type": "default"
+                        }
+                    ]
+                }
+            }
+        ],
+        "HeadersFooters": [
+            {
+                "ID": "header1",
+                "InputDir": "",
+                "AddPageBreakAfterEachInputFile": false,
+                "Contents": "${htmldocx: timestamp}"
+            },
+            {
+                "ID": "footer1",
+                "InputDir": "",
+                "AddPageBreakAfterEachInputFile": false,
+                "Contents": "${word: page}"
+            }
+        ]
+    },
+    "RunOptions": {
+        "Debug": 3,
+        "JobFileName": "",
+        "DefaultConfigFileName": "htmldocx.mdson",
+        "ExecutableVersion": "",
+        "LibVersion": ""
+    }
+}
+
+unmarshalled {
+    "FileName": "",
+    "Command": "run",
+    "Debug": 0,
+    "ExecutableVersion": "",
+    "InputFileNames": null,
+    "OverWriteOutputFile": true,
+    "OutputFileName": "test1.docx",
+    "OutputFormat": "docx",
+    "WorkDirName": "",
+    "Document": {
+        "ID": "document",
+        "TemplateFileName": "",
+        "InputDir": "",
+        "Sections": [
+            {
+                "ID": "section1",
+                "InputDir": "/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101881021932",
+                "AddPageBreakAfterEachInputFile": true,
+                "Contents": "${include: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html}",
+                "Props": {
+                    "Size": {
+                        "Width": "12240",
+                        "Height": "15840",
+                        "Orientation": "portrait"
+                    },
+                    "Margins": {
+                        "Top": "1440",
+                        "Right": "1440",
+                        "Bottom": "1440",
+                        "Left": "1440",
+                        "Header": "360",
+                        "Footer": "360",
+                        "Gutter": "0"
+                    },
+                    "HeadersFooters": [
+                        {
+                            "ID": "header1",
+                            "type": "default"
+                        },
+                        {
+                            "ID": "footer1",
+                            "type": "default"
+                        }
+                    ]
+                }
+            }
+        ],
+        "HeadersFooters": [
+            {
+                "ID": "header1",
+                "InputDir": "",
+                "AddPageBreakAfterEachInputFile": false,
+                "Contents": "${htmldocx: timestamp}"
+            },
+            {
+                "ID": "footer1",
+                "InputDir": "",
+                "AddPageBreakAfterEachInputFile": false,
+                "Contents": "${word: page}"
+            }
+        ]
+    },
+    "RunOptions": {
+        "Debug": 3,
+        "JobFileName": "",
+        "DefaultConfigFileName": "htmldocx.mdson",
+        "ExecutableVersion": "",
+        "LibVersion": ""
+    }
+}
+
+htmldocx.Convert() started
+full path: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101881021932 --> /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html
+inside validateSectionProps: # headerfooters: 2
+htmldocx: converted html files to docx file named:  test1.docx
+saved to docx test1.docx
+processed 1 file(s) in 81.133905ms

@@ -1,0 +1,28 @@
++++
+Crude and adjusted vaccine effectiveness (%, 95% confidence interval) of vaccine/statin group against lab-confirmed influenza, 2010/11 to 2015/16 seasons.
++++
+Vaccine/statin group                                       |   Cases  | Controls |             Crude            |            Model 1           |            Model 2           |            Model 3           |            Model 4           |           Model 4+           |            Model 5           |           Model 5+           |
+Unvaccinated                                               |   1,210  |   2,248  |             ref.             |             ref.             |             ref.             |             ref.             |             ref.             |             ref.             |             ref.             |             ref.             |
+Vaccinated and statin nonuser                              |    719   |   1,592  |           16 (6-25)          |          24 (14-33)          |          25 (15-34)          |          27 (17-36)          |          32 (22-40)          |          28 (16-37)          |          34 (24-42)          |          30 (19-39)          |
+Vaccinated and statin user                                 |    223   |    602   |          31 (19-42)          |          34 (21-44)          |          29 (15-40)          |          26 (11-38)          |          31 (17-43)          |          27 (11-40)          |          32 (17-43)          |          28 (12-41)          |
++++
+Model 1 - Adjusted for age and gender.
+Model 2 - Adjusted for Model 1, income quintile top 60%, healthcare utilization, vaccine-providing physicians per 10,000 population and relative local age distribution.
+Model 3 - Adjusted for Model 2, one or more chronic conditions and in long term care.
+Model 4 - Adjusted for Model 3 and season.
+Model 4+ - Also adjusted for previous season vaccination.
+Model 5 - Adjusted for Model 4 and specimen collection month.
+Model 5+ - Also adjusted for previous season vaccination.
++++
+style row 1 col 1 header
+style row 1 col 2 header
+style row 1 col 3 header
+style row 1 col 4 header
+style row 1 col 5 header
+style row 1 col 6 header
+style row 1 col 7 header
+style row 1 col 8 header
+style row 1 col 9 header
+style row 1 col 10 header
+style row 1 col 11 header
++++

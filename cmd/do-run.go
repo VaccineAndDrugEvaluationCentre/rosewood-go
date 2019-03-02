@@ -15,53 +15,39 @@ import (
 
 //DoRun is the main work-horse function;
 //WARNING: not thread safe
-func DoRun(job *rosewood.Job) error {
-	var (
-		err   error
-		start time.Time
-	)
-	//if no input files: check if the input is coming from stdin
+func DoRun(job *rosewood.Job) (err error) {
+	//if no input files: return an error
 	if len(job.RwFileNames) == 0 {
-		if info, _ := os.Stdin.Stat(); info.Size() == 0 {
-			return fmt.Errorf(ErrMissingInFile)
-		}
-		job.RwFileNames = append(job.RwFileNames, "") //empty argument signals stdin
+		return fmt.Errorf(ErrMissingInFile)
 	}
+	// prepare to preserve temp files if requested
 	if !job.RosewoodSettings.CheckSyntaxOnly {
 		if job.OutputFormat, err = GetValidFormat(job); err != nil {
 			return err
 		}
 		job.WorkDirName = strings.TrimSpace(job.WorkDirName)
-		//fmt.Printf("job.WorkDirName =%v \n", job.WorkDirName)
 		job.PreserveWorkFiles = job.OutputFormat == "html" || job.WorkDirName != "" || (job.OutputFormat == "docx" && job.RosewoodSettings.PreserveWorkFiles)
-		//fmt.Printf("job.PreserveWorkFiles=%v, %v, %v \n", job.OutputFormat == "html", job.WorkDirName != "", (job.OutputFormat == "docx" && job.RosewoodSettings.PreserveWorkFiles))
 		if job.WorkDirName, err = GetOutputBaseDir(job.WorkDirName, job.PreserveWorkFiles); err != nil {
 			return err
 		}
-		//Dangerous: could remove an entire folder if there is a bug somewhere
 		if !job.PreserveWorkFiles && strings.Contains(job.WorkDirName, "rw-temp101") { //baseDir is temp, schedule removing it but only if we created it
+			//Dangerous: could remove an entire folder if there is a bug somewhere
 			defer os.RemoveAll(job.WorkDirName)
 		}
 	}
 
-	if job.RosewoodSettings.Debug >= rosewood.DebugUpdates {
-		fmt.Printf("processing %d file(s) in work dir=%s\n", len(job.RwFileNames), job.WorkDirName)
-		start = time.Now()
-	}
+	ux.Info("processing ", len(job.RwFileNames), "file(s) in work dir=", job.WorkDirName)
+	start := time.Now()
 
 	processedFiles, err := runHTMLFiles(job)
 	if err != nil {
 		return err
 	}
 	if len(processedFiles) == 0 {
-		panic("unexpected failure in DoRun(): len(processedFiles) == 0")
+		return fmt.Errorf("unexpected failure in DoRun(): len(processedFiles) == 0")
 	}
-	if job.RosewoodSettings.Debug >= rosewood.DebugAll {
-		fmt.Println("inside DoRun() after returning from runhtmlfiles()")
-		if err = files.PrintFileStat(processedFiles[0]); err != nil {
-			fmt.Printf("inside DoRun() failed to print stats of: %v\n", err)
-		}
-	}
+	ux.Log("inside DoRun() after returning from runhtmlfiles()")
+
 	if !job.RosewoodSettings.CheckSyntaxOnly {
 		switch {
 		case job.OutputFormat == "docx":
@@ -73,33 +59,32 @@ func DoRun(job *rosewood.Job) error {
 			return fmt.Errorf("unsupported format: %s", job.OutputFormat) //should not happen
 		}
 	}
-	if job.RosewoodSettings.Debug >= rosewood.DebugUpdates {
-		fmt.Printf("processed %d file(s) in %s\n", len(job.RwFileNames), time.Since(start).String())
-	}
-	if job.ConfigFileName != "" {
-		configFilename, err := DoInit(job)
-		if job.RosewoodSettings.Debug >= rosewood.DebugAll {
-			fmt.Println("SaveConfigFile:", configFilename, err)
-		}
-		if err == nil && job.RosewoodSettings.Debug >= rosewood.DebugUpdates {
-			fmt.Printf("configuration saved as '%s'\n", configFilename)
-		}
-	}
+	ux.Info("processed ", len(job.RwFileNames), " file(s) in ", time.Since(start).String())
+	// FIXME: enable code but allow for not saving config file automatically
+	// if job.ConfigFileName != "" {
+	// 	configFilename, err := DoInit(job)
+	// 	if err == nil {
+	// 		ux.Info("configuration saved as '%s'\n", configFilename)
+	// 	}
+	// }
 	return err
 }
 
 //basedir always points to a valid dir to save output files
 func runHTMLFiles(job *rosewood.Job) ([]string, error) {
 	report := func(result result) {
+		if job.RosewoodSettings.Debug < rosewood.DebugUpdates {
+			return
+		}
 		fmt.Printf("--------------\nprocessing %s:", result.task.inputFileName)
-		if result.error != nil {
-			fmt.Printf("\nErrors: %v\n", result.error)
-		} else {
+		if result.error == nil {
 			fmt.Printf("...success\n")
 			if !job.RosewoodSettings.CheckSyntaxOnly {
 				fmt.Printf("output file: %s\n", result.task.outputFileName)
 			}
+			return
 		}
+		fmt.Println("")
 	}
 	//channel to communicate with; passing result instead of &result because it is small (2 pointers) and to avoid
 	//additional memory allocations since &result escapes to the heap and requires GC action
@@ -124,7 +109,6 @@ func runHTMLFiles(job *rosewood.Job) ([]string, error) {
 			default:
 				panic("unexpected branch in runHTMLFiles()") //should not happen
 			}
-			//fmt.Printf("Task: %+v\n", task)
 			tokens.Reserve(1)           //reserve a worker
 			go htmlRunner(*task, resCh) //launch a runSingle worker for each task
 		}
@@ -132,22 +116,10 @@ func runHTMLFiles(job *rosewood.Job) ([]string, error) {
 	var err error
 	var processedFiles []string
 	for i := 0; i < len(job.RwFileNames); i++ { //wait for workers to return one by one
-		//fmt.Println("inside for loop")
 		res := <-resCh
-		//fmt.Printf("%+v", res)
 		tokens.Free(1) //release a reserved worker
-		if job.RosewoodSettings.Debug >= rosewood.DebugUpdates || res.error != nil {
-			report(res)
-		}
-		if res.error == nil {
-			if job.RosewoodSettings.Debug >= rosewood.DebugAll {
-				fmt.Println("inside runhtmlfiles result processing loop")
-				if err = files.PrintFileStat(res.task.outputFileName); err != nil {
-					fmt.Printf("inside runhtmlfiles failed to print stats of: %v\n", err)
-				}
-			}
-			processedFiles = append(processedFiles, res.task.outputFileName)
-		}
+		report(res)
+		processedFiles = append(processedFiles, res.task.outputFileName)
 		if err == nil { //capture the first error
 			err = res.error
 		}
@@ -184,9 +156,6 @@ func htmlRunner(task task, resChan chan result) {
 	ri := rosewood.NewInterpreter(task.settings).SetScriptIdentifer(task.inputFileName)
 	if err = runFile(ri, in, out); err == nil && !task.settings.CheckSyntaxOnly {
 		err = files.CloseAndRename(out, task.outputFileName, task.OverWriteOutputFile)
-		// if err = files.PrintFileStat(task.outputFileName); err != nil {
-		// 	fmt.Printf("failed to print stats of: %v\n", err)
-		// }
 	}
 	resChan <- task.getResult(err)
 }
@@ -207,23 +176,19 @@ func runFile(ri *rosewood.Interpreter, in io.ReadSeeker, out io.Writer) error {
 func outputAsDocx(processedFiles []string, job *rosewood.Job) error {
 	var err error
 	configFileName := job.ConfigFileName
-	fmt.Println("current configFileName", configFileName)
+	ux.Log("current configFileName", configFileName)
 	job.HTMLFileNames = processedFiles
 	if configFileName == "" { //from commandline, create temp config file
 		if configFileName, err = genConfigFile(job, ""); err != nil {
 			return err
 		}
-		if job.RosewoodSettings.Debug >= rosewood.DebugUpdates {
-			fmt.Printf("created htmldocx config file %s\n", configFileName)
-		}
+		ux.Log("created htmldocx config file ", configFileName)
 		defer os.Remove(configFileName)
 	}
 	docxOpts := htmldocx.DefaultOptions().SetDebug(job.RosewoodSettings.Debug)
 	if err := htmldocx.MakeDocxFromMdsonFile(configFileName, docxOpts); err != nil {
 		return err
 	}
-	if job.RosewoodSettings.Debug >= rosewood.DebugUpdates {
-		fmt.Printf("saved to docx %s\n", job.OutputFileName)
-	}
+	ux.Log("saved to docx", job.OutputFileName)
 	return nil
 }

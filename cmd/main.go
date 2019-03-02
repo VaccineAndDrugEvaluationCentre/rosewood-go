@@ -69,8 +69,8 @@ func RunApp() error {
 //WARNING: not thread-safe; this is the only function allowed to change the job configuration
 func RunJob(job *rosewood.Job) error {
 	var err error
-	ux.Log("Started on %s\n", time.Now())
-	ux.Log("current settings:\n%s\n", job)
+	ux.Log("Started on ", time.Now())
+	ux.Log("current settings:", job)
 	switch job.Command {
 	case "do":
 		if len(job.RwFileNames) == 0 {
@@ -119,7 +119,7 @@ func LoadConfigFromFile(configFileName string) (job *rosewood.Job, err error) {
 	if configFileName, err = files.GetFullPath(ConfigFileBaseName); err != nil {
 		return nil, err
 	}
-	ux.Log("loading configuration file: %s\n", configFileName)
+	ux.Log("loading configuration file: ", configFileName)
 	job = rosewood.DefaultJob(rosewood.DefaultSettings())
 	if err = job.LoadFromMDSonFile(configFileName); err != nil {
 		return nil, fmt.Errorf("failed to parse configuration file %s: %v", configFileName, err)
