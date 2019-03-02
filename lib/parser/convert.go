@@ -49,13 +49,13 @@ func ConvertToCurrentVersion(settings *types.RosewoodSettings, oldSyntax RWSynta
 //ConvertVersion convert between two Rosewood version
 func ConvertVersion(settings *types.RosewoodSettings, newSyntax RWSyntax, oldSyntax RWSyntax, in io.Reader) ([]string, error) {
 	newCode := make([]string, 0, 256)
-	lineNum, sectionNum := 0,0
+	lineNum, sectionNum := 0, 0
 	headerStart, headerEnd, tableStart, tableEnd, footnoteStart, rulesStart := -1, -1, -1, -1, -1, -1
 	// utility for debugging
 	output := func(line string) {
 		newCode = append(newCode, line)
-		if settings.Debug == types.DebugAll {			
-			fmt.Printf("%d:%s\n",lineNum, line)
+		if settings.Debug == types.DebugAll {
+			fmt.Printf("%d:%s\n", lineNum, line)
 		}
 	}
 	scanner := bufio.NewScanner(in)

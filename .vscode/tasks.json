@@ -10,20 +10,21 @@
             "problemMatcher": [
                 "$go"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
+            "group": "build"
         },
         {
             "taskName": "browse",
             "command": "Chrome",
-             "osx": {
+            "osx": {
                 "command": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-             },
+            },
             "args": [
                 "${file}"
-            ]
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }

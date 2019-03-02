@@ -12,6 +12,7 @@ import (
 
 	"github.com/drgo/core/args"
 	"github.com/drgo/core/files"
+	"github.com/drgo/core/ui"
 	rosewood "github.com/drgo/rosewood/lib"
 	_ "github.com/drgo/rosewood/renderers/html" //include needed renderers
 )
@@ -34,35 +35,52 @@ const (
 // add support for processing subfolder if arg==./..
 // add command run to run an external rw file on the table; useful for formatting many similar tables
 
+var (
+	exeName string
+	ux      ui.UI
+)
+
 func main() {
+	exeName = os.Args[0]
 	if err := RunApp(); err != nil {
 		crash(err)
 	}
 }
 
-//RunApp has all program logic; entry point for all tests
-//WARNING: not thread-safe; this is the only function allowed to change the job configuration
+//RunApp entry point for all tests
 func RunApp() error {
+	var (
+		job *rosewood.Job
+		err error
+	)
 	if len(os.Args) == 1 { //no command line arguments
-		return DoFromConfigFile("")
+		job, err = LoadConfigFromFile("")
+	} else {
+		job, err = LoadConfigFromCommandLine()
 	}
-	exeName := os.Args[0]
-	job, err := LoadConfigFromCommandLine()
 	if err != nil {
 		return err
 	}
-	if job.RosewoodSettings.Debug == rosewood.DebugAll {
-		fmt.Printf("Started on %s\n", time.Now())
-		fmt.Printf("current settings:\n%s\n", job)
-	}
-	switch job.Command { //TODO: check command is case insensitive
+	ux = ui.NewUI(job.RosewoodSettings.Debug)
+	return RunJob(job)
+}
+
+//RunJob the workforce
+//WARNING: not thread-safe; this is the only function allowed to change the job configuration
+func RunJob(job *rosewood.Job) error {
+	var err error
+	ux.Log("Started on %s\n", time.Now())
+	ux.Log("current settings:\n%s\n", job)
+	switch job.Command {
 	case "do":
 		if len(job.RwFileNames) == 0 {
 			return fmt.Errorf("must specify an MDSon configuration file")
 		}
-		if err = DoFromConfigFile(job.RwFileNames[0]); err != nil {
+		job, err = LoadConfigFromFile(job.RwFileNames[0])
+		if err != nil {
 			return err
 		}
+		return RunJob(job)
 	case "check":
 		job.RosewoodSettings.CheckSyntaxOnly = true
 		fallthrough
@@ -93,27 +111,21 @@ func RunApp() error {
 	return err
 }
 
-//DoFromConfigFile runs a job using a config file (not command line options)
-func DoFromConfigFile(configFileName string) error {
-	var err error
+//LoadConfigFromFile loads a job from a config file
+func LoadConfigFromFile(configFileName string) (job *rosewood.Job, err error) {
 	if configFileName == "" {
-		if configFileName, err = files.GetFullPath(ConfigFileBaseName); err != nil {
-			return err
-		}
+		configFileName = ConfigFileBaseName
 	}
-	//load configuration from config file
-	job := rosewood.DefaultJob(rosewood.DefaultSettings())
+	if configFileName, err = files.GetFullPath(ConfigFileBaseName); err != nil {
+		return nil, err
+	}
+	ux.Log("loading configuration file: %s\n", configFileName)
+	job = rosewood.DefaultJob(rosewood.DefaultSettings())
 	if err = job.LoadFromMDSonFile(configFileName); err != nil {
-		return fmt.Errorf("failed to parse configuration file %s: %v", configFileName, err)
+		return nil, fmt.Errorf("failed to parse configuration file %s: %v", configFileName, err)
 	}
-	if job.RosewoodSettings.Debug >= rosewood.DebugAll {
-
-		fmt.Printf("current configuration: \n %s\n", job)
-	}
-	if err = DoRun(job); rosewood.Errors().IsParsingError(err) {
-		err = fmt.Errorf("one or more errors occurred during file processing") //do not report again
-	}
-	return err
+	job.Command = "run" // config file jobs are equivalent to calling carpenter run
+	return job, nil
 }
 
 //LoadConfigFromCommandLine creates a job object using command line arguments

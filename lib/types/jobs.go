@@ -55,7 +55,7 @@ func (job Job) String() string {
 	return buf.String()
 }
 
-//LoadFromMDSonFile loads job confgiuration from a file
+//LoadFromMDSonFile loads job configuration from a file
 func (job *Job) LoadFromMDSonFile(FileName string) error {
 	configFile, err := os.Open(FileName)
 	if err != nil {
@@ -71,7 +71,7 @@ func (job *Job) LoadFromMDSonFile(FileName string) error {
 	return nil
 }
 
-//LoadFromMDSon loads job confgiuration from an io.Reader
+//LoadFromMDSon loads job configuration from an io.Reader
 func (job *Job) LoadFromMDSon(r io.Reader) error {
 	mdson.SetDebug(job.Debug)
 	err := mdson.Unmarshal(r, job)
