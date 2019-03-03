@@ -6,15 +6,18 @@ import (
 	"github.com/drgo/rosewood/lib/types"
 )
 
+//FIXME: remove once refactored to add ui.UI
+const debug = 0
+
 //createMergedGridTable creates the underlying grid table and applies merging ranges to it
-func createMergedGridTable(src *TableContents, mrlist []types.Range) (*TableContents, error) {
+func createMergedGridTable(src *TableContents, mlist []types.Range) (*TableContents, error) {
 	grid := NewBlankTableContents(src.RowCount(), src.MaxFieldCount())
 	//validate the ranges with respect to this table
-	if err := grid.ValidateRanges(mrlist); err != nil {
+	if err := grid.ValidateRanges(mlist); err != nil {
 		return nil, err
 	}
 
-	for _, mr := range mrlist {
+	for _, mr := range mlist {
 		//the topleft cell will hold the row/col span info, so state = csSpanned. Error if it is previously merged or spanned
 		topleft := grid.CellorPanic(mr.TopLeft.Row, mr.TopLeft.Col)
 		if debug == types.DebugAll {

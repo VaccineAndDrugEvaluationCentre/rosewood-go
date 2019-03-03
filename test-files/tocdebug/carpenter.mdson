@@ -10,7 +10,7 @@ SaveConvertedFile :false
 ## RosewoodSettings
 ConvertOldVersions :true
 ConvertFromVersion :
-Debug :3
+Debug :0
 DoNotInlineCSS :false
 MaxConcurrentWorkers :24
 PreserveWorkFiles :false

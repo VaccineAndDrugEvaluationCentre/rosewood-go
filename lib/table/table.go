@@ -7,18 +7,13 @@ import (
 	"io"
 	"strings"
 
+	"github.com/drgo/core/ui"
 	"github.com/drgo/rosewood/lib/types"
 )
 
-var debug int
-
-//SetDebug sets value of debug flag for package
-func SetDebug(value int) {
-	debug = value
-}
-
 //Table holds all the info needed to render a Table
 type Table struct {
+	ui.UI
 	identifier string
 	Contents   *TableContents
 	grid       *TableContents
@@ -29,8 +24,10 @@ type Table struct {
 }
 
 //NewTable returns a new empty Table
-func NewTable() *Table {
-	return &Table{}
+func NewTable(debug int) *Table {
+	return &Table{
+		UI: ui.NewUI(debug),
+	}
 }
 
 //ProcessedTableContents returns a pointer to table contents after applying all commands
@@ -63,34 +60,32 @@ func (t Table) String() string {
 func (t *Table) Run() error {
 	t.fixMissingRangeValues()
 	//create a list of merge ranges
-	mrlist, err := types.GetAllRanges(t.CmdList, types.KwMerge)
-	if debug == types.DebugAll {
-		fmt.Println("List of ranges defined in script:")
-		for _, r := range mrlist {
+	rlist, err := types.GetAllRanges(t.CmdList, types.KwMerge)
+	if t.Level() == ui.DebugAll {
+		fmt.Println(":")
+		for _, r := range rlist {
 			fmt.Printf("%v\n", r)
 		}
 	}
 	if err != nil {
 		return err
 	}
-	t.grid, err = createMergedGridTable(t.Contents, mrlist)
+	t.grid, err = createMergedGridTable(t.Contents, rlist)
 	if err != nil {
 		return err
 	}
 	//create a list of style ranges
-	mrlist, err = types.GetAllRanges(t.CmdList, types.KwStyle)
+	rlist, err = types.GetAllRanges(t.CmdList, types.KwStyle)
 	if err != nil {
 		return err
 	}
-	t.grid, err = applyStyles(t.grid, mrlist)
+	t.grid, err = applyStyles(t.grid, rlist)
 	return err
 }
 
 //Render use a types.Renderer to render table contents and write them to io.Writer
 func (t *Table) Render(w io.Writer, hr Renderer) error {
-	// if hr.settings.Debug == types.DebugAll {
-	fmt.Println("***starting rendering table")
-	// }
+	t.Log("***starting rendering table")
 	if err := hr.StartTable(t); err != nil {
 		return err
 	}
@@ -100,7 +95,7 @@ func (t *Table) Render(w io.Writer, hr Renderer) error {
 		}
 
 		for c, cell := range row.cells {
-			fmt.Printf("%d,%d:%v\n", r, c, cell.DebugString())
+			t.Logf("%d,%d:%v\n", r, c, cell.DebugString())
 			if err := hr.OutputCell(cell); err != nil {
 				return err
 			}
@@ -125,11 +120,11 @@ func (t *Table) fixMissingRangeValues() (err error) {
 	return nil
 }
 
-func applyStyles(Contents *TableContents, mrlist []types.Range) (*TableContents, error) {
-	if err := Contents.ValidateRanges(mrlist); err != nil {
+func applyStyles(Contents *TableContents, rlist []types.Range) (*TableContents, error) {
+	if err := Contents.ValidateRanges(rlist); err != nil {
 		return nil, err
 	}
-	for _, mr := range mrlist {
+	for _, mr := range rlist {
 		for i := mr.TopLeft.Row; i <= mr.BottomRight.Row; i++ {
 			for j := mr.TopLeft.Col; j <= mr.BottomRight.Col; j++ {
 				Contents.CellorPanic(i, j).AddStyle(mr.Styles()...)

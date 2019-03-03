@@ -1,4 +1,3 @@
-loading configuration file: /Users/salah/Dropbox/code/go/src/github.com/drgo/rosewood/test-files/tocdebug/carpenter.mdson
 parseNextLine() 1 : # Job
 : # Job {job 1}
 1 type=Block, lineNum=1, key=job 1
@@ -42,9 +41,9 @@ inside parseBlock.ttkvpair: convertoldversions true
 parseNextLine() 12 : ConvertFromVersion :
 after advance()-->line 12 type=KV Pair, lineNum=12, key=convertfromversion: 
 inside parseBlock.ttkvpair: convertfromversion 
-parseNextLine() 13 : Debug :3
-after advance()-->line 13 type=KV Pair, lineNum=13, key=debug: 3
-inside parseBlock.ttkvpair: debug 3
+parseNextLine() 13 : Debug :0
+after advance()-->line 13 type=KV Pair, lineNum=13, key=debug: 0
+inside parseBlock.ttkvpair: debug 0
 parseNextLine() 14 : DoNotInlineCSS :false
 after advance()-->line 14 type=KV Pair, lineNum=14, key=donotinlinecss: false
 inside parseBlock.ttkvpair: donotinlinecss false
@@ -342,7 +341,7 @@ decoded struct: {
         "ColumnSeparator": "|",
         "ConvertOldVersions": true,
         "ConvertFromVersion": "",
-        "Debug": 3,
+        "Debug": 0,
         "DoNotInlineCSS": false,
         "MandatoryCol": false,
         "MaxConcurrentWorkers": 24,
@@ -362,126 +361,6 @@ decoded struct: {
     "HTMLWorkDirName": "",
     "ConfigFileName": ""
 }
-
-configuration loaded from /Users/salah/Dropbox/code/go/src/github.com/drgo/rosewood/test-files/tocdebug/carpenter.mdson
-Started on 2019-03-02 16:09:20.49186 -0600 CST m=+0.013568235
-current settings:
-{
-    "Command": "run",
-    "Debug": 0,
-    "ExecutableVersion": "",
-    "RwFileNames": [
-        "paper4-table-ve-overall-flu.txt"
-    ],
-    "OverWriteOutputFile": true,
-    "OutputFileName": "test1.docx",
-    "OutputFormat": "",
-    "PreserveWorkFiles": false,
-    "SaveConvertedFile": false,
-    "RosewoodSettings": {
-        "CheckSyntaxOnly": false,
-        "ColumnSeparator": "|",
-        "ConvertOldVersions": true,
-        "ConvertFromVersion": "",
-        "Debug": 3,
-        "DoNotInlineCSS": false,
-        "MandatoryCol": false,
-        "MaxConcurrentWorkers": 24,
-        "PreserveWorkFiles": false,
-        "RangeOperator": 58,
-        "ReportAllError": false,
-        "SaveConvertedFile": false,
-        "SectionCapacity": 100,
-        "SectionSeparator": "+++",
-        "SectionsPerTable": 4,
-        "StyleSheetName": "",
-        "TrimCellContents": false
-    },
-    "StyleSheetName": "",
-    "WorkDirName": "",
-    "HTMLFileNames": null,
-    "HTMLWorkDirName": "",
-    "ConfigFileName": ""
-}
-
-processing 1 file(s) in work dir=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932
-*** file parsing started
-first line is+++
-**** processing Caption section starts in line 1 and ends in line 2
-**** processing Body section starts in line 4 and ends in line 8
-**** processing FootNotes section starts in line 9 and ends in line 16
-**** processing Control section starts in line 17 and ends in line 28
-src[17]:style row 1 col 1 header->parsed as: style row 1:NA col 1:NA header
-src[18]:style row 1 col 2 header->parsed as: style row 1:NA col 2:NA header
-src[19]:style row 1 col 3 header->parsed as: style row 1:NA col 3:NA header
-src[20]:style row 1 col 4 header->parsed as: style row 1:NA col 4:NA header
-src[21]:style row 1 col 5 header->parsed as: style row 1:NA col 5:NA header
-src[22]:style row 1 col 6 header->parsed as: style row 1:NA col 6:NA header
-src[23]:style row 1 col 7 header->parsed as: style row 1:NA col 7:NA header
-src[24]:style row 1 col 8 header->parsed as: style row 1:NA col 8:NA header
-src[25]:style row 1 col 9 header->parsed as: style row 1:NA col 9:NA header
-src[26]:style row 1 col 10 header->parsed as: style row 1:NA col 10:NA header
-src[27]:style row 1 col 11 header->parsed as: style row 1:NA col 11:NA header
-***Parsing finished: 1 table(s) found
-****Contents of table 1
-caption: Crude and adjusted vaccine effectiveness (%, 95% confidence interval) of vaccine/statin group against lab-confirmed influenza, 2010/11 to 2015/16 seasons.
-footnotes: Model 1 - Adjusted for age and gender.
-Model 2 - Adjusted for Model 1, income quintile top 60%, healthcare utilization, vaccine-providing physicians per 10,000 population and relative local age distribution.
-Model 3 - Adjusted for Model 2, one or more chronic conditions and in long term care.
-Model 4 - Adjusted for Model 3 and season.
-Model 4+ - Also adjusted for previous season vaccination.
-Model 5 - Adjusted for Model 4 and specimen collection month.
-Model 5+ - Also adjusted for previous season vaccination.
-raw content: 
-1,1 (n) :Vaccine/statin group                                        |
-1,2 (n) :   Cases   |
-1,3 (n) : Controls  |
-1,4 (n) :             Crude             |
-1,5 (n) :            Model 1            |
-1,6 (n) :            Model 2            |
-1,7 (n) :            Model 3            |
-1,8 (n) :            Model 4            |
-1,9 (n) :           Model 4+            |
-1,10 (n) :            Model 5            |
-1,11 (n) :           Model 5+            |
-
-2,1 (n) :Unvaccinated                                                |
-2,2 (n) :   1,210   |
-2,3 (n) :   2,248   |
-2,4 (n) :             ref.              |
-2,5 (n) :             ref.              |
-2,6 (n) :             ref.              |
-2,7 (n) :             ref.              |
-2,8 (n) :             ref.              |
-2,9 (n) :             ref.              |
-2,10 (n) :             ref.              |
-2,11 (n) :             ref.              |
-
-3,1 (n) :Vaccinated and statin nonuser                               |
-3,2 (n) :    719    |
-3,3 (n) :   1,592   |
-3,4 (n) :           16 (6-25)           |
-3,5 (n) :          24 (14-33)           |
-3,6 (n) :          25 (15-34)           |
-3,7 (n) :          27 (17-36)           |
-3,8 (n) :          32 (22-40)           |
-3,9 (n) :          28 (16-37)           |
-3,10 (n) :          34 (24-42)           |
-3,11 (n) :          30 (19-39)           |
-
-4,1 (n) :Vaccinated and statin user                                  |
-4,2 (n) :    223    |
-4,3 (n) :    602    |
-4,4 (n) :          31 (19-42)           |
-4,5 (n) :          34 (21-44)           |
-4,6 (n) :          29 (15-40)           |
-4,7 (n) :          26 (11-38)           |
-4,8 (n) :          31 (17-43)           |
-4,9 (n) :          27 (11-40)           |
-4,10 (n) :          32 (17-43)           |
-4,11 (n) :          28 (12-41)           |
-
-
 
 List of ranges defined in script:
 Grid after merging:
@@ -633,56 +512,6 @@ Grid after copying contents:
 4,11 (n) :          28 (12-41)           |
 
 
-****processed contents of table 1
-1,1 (n) :Vaccine/statin group                                        |
-1,2 (n) :   Cases   |
-1,3 (n) : Controls  |
-1,4 (n) :             Crude             |
-1,5 (n) :            Model 1            |
-1,6 (n) :            Model 2            |
-1,7 (n) :            Model 3            |
-1,8 (n) :            Model 4            |
-1,9 (n) :           Model 4+            |
-1,10 (n) :            Model 5            |
-1,11 (n) :           Model 5+            |
-
-2,1 (n) :Unvaccinated                                                |
-2,2 (n) :   1,210   |
-2,3 (n) :   2,248   |
-2,4 (n) :             ref.              |
-2,5 (n) :             ref.              |
-2,6 (n) :             ref.              |
-2,7 (n) :             ref.              |
-2,8 (n) :             ref.              |
-2,9 (n) :             ref.              |
-2,10 (n) :             ref.              |
-2,11 (n) :             ref.              |
-
-3,1 (n) :Vaccinated and statin nonuser                               |
-3,2 (n) :    719    |
-3,3 (n) :   1,592   |
-3,4 (n) :           16 (6-25)           |
-3,5 (n) :          24 (14-33)           |
-3,6 (n) :          25 (15-34)           |
-3,7 (n) :          27 (17-36)           |
-3,8 (n) :          32 (22-40)           |
-3,9 (n) :          28 (16-37)           |
-3,10 (n) :          34 (24-42)           |
-3,11 (n) :          30 (19-39)           |
-
-4,1 (n) :Vaccinated and statin user                                  |
-4,2 (n) :    223    |
-4,3 (n) :    602    |
-4,4 (n) :          31 (19-42)           |
-4,5 (n) :          34 (21-44)           |
-4,6 (n) :          29 (15-40)           |
-4,7 (n) :          26 (11-38)           |
-4,8 (n) :          31 (17-43)           |
-4,9 (n) :          27 (11-40)           |
-4,10 (n) :          32 (17-43)           |
-4,11 (n) :          28 (12-41)           |
-
-
 ***starting rendering table
 0,0:1,1 (n): Vaccine/statin group
 0,1:1,2 (n): Cases
@@ -728,91 +557,80 @@ Grid after copying contents:
 3,8:4,9 (n): 27 (11-40)
 3,9:4,10 (n): 32 (17-43)
 3,10:4,11 (n): 28 (12-41)
---------------
-processing paper4-table-ve-overall-flu.txt:...success
-output file: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html
-inside runhtmlfiles result processing loop
-file name=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html
-file size=2624
-inside DoRun() after returning from runhtmlfiles()
-file name=/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html
-file size=2624
-current configFileName 
   encodeStruct: Job types.Job 1
-  Job fld : Debug 0x13bf800 1
-  Job fld : RwFileNames 0x13bf800 1
+  Job fld : Debug 0x13bf5d0 1
+  Job fld : RwFileNames 0x13bf5d0 1
   primitve type: true
-  Job fld : OverWriteOutputFile 0x13bf800 1
-  Job fld : OutputFileName 0x13bf800 1
-  Job fld : OutputFormat 0x13bf800 1
-  Job fld : PreserveWorkFiles 0x13bf800 1
-  Job fld : SaveConvertedFile 0x13bf800 1
-  Job fld : RosewoodSettings 0x13bf800 1
+  Job fld : OverWriteOutputFile 0x13bf5d0 1
+  Job fld : OutputFileName 0x13bf5d0 1
+  Job fld : OutputFormat 0x13bf5d0 1
+  Job fld : PreserveWorkFiles 0x13bf5d0 1
+  Job fld : SaveConvertedFile 0x13bf5d0 1
+  Job fld : RosewoodSettings 0x13bf5d0 1
     encodeStruct: RosewoodSettings types.RosewoodSettings 2
-    RosewoodSettings fld : ConvertOldVersions 0x13bf800 2
-    RosewoodSettings fld : ConvertFromVersion 0x13bf800 2
-    RosewoodSettings fld : Debug 0x13bf800 2
-    RosewoodSettings fld : DoNotInlineCSS 0x13bf800 2
-    RosewoodSettings fld : MaxConcurrentWorkers 0x13bf800 2
-    RosewoodSettings fld : PreserveWorkFiles 0x13bf800 2
-    RosewoodSettings fld : ReportAllError 0x13bf800 2
-    RosewoodSettings fld : SaveConvertedFile 0x13bf800 2
-    RosewoodSettings fld : StyleSheetName 0x13bf800 2
-    RosewoodSettings fld : TrimCellContents 0x13bf800 2
-  Job fld : StyleSheetName 0x13bf800 1
-  Job fld : WorkDirName 0x13bf800 1
+    RosewoodSettings fld : ConvertOldVersions 0x13bf5d0 2
+    RosewoodSettings fld : ConvertFromVersion 0x13bf5d0 2
+    RosewoodSettings fld : Debug 0x13bf5d0 2
+    RosewoodSettings fld : DoNotInlineCSS 0x13bf5d0 2
+    RosewoodSettings fld : MaxConcurrentWorkers 0x13bf5d0 2
+    RosewoodSettings fld : PreserveWorkFiles 0x13bf5d0 2
+    RosewoodSettings fld : ReportAllError 0x13bf5d0 2
+    RosewoodSettings fld : SaveConvertedFile 0x13bf5d0 2
+    RosewoodSettings fld : StyleSheetName 0x13bf5d0 2
+    RosewoodSettings fld : TrimCellContents 0x13bf5d0 2
+  Job fld : StyleSheetName 0x13bf5d0 1
+  Job fld : WorkDirName 0x13bf5d0 1
     encodeStruct: Document htmldocx.Document 2
-    Document fld : ID 0x13bf800 2
-    Document fld : TemplateFileName 0x13bf800 2
-    Document fld : InputDir 0x13bf800 2
-    Document fld : Sections 0x13bf800 2
+    Document fld : ID 0x13bf5d0 2
+    Document fld : TemplateFileName 0x13bf5d0 2
+    Document fld : InputDir 0x13bf5d0 2
+    Document fld : Sections 0x13bf5d0 2
         encodeStruct: Section1 htmldocx.Section 4
-        Section1 fld : DocumentPart 0x13bf800 4
+        Section1 fld : DocumentPart 0x13bf5d0 4
         encodeStruct: DocumentPart htmldocx.DocumentPart 4
-        DocumentPart fld : ID 0x13bf800 4
-        DocumentPart fld : InputDir 0x13bf800 4
-        DocumentPart fld : AddPageBreakAfterEachInputFile 0x13bf800 4
-        DocumentPart fld : Contents 0x13bf800 4
-        Section1 fld : Props 0x13bf800 4
+        DocumentPart fld : ID 0x13bf5d0 4
+        DocumentPart fld : InputDir 0x13bf5d0 4
+        DocumentPart fld : AddPageBreakAfterEachInputFile 0x13bf5d0 4
+        DocumentPart fld : Contents 0x13bf5d0 4
+        Section1 fld : Props 0x13bf5d0 4
           encodeStruct: Props htmldocx.SectionProps 5
-          Props fld : Size 0x13bf800 5
+          Props fld : Size 0x13bf5d0 5
             encodeStruct: Size htmldocx.PageSize 6
-            Size fld : Width 0x13bf800 6
-            Size fld : Height 0x13bf800 6
-            Size fld : Orientation 0x13bf800 6
-          Props fld : Margins 0x13bf800 5
+            Size fld : Width 0x13bf5d0 6
+            Size fld : Height 0x13bf5d0 6
+            Size fld : Orientation 0x13bf5d0 6
+          Props fld : Margins 0x13bf5d0 5
             encodeStruct: Margins htmldocx.PageMargins 6
-            Margins fld : Top 0x13bf800 6
-            Margins fld : Right 0x13bf800 6
-            Margins fld : Bottom 0x13bf800 6
-            Margins fld : Left 0x13bf800 6
-            Margins fld : Header 0x13bf800 6
-            Margins fld : Footer 0x13bf800 6
-            Margins fld : Gutter 0x13bf800 6
-          Props fld : HeadersFooters 0x13bf800 5
+            Margins fld : Top 0x13bf5d0 6
+            Margins fld : Right 0x13bf5d0 6
+            Margins fld : Bottom 0x13bf5d0 6
+            Margins fld : Left 0x13bf5d0 6
+            Margins fld : Header 0x13bf5d0 6
+            Margins fld : Footer 0x13bf5d0 6
+            Margins fld : Gutter 0x13bf5d0 6
+          Props fld : HeadersFooters 0x13bf5d0 5
               encodeStruct: SectionHeaderFooter1 htmldocx.SectionHeaderFooter 7
-              SectionHeaderFooter1 fld : ID 0x13bf800 7
-              SectionHeaderFooter1 fld : HFType 0x13bf800 7
+              SectionHeaderFooter1 fld : ID 0x13bf5d0 7
+              SectionHeaderFooter1 fld : HFType 0x13bf5d0 7
               encodeStruct: SectionHeaderFooter2 htmldocx.SectionHeaderFooter 7
-              SectionHeaderFooter2 fld : ID 0x13bf800 7
-              SectionHeaderFooter2 fld : HFType 0x13bf800 7
-    Document fld : HeadersFooters 0x13bf800 2
+              SectionHeaderFooter2 fld : ID 0x13bf5d0 7
+              SectionHeaderFooter2 fld : HFType 0x13bf5d0 7
+    Document fld : HeadersFooters 0x13bf5d0 2
         encodeStruct: Header1 htmldocx.HeaderFooter 4
-        Header1 fld : DocumentPart 0x13bf800 4
+        Header1 fld : DocumentPart 0x13bf5d0 4
         encodeStruct: DocumentPart htmldocx.DocumentPart 4
-        DocumentPart fld : ID 0x13bf800 4
-        DocumentPart fld : InputDir 0x13bf800 4
-        DocumentPart fld : AddPageBreakAfterEachInputFile 0x13bf800 4
-        DocumentPart fld : Contents 0x13bf800 4
+        DocumentPart fld : ID 0x13bf5d0 4
+        DocumentPart fld : InputDir 0x13bf5d0 4
+        DocumentPart fld : AddPageBreakAfterEachInputFile 0x13bf5d0 4
+        DocumentPart fld : Contents 0x13bf5d0 4
         encodeStruct: Footer1 htmldocx.HeaderFooter 4
-        Footer1 fld : DocumentPart 0x13bf800 4
+        Footer1 fld : DocumentPart 0x13bf5d0 4
         encodeStruct: DocumentPart htmldocx.DocumentPart 4
-        DocumentPart fld : ID 0x13bf800 4
-        DocumentPart fld : InputDir 0x13bf800 4
-        DocumentPart fld : AddPageBreakAfterEachInputFile 0x13bf800 4
-        DocumentPart fld : Contents 0x13bf800 4
-created htmldocx config file /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp016450046
-inside MakeDocxFromMdsonFile: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp016450046
+        DocumentPart fld : ID 0x13bf5d0 4
+        DocumentPart fld : InputDir 0x13bf5d0 4
+        DocumentPart fld : AddPageBreakAfterEachInputFile 0x13bf5d0 4
+        DocumentPart fld : Contents 0x13bf5d0 4
+inside MakeDocxFromMdsonFile: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp017864443
 parseNextLine() 1 : # Job
 : # Job {job 1}
 1 type=Block, lineNum=1, key=job 1
@@ -856,9 +674,9 @@ inside parseBlock.ttkvpair: convertoldversions true
 parseNextLine() 12 : ConvertFromVersion :
 after advance()-->line 12 type=KV Pair, lineNum=12, key=convertfromversion: 
 inside parseBlock.ttkvpair: convertfromversion 
-parseNextLine() 13 : Debug :3
-after advance()-->line 13 type=KV Pair, lineNum=13, key=debug: 3
-inside parseBlock.ttkvpair: debug 3
+parseNextLine() 13 : Debug :0
+after advance()-->line 13 type=KV Pair, lineNum=13, key=debug: 0
+inside parseBlock.ttkvpair: debug 0
 parseNextLine() 14 : DoNotInlineCSS :false
 after advance()-->line 14 type=KV Pair, lineNum=14, key=donotinlinecss: false
 inside parseBlock.ttkvpair: donotinlinecss false
@@ -886,9 +704,9 @@ after advance()-->line 21 type=Empty, lineNum=21, key=
 parseNextLine() 22 : StyleSheetName :
 after advance()-->line 22 type=KV Pair, lineNum=22, key=stylesheetname: 
 inside parseBlock.ttkvpair: stylesheetname 
-parseNextLine() 23 : WorkDirName :/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932
-after advance()-->line 23 type=KV Pair, lineNum=23, key=workdirname: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101881021932
-inside parseBlock.ttkvpair: workdirname /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101881021932
+parseNextLine() 23 : WorkDirName :/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101866516001
+after advance()-->line 23 type=KV Pair, lineNum=23, key=workdirname: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101866516001
+inside parseBlock.ttkvpair: workdirname /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101866516001
 parseNextLine() 24 : 
 24 type=Empty, lineNum=24, key=
 after advance()-->line 24 type=Empty, lineNum=24, key=
@@ -928,16 +746,16 @@ parseblock: parent sections 3 current section1 4
 parseNextLine() 32 : ID :section1
 after advance()-->line 32 type=KV Pair, lineNum=32, key=id: section1
 inside parseBlock.ttkvpair: id section1
-parseNextLine() 33 : InputDir :/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932
-after advance()-->line 33 type=KV Pair, lineNum=33, key=inputdir: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101881021932
-inside parseBlock.ttkvpair: inputdir /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101881021932
+parseNextLine() 33 : InputDir :/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101866516001
+after advance()-->line 33 type=KV Pair, lineNum=33, key=inputdir: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101866516001
+inside parseBlock.ttkvpair: inputdir /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101866516001
 parseNextLine() 34 : AddPageBreakAfterEachInputFile :true
 after advance()-->line 34 type=KV Pair, lineNum=34, key=addpagebreakaftereachinputfile: true
 inside parseBlock.ttkvpair: addpagebreakaftereachinputfile true
 parseNextLine() 35 : Contents :
 after advance()-->line 35 type=KV Pair, lineNum=35, key=contents: 
 inside parseBlock.ttkvpair: contents 
-type=LiteralString, lineNum=0, key=contents: ${include: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html}
+type=LiteralString, lineNum=0, key=contents: ${include: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101866516001/paper4-table-ve-overall-flu.html}
 parseNextLine() 37 : ##### Props
 : ##### Props {props 5}
 37 type=Block, lineNum=37, key=props 5
@@ -1194,9 +1012,9 @@ decoded struct: {
         "Sections": [
             {
                 "ID": "section1",
-                "InputDir": "/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101881021932",
+                "InputDir": "/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101866516001",
                 "AddPageBreakAfterEachInputFile": true,
-                "Contents": "${include: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html}",
+                "Contents": "${include: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101866516001/paper4-table-ve-overall-flu.html}",
                 "Props": {
                     "Size": {
                         "Width": "12240",
@@ -1266,9 +1084,9 @@ unmarshalled {
         "Sections": [
             {
                 "ID": "section1",
-                "InputDir": "/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101881021932",
+                "InputDir": "/var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101866516001",
                 "AddPageBreakAfterEachInputFile": true,
-                "Contents": "${include: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html}",
+                "Contents": "${include: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101866516001/paper4-table-ve-overall-flu.html}",
                 "Props": {
                     "Size": {
                         "Width": "12240",
@@ -1322,8 +1140,6 @@ unmarshalled {
 }
 
 htmldocx.Convert() started
-full path: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101881021932 --> /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101881021932/paper4-table-ve-overall-flu.html
+full path: /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101866516001/paper4-table-ve-overall-flu.html /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/t/rw-temp101866516001 --> /var/folders/kz/fc7nstbx16q2gvb1w6rry8cm0000gn/T/rw-temp101866516001/paper4-table-ve-overall-flu.html
 inside validateSectionProps: # headerfooters: 2
 htmldocx: converted html files to docx file named:  test1.docx
-saved to docx test1.docx
-processed 1 file(s) in 81.133905ms

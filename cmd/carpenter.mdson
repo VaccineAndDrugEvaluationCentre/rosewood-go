@@ -1,10 +1,10 @@
 # Job
-Debug :3
+Debug :0
 RwFileNames list:
 - test/tab2.gold
 OverWriteOutputFile :true
-OutputFileName :
-OutputFormat :html
+OutputFileName : test.docx
+OutputFormat :docx
 PreserveWorkFiles :true
 SaveConvertedFile :false
 ## RosewoodSettings
@@ -33,7 +33,7 @@ ID :section1
 InputDir :test
 AddPageBreakAfterEachInputFile :true
 Contents :
-<<${include: test/tab2.html}>>
+<<Hello ${word: TOC \\h \\z \\c \"Table\"}${include: test/tab2.html}>>
 ##### Props
 ###### Size
 Width :12240

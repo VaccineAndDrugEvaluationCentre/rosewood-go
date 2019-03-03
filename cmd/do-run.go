@@ -160,6 +160,7 @@ func htmlRunner(task task, resChan chan result) {
 	resChan <- task.getResult(err)
 }
 
+//TODO: make method of rosewood.Interpreter
 func runFile(ri *rosewood.Interpreter, in io.ReadSeeker, out io.Writer) error {
 	file, err := ri.Parse(in, ri.ScriptIdentifer())
 	if err != nil || ri.Settings().CheckSyntaxOnly {
@@ -172,10 +173,12 @@ func runFile(ri *rosewood.Interpreter, in io.ReadSeeker, out io.Writer) error {
 	return ri.ReportError(ri.Render(out, file, hr))
 }
 
-//outputAsDocx caution: modifies job, not thread-safe
+//outputAsDocx warning: modifies job, not thread-safe
 func outputAsDocx(processedFiles []string, job *rosewood.Job) error {
 	var err error
 	configFileName := job.ConfigFileName
+	// ux.SetLevel(ui.DebugAll)
+	fmt.Println("inside outputAsDocx") /*DEBUG*/
 	ux.Log("current configFileName", configFileName)
 	job.HTMLFileNames = processedFiles
 	if configFileName == "" { //from commandline, create temp config file
@@ -185,10 +188,11 @@ func outputAsDocx(processedFiles []string, job *rosewood.Job) error {
 		ux.Log("created htmldocx config file ", configFileName)
 		defer os.Remove(configFileName)
 	}
-	docxOpts := htmldocx.DefaultOptions().SetDebug(job.RosewoodSettings.Debug)
-	if err := htmldocx.MakeDocxFromMdsonFile(configFileName, docxOpts); err != nil {
+	docxOpts := htmldocx.NewOptions(configFileName, job.RosewoodSettings.Debug)
+	fmt.Println(docxOpts) /*DEBUG*/
+	if err := htmldocx.MakeDocxFromMdsonFile(docxOpts); err != nil {
 		return err
 	}
-	ux.Log("saved to docx", job.OutputFileName)
+	ux.Info("saved to docx", job.OutputFileName)
 	return nil
 }

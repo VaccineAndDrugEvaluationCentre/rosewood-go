@@ -119,7 +119,6 @@ func LoadConfigFromFile(configFileName string) (job *rosewood.Job, err error) {
 	if configFileName, err = files.GetFullPath(ConfigFileBaseName); err != nil {
 		return nil, err
 	}
-	ux.Log("loading configuration file: ", configFileName)
 	job = rosewood.DefaultJob(rosewood.DefaultSettings())
 	if err = job.LoadFromMDSonFile(configFileName); err != nil {
 		return nil, fmt.Errorf("failed to parse configuration file %s: %v", configFileName, err)

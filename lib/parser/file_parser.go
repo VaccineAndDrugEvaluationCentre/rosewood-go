@@ -161,7 +161,7 @@ func (f *File) createTables() error {
 		}
 		switch s.Kind {
 		case types.SectionCaption:
-			t = table.NewTable()
+			t = table.NewTable(f.settings.Debug)
 			t.Caption = s
 		case types.SectionBody:
 			if t.Contents, err = table.NewTableContents(s.String()); err != nil {

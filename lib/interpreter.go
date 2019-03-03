@@ -26,7 +26,7 @@ func NewInterpreter(settings *types.RosewoodSettings) *Interpreter {
 		settings = DefaultSettings()
 	}
 	// set debug flag of internal packages
-	table.SetDebug(types.DebugAll)
+	//table.SetDebug(types.DebugAll)
 	return &Interpreter{settings, ""}
 }
 
