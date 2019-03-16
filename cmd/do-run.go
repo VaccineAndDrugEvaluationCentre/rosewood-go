@@ -178,7 +178,7 @@ func outputAsDocx(processedFiles []string, job *rosewood.Job) error {
 	var err error
 	configFileName := job.ConfigFileName
 	// ux.SetLevel(ui.DebugAll)
-	fmt.Println("inside outputAsDocx") /*DEBUG*/
+	fmt.Println("inside outputAsDocx: configFilename:", configFileName) /*DEBUG*/
 	ux.Log("current configFileName", configFileName)
 	job.HTMLFileNames = processedFiles
 	if configFileName == "" { //from commandline, create temp config file
