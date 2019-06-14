@@ -3,8 +3,6 @@ VERSION=0.6.3
 BUILD := $(shell git describe --always --long --dirty)
 BUILD_DATE=$(shell date)
 
-# disable gomodule for now
-# export GO111MODULE=off
 #PKG := github.com/drgo/rosewood 
 #PKG_LIST := $(shell go list ${PKG}/... )
 #GO_FILES := $(shell find . -name '*.go' )
@@ -13,9 +11,10 @@ README=../README.md
 
 LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Build=${BUILD}"
 
-#default buid
+#default command
 build:
 	go build -race ${LDFLAGS} -o ${EXE}
+
 
 buildprod: 
 	go build ${LDFLAGS} -o ${EXE}

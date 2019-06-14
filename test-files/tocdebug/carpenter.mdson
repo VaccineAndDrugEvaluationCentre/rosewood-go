@@ -1,5 +1,6 @@
 # Job
-Debug :0
+Debug :3
+WorkDirName : ~/Dropbox/code/go/src/github.com/drgo/rosewood/test-files/tocdebug
 RwFileNames List :
 - paper4-table-ve-overall-flu.txt
 OverWriteOutputFile :true
@@ -10,7 +11,7 @@ SaveConvertedFile :false
 ## RosewoodSettings
 ConvertOldVersions :true
 ConvertFromVersion :
-Debug :0
+Debug :3
 DoNotInlineCSS :false
 MaxConcurrentWorkers :24
 PreserveWorkFiles :false
@@ -19,8 +20,8 @@ SaveConvertedFile :false
 StyleSheetName :
 TrimCellContents :false
 
-StyleSheetName :
-WorkDirName :
+StyleSheetName : 
+
 
 ## Document
 ID :

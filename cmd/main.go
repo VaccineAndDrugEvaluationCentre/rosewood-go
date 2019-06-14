@@ -76,6 +76,7 @@ func RunJob(job *rosewood.Job) error {
 		if len(job.RwFileNames) == 0 {
 			return fmt.Errorf("must specify an MDSon configuration file")
 		}
+		ux.Info("running from configuration file:", job.RwFileNames[0])
 		job, err = LoadConfigFromFile(job.RwFileNames[0])
 		if err != nil {
 			return err
@@ -116,7 +117,7 @@ func LoadConfigFromFile(configFileName string) (job *rosewood.Job, err error) {
 	if configFileName == "" {
 		configFileName = ConfigFileBaseName
 	}
-	if configFileName, err = files.GetFullPath(ConfigFileBaseName); err != nil {
+	if configFileName, err = files.GetFullPath(configFileName); err != nil {
 		return nil, err
 	}
 	job = rosewood.DefaultJob(rosewood.DefaultSettings())

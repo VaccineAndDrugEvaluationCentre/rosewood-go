@@ -8,6 +8,7 @@ import (
 	"io"
 	"strings"
 	"text/scanner"
+	"unicode"
 
 	"github.com/drgo/core/errors"
 	"github.com/drgo/core/trace"
@@ -125,6 +126,10 @@ func (p *CommandParser) scannerErrorHandler(s *scanner.Scanner, msg string) {
 func (p *CommandParser) init(r io.Reader) error {
 	p.lexer = p.lexer.Init(r)
 	p.lexer.Whitespace = 1<<' ' | 1<<'\t' | 1<<'\r' //ignore spaces, tabs and CRs
+	// treat '-' as part of an identifier (eg css stylenames)
+	p.lexer.IsIdentRune = func(ch rune, i int) bool {
+		return ch == '-' || unicode.IsLetter(ch) || unicode.IsDigit(ch) && i > 0
+	}
 	p.lexer.Error = p.scannerErrorHandler
 	return nil
 }

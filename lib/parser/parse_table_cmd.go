@@ -29,7 +29,7 @@ func (p *CommandParser) parseTableFormatCommand(cmd *types.Command) error {
 	if err := parseSegment(modifier); err != nil {
 		return err
 	}
-	//next, we either have another col/row modifier, argument or EOF
+	//next, we either have another col/row modifier, argument or EOF (in case of merge command)
 	switch p.currentToken {
 	case scanner.EOF:
 	default:
