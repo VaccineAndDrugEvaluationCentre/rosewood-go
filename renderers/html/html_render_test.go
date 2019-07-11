@@ -6,7 +6,7 @@ package html
 // 	"bytes"
 // 	"testing"
 
-// 	"github.com/drgo/rosewood/lib/types"
+// 	"github.com/drgo/rosewood/types"
 // 	"github.com/drgo/rosewood/utils"
 // )
 

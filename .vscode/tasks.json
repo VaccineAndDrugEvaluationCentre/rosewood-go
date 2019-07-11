@@ -4,6 +4,24 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "make",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "type": "shell",
+            "command": "make",
+            "args": ["build","-C", "${workspaceFolder:carpenter}", "-f", "makefile"], 
+            // "options": {
+            //     "cwd": "${workspaceRoot}/carpenter"
+            // },
+            "presentation":{
+                "reveal": "always",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
             "taskName": "go test",
             "command": "go test -v",
             "type": "shell",
@@ -21,10 +39,7 @@
             "args": [
                 "${file}"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
+            "group": "build"
         }
     ]
 }

@@ -1,5 +1,12 @@
+## 0.5.5
+- migrated to go 1.12 and modules
+- restructured lib packages
+- added support for inlined css to permit multiple css styles per cells
+- if a stylesheet not specified, now we default to using carpenter.css at the exe folder.
+- fixed several bugs
+
 ## 0.5.0
-- added support for running jobs from a json file
+- added support for running jobs from a mdson files
 - added support for concurrent processing of input files
 - added support for processing Rosewood v0.1 source files directly in run commands. 
 - added command v1tov2 to convert from v0.1 to v0.2

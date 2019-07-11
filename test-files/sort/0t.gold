@@ -1,0 +1,33 @@
++++
+0t 1978 Automobile Data
++++
+Make and Model      |   Price  |Weight (lbs.)|Length (in.)|
+Audi 5000           |   9,690  |   2,830  |    189   |
+Audi Fox            |   6,295  |   2,070  |    174   |
+BMW 320i            |   9,735  |   2,650  |    177   |
+Datsun 200          |   6,229  |   2,370  |    170   |
+Datsun 210          |   4,589  |   2,020  |    165   |
+Datsun 510          |   5,079  |   2,280  |    170   |
+Datsun 810          |   8,129  |   2,750  |    184   |
+Fiat Strada         |   4,296  |   2,130  |    161   |
+Honda Accord        |   5,799  |   2,240  |    172   |
+Honda Civic         |   4,499  |   1,760  |    149   |
+Mazda GLC           |   3,995  |   1,980  |    154   |
+Peugeot 604         |  12,990  |   3,420  |    192   |
+Renault Le Car      |   3,895  |   1,830  |    142   |
+Subaru              |   3,798  |   2,050  |    164   |
+Toyota Celica       |   5,899  |   2,410  |    174   |
+Toyota Corolla      |   3,748  |   2,200  |    165   |
+Toyota Corona       |   5,719  |   2,670  |    175   |
+VW Dasher           |   7,140  |   2,160  |    172   |
+VW Diesel           |   5,397  |   2,040  |    155   |
+VW Rabbit           |   4,697  |   1,930  |    155   |
+VW Scirocco         |   6,850  |   1,990  |    156   |
+Volvo 260           |  11,995  |   3,170  |    193   |
++++
++++
+style row 1 col 1 header
+style row 1 col 2 header
+style row 1 col 3 header
+style row 1 col 4 header
++++
