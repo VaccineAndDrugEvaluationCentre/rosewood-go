@@ -9,7 +9,8 @@ type RosewoodSettings struct {
 	//controls printing debug info by internal lib routines
 	Debug                int
 	DoNotInlineCSS       bool
-	MandatoryCol         bool `mdson:"-"`
+	MandatoryCol         bool   `mdson:"-"`
+	MarkdownRender       string //"ignore", "strict"
 	MaxConcurrentWorkers int
 	//FIXME: move to options?
 	PreserveWorkFiles bool
@@ -31,6 +32,7 @@ func NewRosewoodSettings() *RosewoodSettings {
 //DefaultRosewoodSettings returns default settings in case no settings were set.
 func DefaultRosewoodSettings() *RosewoodSettings {
 	settings := NewRosewoodSettings()
+	settings.MarkdownRender = "strict"
 	settings.SectionsPerTable = 4
 	settings.SectionCapacity = 100
 	settings.SectionSeparator = "+++"
@@ -65,7 +67,7 @@ type Options struct {
 //DefaultOptions returns a default option setting
 func DefaultOptions() *Options {
 	return &Options{
-		Debug: 3,
+		Debug:                 3,
 		DefaultConfigFileName: configFileBaseName,
 		DefaultScriptFileName: scriptFileBaseName,
 	}

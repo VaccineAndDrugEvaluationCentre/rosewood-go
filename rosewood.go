@@ -11,7 +11,7 @@ import (
 )
 
 //Version of this library
-const version = "0.5.5"
+const version = "0.5.6"
 
 //LibVersion version of Rosewood lib
 func LibVersion() string {

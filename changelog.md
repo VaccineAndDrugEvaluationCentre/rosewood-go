@@ -1,3 +1,6 @@
+## 0.5.6
+- fixed rendering of combined row and col spans: issue #24
+- added option (markdown-render or md) to treat markdown as text: #21.
 ## 0.5.5
 - migrated to go 1.12 and modules
 - restructured lib packages

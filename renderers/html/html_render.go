@@ -202,10 +202,13 @@ func (hr *htmlRenderer) OutputCell(c *table.Cell) error {
 }
 
 func (hr *htmlRenderer) renderText(s string) string {
-	txt, err := md.InlinedMdToHTML(s, nil)
-	// FIXME: add MDRender=none, standard, strict
-	if err != nil {
-		hr.htmlError = fmt.Errorf("error in parsing the following text: %s; error is %s ", strconv.Quote(s), err)
+	var err error
+	txt := s
+	if hr.settings.MarkdownRender == "strict" {
+		txt, err = md.InlinedMdToHTML(s, nil)
+		if err != nil {
+			hr.htmlError = fmt.Errorf("error in parsing the following text: %s; error is %s ", strconv.Quote(s), err)
+		}
 	}
 	return string(txt)
 }
