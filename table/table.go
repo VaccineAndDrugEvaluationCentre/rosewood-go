@@ -15,8 +15,8 @@ import (
 type Table struct {
 	ui.UI
 	identifier string
-	Contents   *TableContents
-	grid       *TableContents
+	Contents   *TableContents // source grid
+	grid       *TableContents //output grid
 	Caption    *types.Section
 	Header     *types.Section
 	Footnotes  *types.Section
@@ -61,26 +61,23 @@ func (t *Table) Run() error {
 	t.fixMissingRangeValues()
 	//create a list of merge ranges
 	rlist, err := types.GetAllRanges(t.CmdList, types.KwMerge)
+	if err != nil {
+		return err
+	}
 	if t.Level() == ui.DebugAll {
 		fmt.Println("Table.Run()- Merged ranges:")
 		for _, r := range rlist {
 			fmt.Printf("%v\n", r)
 		}
 	}
-	if err != nil {
-		return err
-	}
-	t.grid, err = createMergedGridTable(t.Contents, rlist)
-	if err != nil {
+	if err = t.createMergedGridTable(rlist); err != nil {
 		return err
 	}
 	//create a list of style ranges
-	rlist, err = types.GetAllRanges(t.CmdList, types.KwStyle)
-	if err != nil {
+	if rlist, err = types.GetAllRanges(t.CmdList, types.KwStyle); err != nil {
 		return err
 	}
-	t.grid, err = applyStyles(t.grid, rlist)
-	return err
+	return t.applyStyles(rlist)
 }
 
 //Render use a types.Renderer to render table contents and write them to io.Writer
@@ -119,16 +116,16 @@ func (t *Table) fixMissingRangeValues() (err error) {
 	return nil
 }
 
-func applyStyles(Contents *TableContents, rlist []types.Range) (*TableContents, error) {
-	if err := Contents.ValidateRanges(rlist); err != nil {
-		return nil, err
+func (t *Table) applyStyles(rlist []types.Range) error {
+	if err := t.grid.ValidateRanges(rlist); err != nil {
+		return err
 	}
 	for _, mr := range rlist {
 		for i := mr.TopLeft.Row; i <= mr.BottomRight.Row; i++ {
 			for j := mr.TopLeft.Col; j <= mr.BottomRight.Col; j++ {
-				Contents.CellorPanic(i, j).AddStyle(mr.Styles()...)
+				t.grid.CellorPanic(i, j).AddStyle(mr.Styles()...)
 			}
 		}
 	}
-	return Contents, nil
+	return nil
 }
