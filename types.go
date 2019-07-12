@@ -18,14 +18,6 @@ func DefaultJob(settings *Settings) *Job {
 //Settings is an alias for setter settings
 type Settings = types.RosewoodSettings
 
-//Debug* aliases for types.Debug*
-const (
-	DebugSilent  = types.DebugSilent
-	DebugWarning = types.DebugWarning
-	DebugUpdates = types.DebugUpdates
-	DebugAll     = types.DebugAll
-)
-
 //DefaultSettings returns a pointer to an initialized settings object
 func DefaultSettings() *Settings {
 	return types.DefaultRosewoodSettings()

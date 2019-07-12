@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/drgo/core/str"
+	"github.com/drgo/core/ui"
 	"github.com/drgo/rosewood/types"
 )
 
@@ -54,7 +55,7 @@ func ConvertVersion(settings *types.RosewoodSettings, newSyntax RWSyntax, oldSyn
 	// utility for debugging
 	output := func(line string) {
 		newCode = append(newCode, line)
-		if settings.Debug == types.DebugAll {
+		if settings.Debug == ui.DebugAll {
 			fmt.Printf("%d:%s\n", lineNum, line)
 		}
 	}
@@ -143,7 +144,7 @@ func ConvertVersion(settings *types.RosewoodSettings, newSyntax RWSyntax, oldSyn
 		//remove the header start section separator //TODO: refactor as RemovefromSlice
 		newCode = append(newCode[:headerEnd], newCode[headerEnd+1:]...)
 	}
-	if settings.Debug == types.DebugAll {
+	if settings.Debug == ui.DebugAll {
 		fmt.Printf("File had %d section separators, table starts on line %d and ends on line %d, header starts on line %d and ends on line %d, footnotes section starts on line %d, rules section starts on line %d\n", sectionNum, tableStart, tableEnd, headerStart, headerEnd, footnoteStart, rulesStart)
 	}
 	return newCode, nil

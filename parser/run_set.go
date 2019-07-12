@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"strconv"
 
-	"github.com/drgo/core/trace"
 	"github.com/drgo/rosewood/table"
 	"github.com/drgo/rosewood/types"
 )
@@ -33,18 +32,17 @@ func (p *CommandParser) runSetCommand(cmd *types.Command) error {
 
 	var s string
 	var err error
-	trace := trace.NewTrace(true, nil)
 	switch cmd.Arg(0) { //setting name
 	case "rangeseparator":
 		if s, err = getArgAsString(1, 1); err != nil {
 			return err
 		}
-		p.settings.RangeOperator = rune((s)[0])
+		p.job.RosewoodSettings.RangeOperator = rune((s)[0])
 	case "mandatorycol":
 		if s, err = getArgAsString(1, 4); err != nil {
 			return err
 		}
-		if p.settings.MandatoryCol, err = strconv.ParseBool(s); err != nil {
+		if p.job.RosewoodSettings.MandatoryCol, err = strconv.ParseBool(s); err != nil {
 			return err
 		}
 	case "tablefilename":
@@ -53,16 +51,16 @@ func (p *CommandParser) runSetCommand(cmd *types.Command) error {
 		}
 		table, err := loadTable(s)
 		if err != nil {
-			trace.Println("an error occurred ", err)
+			p.job.UI.Log("an error occurred ", err)
 			return err
 		}
 		p.tables = append(p.tables, table)
-		trace.Printf("%v", table)
+		p.job.UI.Logf("%v", table)
 	case "logfilename":
 		if s, err = getArgAsString(1, 1); err != nil {
 			return err
 		}
-		//		p.settings.LogFileName = s //change to method on CommandParser
+		//		p.job.RosewoodSettings.LogFileName = s //change to method on CommandParser
 	default:
 		return fmt.Errorf("unknown option %s", cmd.Arg(0))
 	}

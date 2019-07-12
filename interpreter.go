@@ -8,6 +8,7 @@ import (
 	"io"
 
 	"github.com/drgo/core/errors"
+	"github.com/drgo/core/ui"
 	"github.com/drgo/rosewood/parser"
 	"github.com/drgo/rosewood/table"
 	"github.com/drgo/rosewood/types"
@@ -15,33 +16,33 @@ import (
 
 //Interpreter holds the state of a Rosewood interpreter
 type Interpreter struct {
+	job             *Job
 	settings        *Settings
 	scriptIdentifer string
 }
 
 //NewInterpreter returns an initialized Rosewood interpreter
-func NewInterpreter(settings *types.RosewoodSettings) *Interpreter {
+func NewInterpreter(job *Job) *Interpreter {
 	//if no custom settings use default ones
-	if settings == nil {
-		settings = DefaultSettings()
+	if job == nil || job.RosewoodSettings == nil {
+		panic("rosewood.NewInterpreter: job and job.RosewoodSettings must not be null")
 	}
 	// set debug flag of internal packages
-	//table.SetDebug(types.DebugAll)
-	return &Interpreter{settings, ""}
+	//table.SetDebug(ui.DebugAll)
+	return &Interpreter{job, job.RosewoodSettings, ""}
 }
 
 //Parse takes an io.Reader containing RoseWood script and an optional script identifier and returns
 // parsed tables and an error
 func (ri *Interpreter) Parse(r io.ReadSeeker, scriptIdentifer string) (*parser.File, error) {
-	file := parser.NewFile(scriptIdentifer, ri.settings)
+	file := parser.NewFile(scriptIdentifer, ri.job)
 	if err := file.Parse(r); err != nil {
 		return nil, err
 	}
-	if ri.settings.Debug == types.DebugAll {
-		fmt.Printf("***Parsing finished: %d table(s) found\n", file.TableCount())
+	if ri.job.Debug == ui.DebugAll {
+		ri.job.UI.Logf("***Parsing finished: %d table(s) found\n", file.TableCount())
 		for i, t := range file.Tables() {
-			fmt.Printf("****Contents of table %d\n", i+1)
-			fmt.Printf("%v\n", t)
+			ri.job.UI.Logf("****Contents of table %d\n%v\n", i+1, t)
 		}
 	}
 	return file, nil
@@ -64,10 +65,7 @@ func (ri *Interpreter) Render(w io.Writer, file *parser.File, hr table.Renderer)
 		if err = t.Run(); err != nil {
 			return fmt.Errorf("failed to run one or more commands for table: %s", err)
 		}
-		if ri.settings.Debug == types.DebugAll {
-			fmt.Printf("****processed contents of table %d\n", i+1)
-			fmt.Printf("%v\n", t.ProcessedTableContents().DebugString())
-		}
+		ri.job.UI.Logf("****processed contents of table %d\n%v\n", i+1, t.ProcessedTableContents().DebugString())
 		if err = t.Render(w, hr); err != nil {
 			return fmt.Errorf("failed to render table %d: %s", i+1, err)
 		}

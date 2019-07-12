@@ -3,7 +3,6 @@
 package table
 
 import (
-	"fmt"
 	"io"
 	"strings"
 
@@ -24,9 +23,9 @@ type Table struct {
 }
 
 //NewTable returns a new empty Table
-func NewTable(debug int) *Table {
+func NewTable(ux ui.UI) *Table {
 	return &Table{
-		UI: ui.NewUI(debug),
+		UI: ux,
 	}
 }
 
@@ -65,9 +64,9 @@ func (t *Table) Run() error {
 		return err
 	}
 	if t.Level() == ui.DebugAll {
-		fmt.Println("Table.Run()- Merged ranges:")
+		t.Log("Table.Run()- Merged ranges:")
 		for _, r := range rlist {
-			fmt.Printf("%v\n", r)
+			t.Logf("%v\n", r)
 		}
 	}
 	if err = t.createMergedGridTable(rlist); err != nil {

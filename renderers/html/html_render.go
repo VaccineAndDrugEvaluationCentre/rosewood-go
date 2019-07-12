@@ -13,6 +13,7 @@ import (
 
 	"github.com/drgo/core/files"
 	"github.com/drgo/core/md"
+	"github.com/drgo/core/ui"
 	"github.com/drgo/rosewood"
 	"github.com/drgo/rosewood/table"
 	"github.com/drgo/rosewood/types"
@@ -127,7 +128,7 @@ func (hr *htmlRenderer) StartFile() error {
 	b.Write(hr.css)
 	b.WriteString("\n</style>\n")
 	b.WriteString(htmlBody)
-	if hr.settings.Debug >= types.DebugAll {
+	if hr.settings.Debug >= ui.DebugAll {
 		b.WriteString(time.Now().Format("2006-01-02 15:04:05"))
 	}
 	hr.write(b.String())

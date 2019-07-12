@@ -11,8 +11,8 @@ import (
 	"text/scanner"
 
 	"github.com/drgo/core"
+	"github.com/drgo/core/errors"
 	"github.com/drgo/core/files"
-	"github.com/drgo/core/errors"	
 	"github.com/drgo/rosewood/table"
 	"github.com/drgo/rosewood/types"
 )
@@ -36,15 +36,17 @@ type File struct {
 	FileName string
 	sections []*types.Section //holds raw lines
 	parser   *CommandParser
+	job      *types.Job
 	settings *types.RosewoodSettings
 	tables   []*table.Table //holds parsed tables and commands
 }
 
 //NewFile returns a Rosewood File
-func NewFile(fileName string, settings *types.RosewoodSettings) *File {
+func NewFile(fileName string, job *types.Job) *File {
 	return &File{FileName: fileName,
-		parser:   NewCommandParser(settings),
-		settings: settings}
+		job:      job,
+		parser:   NewCommandParser(job),
+		settings: job.RosewoodSettings}
 }
 
 //Parse parses an io.ReadSeeker streaming a Rosewood file and returns any found tables
@@ -57,9 +59,7 @@ func (f *File) Parse(r io.ReadSeeker) error {
 	if core.IsNil(r) {
 		panic("nil io.ReadSeeker passed to file.Parse()")
 	}
-	if f.settings.Debug == types.DebugAll {
-		fmt.Println("*** file parsing started")
-	}
+	f.job.UI.Log("*** file parsing started")
 	scanner := bufio.NewScanner(r)
 	//check file version
 	if !scanner.Scan() {
@@ -69,16 +69,12 @@ func (f *File) Parse(r io.ReadSeeker) error {
 		return NewError(ErrSyntaxError, unknownPos, scanner.Err().Error())
 	}
 	lineNum++ //we found a line
-	if f.settings.Debug == types.DebugAll {
-		fmt.Println("first line is" + scanner.Text())
-	}
+	f.job.UI.Log("first line is" + scanner.Text())
 	switch GetFileVersion(strings.TrimSpace(scanner.Text())) {
 	case "unknown":
 		return NewError(ErrSyntaxError, unknownPos, "file does not start by a valid section separator")
 	case "v0.1":
-		if f.settings.Debug == types.DebugAll {
-			fmt.Println("found possible version 0.1 file")
-		}
+		f.job.UI.Log("found possible version 0.1 file")
 		if !f.settings.ConvertOldVersions {
 			return NewError(ErrSyntaxError, unknownPos, "possibly version 0.1 file")
 		}
@@ -96,9 +92,6 @@ func (f *File) Parse(r io.ReadSeeker) error {
 	for scanner.Scan() {
 		lineNum++
 		line := scanner.Text()
-		// if f.settings.Debug == types.DebugAll {
-		// 	fmt.Println(line)
-		// }
 		if f.isSectionSeparatorLine(line) { //start of a new section
 			if s != nil { //there is an active section, append it to the sections array
 				f.sections = append(f.sections, s)
@@ -156,12 +149,11 @@ func (f *File) createTables() error {
 	for i, s := range f.sections {
 		ii := i + 1 //i is zero-based, section numbers should be one-based
 		s.Kind = types.SectionDescriptor(i%f.settings.SectionsPerTable + 1)
-		if f.settings.Debug == types.DebugAll {
-			fmt.Println("**** processing " + s.DebugString())
-		}
+		f.job.UI.Log("**** processing " + s.DebugString())
+
 		switch s.Kind {
 		case types.SectionCaption:
-			t = table.NewTable(f.settings.Debug)
+			t = table.NewTable(f.job.UI)
 			t.Caption = s
 		case types.SectionBody:
 			if t.Contents, err = table.NewTableContents(s.String()); err != nil {

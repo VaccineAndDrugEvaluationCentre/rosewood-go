@@ -11,33 +11,29 @@ import (
 	"unicode"
 
 	"github.com/drgo/core/errors"
-	"github.com/drgo/core/trace"
 	"github.com/drgo/rosewood/table"
 	"github.com/drgo/rosewood/types"
 )
 
 // CommandParser specialized parser for format commands
 type CommandParser struct {
-	trace        trace.Tracer
-	errors       *errors.ErrorList
-	lexer        *scanner.Scanner
-	settings     *types.RosewoodSettings
+	// trace        trace.Tracer
+	errors *errors.ErrorList
+	lexer  *scanner.Scanner
+	job    *types.Job
+	// settings     *types.RosewoodSettings
 	position     Position
 	currentToken rune
 	tables       []*table.TableContents //list of all loaded tables
 }
 
 //NewCommandParser initializes and returns a CommandParser
-func NewCommandParser(settings *types.RosewoodSettings) *CommandParser {
-	if settings == nil {
+func NewCommandParser(job *types.Job) *CommandParser {
+	if job == nil {
 		panic("nil settings passed to NewCommandParser")
 	}
 	p := CommandParser{errors: errors.NewErrorList(), lexer: new(scanner.Scanner)}
-	p.settings = settings
-	p.trace = trace.NewTrace(false, nil) //writer to stderr
-	if p.settings.Debug == types.DebugAll {
-		p.trace.On()
-	}
+	p.job = job
 	return &p
 }
 
@@ -78,10 +74,9 @@ func (p *CommandParser) ParseCommandLines(s *types.Section) ([]*types.Command, e
 	var err error
 	for i, line := range s.Lines {
 		p.position.Line = i
-		//TODO: remove p.trace or use everywhere?!
-		p.trace.Printf("src[%d]:%v->", i+s.Offset, line)
+		p.job.UI.Logf("src[%d]:%v->", i+s.Offset, line)
 		if !isCommandLine(line) {
-			p.trace.Println("skipped")
+			p.job.UI.Log("skipped")
 			continue
 		}
 		p.init(strings.NewReader(line))
@@ -96,9 +91,9 @@ func (p *CommandParser) ParseCommandLines(s *types.Section) ([]*types.Command, e
 		}
 		if err != nil {
 			p.addSyntaxError(err.Error())
-			p.trace.Printf("parsing error: %s\n", err.Error())
+			p.job.UI.Logf("parsing error: %s\n", err.Error())
 		}
-		p.trace.Printf("parsed as: %v\n", cmd)
+		p.job.UI.Logf("parsed as: %v\n", cmd)
 		if p.errors.Len() > errOffset { //errors were detected during parsing; stop here
 			continue
 		}

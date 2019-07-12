@@ -11,8 +11,8 @@ package rosewood
 // 		wantW       string
 // 		wantErr     bool
 // 	}{
-// 		{"singletab.rw", "singletab", types.DebugRosewoodSettings(true), "", false},
-// 		{"wrong1tab.rw", "", types.DebugRosewoodSettings(true), "", true},
+// 		{"singletab.rw", "singletab", ui.DebugRosewoodSettings(true), "", false},
+// 		{"wrong1tab.rw", "", ui.DebugRosewoodSettings(true), "", true},
 // 	}
 // 	for _, tt := range tests {
 // 		t.Run(tt.srcFileName, func(t *testing.T) {

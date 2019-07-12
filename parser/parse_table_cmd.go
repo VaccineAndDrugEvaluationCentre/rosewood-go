@@ -71,7 +71,7 @@ func (p *CommandParser) parseRowOrColSegment(cmd *types.Command, modifier string
 	}
 	p.nextToken()
 	switch p.currentToken {
-	case p.settings.RangeOperator:
+	case p.job.RosewoodSettings.RangeOperator:
 		if err := p.parseRangePoints(&ss); err != nil {
 			return ss, err
 		}
@@ -114,7 +114,7 @@ func (p *CommandParser) parseRangePoints(ss *types.SpanSegment) error {
 	}
 	p.nextToken()
 	switch p.currentToken {
-	case p.settings.RangeOperator: //another :, so this a skipped range l:step:r
+	case p.job.RosewoodSettings.RangeOperator: //another :, so this a skipped range l:step:r
 		if ss.Right == types.RwMax {
 			return fmt.Errorf("max is not allowed in this position")
 		}
@@ -154,7 +154,7 @@ func (p *CommandParser) parseCommaSepPoints(ss *types.SpanSegment) error {
 		switch p.currentToken {
 		case ',':
 			continue
-		case p.settings.RangeOperator: //range after a comma-list is not allowed
+		case p.job.RosewoodSettings.RangeOperator: //range after a comma-list is not allowed
 			return fmt.Errorf("a ranger operator [:] is not allowed following a coordinate list")
 		default:
 			return nil
