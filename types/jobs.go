@@ -31,7 +31,7 @@ type Job struct {
 	StyleSheetName        string
 	WorkDirName           string
 	RosewoodSettings      *RosewoodSettings
-	HTMLWorkDirName       string `mdson:"-"` //dir where HTMLFileNames are stored
+	HTMLWorkDirName       string //dir where HTMLFileNames are stored
 	ConfigFileName        string `mdson:"-"` //MDSon file that was used to load the config
 	UI                    ui.UI  `mdson:"-"` // provides access to the UI for lower-level routines
 	ExecutableVersion     string `mdson:"-"`
@@ -92,9 +92,7 @@ func (job *Job) LoadFromMDSonFile(FileName string) error {
 	if err = job.LoadFromMDSon(configFile); err != nil {
 		return fmt.Errorf("failed to parse configuration file %s: %v", FileName, err)
 	}
-	if job.RosewoodSettings.Debug >= ui.DebugUpdates {
-		fmt.Println("configuration loaded from " + FileName)
-	}
+	job.UI.Log("configuration loaded from " + FileName)
 	return nil
 }
 
@@ -147,4 +145,18 @@ func (job *Job) GetValidFormat() (string, error) {
 		return "", fmt.Errorf("unsupported output format: %s", format)
 	}
 	return format, nil
+}
+
+// GetInputDir returns either job.WorkDirName, or the dir where job.ConfigFileName is held
+// or current dir in this order
+func (job *Job) GetInputDir() (string, error) {
+	dir := filepath.Clean(job.WorkDirName)
+	if dir != "." {
+		return dir, nil
+	}
+	dir = filepath.Dir(job.ConfigFileName)
+	if dir != "." {
+		return dir, nil
+	}
+	return os.Getwd()
 }
