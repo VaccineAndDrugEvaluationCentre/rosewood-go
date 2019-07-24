@@ -1,6 +1,6 @@
 # Job
 Debug :0
-RwFileNames List :
+InputFileNames List :
 OverWriteOutputFile :false
 OutputFileName :
 OutputFormat :

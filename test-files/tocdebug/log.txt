@@ -8,9 +8,9 @@ parseblock: parent root 0 current job 1
 parseNextLine() 2 : Debug :0
 after advance()-->line 2 type=KV Pair, lineNum=2, key=debug: 0
 inside parseBlock.ttkvpair: debug 0
-parseNextLine() 3 : RwFileNames List :
-3 type=List, lineNum=3, key=rwfilenames list
-after advance()-->line 3 type=List, lineNum=3, key=rwfilenames list
+parseNextLine() 3 : InputFileNames List :
+3 type=List, lineNum=3, key=InputFileNames list
+after advance()-->line 3 type=List, lineNum=3, key=InputFileNames list
 parseNextLine() 4 : - paper4-table-ve-overall-flu.txt
 4 type=ListItem, lineNum=4, key= paper4-table-ve-overall-flu.txt
 parseNextLine() 5 : OverWriteOutputFile :true
@@ -298,8 +298,8 @@ after advance()-->line 78 type=EOF, lineNum=78, key=
 *********Decoding started
 block: job ,struct type: types.Job
   element: KV Pair debug
-  element: List rwfilenames
-  list: rwfilenames []string el-type string n-items 1
+  element: List InputFileNames
+  list: InputFileNames []string el-type string n-items 1
   item  0 = type=ListItem, lineNum=4, key= paper4-table-ve-overall-flu.txt
   element: KV Pair overwriteoutputfile
   element: KV Pair outputfilename
@@ -328,7 +328,7 @@ decoded struct: {
     "Command": "run",
     "Debug": 0,
     "ExecutableVersion": "",
-    "RwFileNames": [
+    "InputFileNames": [
         "paper4-table-ve-overall-flu.txt"
     ],
     "OverWriteOutputFile": true,
@@ -559,7 +559,7 @@ Grid after copying contents:
 3,10:4,11 (n): 28 (12-41)
   encodeStruct: Job types.Job 1
   Job fld : Debug 0x13bf5d0 1
-  Job fld : RwFileNames 0x13bf5d0 1
+  Job fld : InputFileNames 0x13bf5d0 1
   primitve type: true
   Job fld : OverWriteOutputFile 0x13bf5d0 1
   Job fld : OutputFileName 0x13bf5d0 1
@@ -641,9 +641,9 @@ parseblock: parent root 0 current job 1
 parseNextLine() 2 : Debug :0
 after advance()-->line 2 type=KV Pair, lineNum=2, key=debug: 0
 inside parseBlock.ttkvpair: debug 0
-parseNextLine() 3 : RwFileNames List :
-3 type=List, lineNum=3, key=rwfilenames list
-after advance()-->line 3 type=List, lineNum=3, key=rwfilenames list
+parseNextLine() 3 : InputFileNames List :
+3 type=List, lineNum=3, key=InputFileNames list
+after advance()-->line 3 type=List, lineNum=3, key=InputFileNames list
 parseNextLine() 4 : - paper4-table-ve-overall-flu.txt
 4 type=ListItem, lineNum=4, key= paper4-table-ve-overall-flu.txt
 parseNextLine() 5 : OverWriteOutputFile :true
@@ -931,8 +931,8 @@ after advance()-->line 78 type=EOF, lineNum=78, key=
 *********Decoding started
 block: job ,struct type: htmldocx.Job
   element: KV Pair debug
-  element: List rwfilenames
-  warning: rwfilenames no suitable field in corresponding struct
+  element: List InputFileNames
+  warning: InputFileNames no suitable field in corresponding struct
   element: KV Pair overwriteoutputfile
   element: KV Pair outputfilename
   element: KV Pair outputformat

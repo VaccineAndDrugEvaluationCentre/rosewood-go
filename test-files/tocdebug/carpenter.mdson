@@ -1,7 +1,7 @@
 # Job
 Debug :3
 WorkDirName : ~/Dropbox/code/go/src/github.com/drgo/rosewood/test-files/tocdebug
-RwFileNames List :
+InputFileNames List :
 - paper4-table-ve-overall-flu.txt
 OverWriteOutputFile :true
 OutputFileName : test1.docx

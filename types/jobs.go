@@ -24,25 +24,9 @@ const scriptFileBaseName = "script.htds"
 //IMMUTABLE once initialized; TODO: hide internal details using getter functions
 type Job struct {
 	RunOptions *htmldocx.Options
-	// Command               string `mdson:"-"`
-	// Debug                 int
-	RwFileNames []string
-	// OverWriteOutputFile   bool
-	// OutputFileName        string
-	// OutputFormat          string
-	// PreserveWorkFiles     bool
-	SaveConvertedFile bool
-	// StyleSheetName        string
-	// WorkDirName           string
-	// TempDirName           string //dir where HTMLFileNames are stored
+	// SaveConvertedFile bool
 	RosewoodSettings *RosewoodSettings
-	// ConfigFileName        string `mdson:"-"` //MDSon file that was used to load the config
-	UI ui.UI `mdson:"-"` // provides access to the UI for lower-level routines
-	// ExecutableVersion     string `mdson:"-"`
-	// ExecutableName        string `mdson:"-"`
-	// LibVersion            string `mdson:"-"`
-	// DefaultConfigFileName string `mdson:"-"`
-	// DefaultScriptFileName string `mdson:"-"`
+	UI               ui.UI `mdson:"-"` // provides access to the UI for lower-level routines
 }
 
 //DefaultJob returns default job
@@ -73,10 +57,10 @@ func (job *Job) SetDebugLevel(debug int) {
 
 //GetNameOfInputFile returns name of input file corresponding to index
 func (job *Job) GetNameOfInputFile(index int) string {
-	if index < 0 || len(job.RwFileNames) >= index {
+	if index < 0 || len(job.RunOptions.InputFileNames) >= index {
 		return ""
 	}
-	return job.RwFileNames[index]
+	return job.RunOptions.InputFileNames[index]
 }
 
 func (job Job) String() string {
@@ -105,6 +89,7 @@ func (job *Job) LoadFromMDSonFile(FileName string) error {
 
 //LoadFromMDSon loads job configuration from an io.Reader
 func (job *Job) LoadFromMDSon(r io.Reader) error {
+	fmt.Println("loading config. Debug is", job.RunOptions.Debug)
 	mdson.SetDebug(job.RunOptions.Debug)
 	err := mdson.Unmarshal(r, job)
 	if err != nil {
@@ -144,7 +129,7 @@ func (job *Job) GetValidFormat() (string, error) {
 	case format == "": //outputfile specified but without an extension, return an error for simplicity
 		return "", fmt.Errorf("must specify an extension for output file : %s", job.RunOptions.OutputFileName)
 	case format == "html": //if an html outputfile is specified, currently >1 input file are not allowed
-		if len(job.RwFileNames) > 1 {
+		if len(job.RunOptions.InputFileNames) > 1 {
 			return "", fmt.Errorf("merging html files into one html file is not supported")
 		}
 	case format == "docx": //any number of inputfiles is acceptable
