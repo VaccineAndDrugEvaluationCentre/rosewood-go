@@ -12,15 +12,15 @@ type RosewoodSettings struct {
 	MandatoryCol         bool   `mdson:"-"`
 	MarkdownRender       string //"ignore", "strict"
 	MaxConcurrentWorkers int
-	PreserveWorkFiles    bool
-	RangeOperator        int32 `mdson:"-"`
-	ReportAllError       bool
-	SaveConvertedFile    bool
-	SectionCapacity      int    `mdson:"-"`
-	SectionSeparator     string `mdson:"-"`
-	SectionsPerTable     int    `mdson:"-"`
-	StyleSheetName       string
-	TrimCellContents     bool
+	// PreserveWorkFiles    bool
+	RangeOperator     int32 `mdson:"-"`
+	ReportAllError    bool
+	SaveConvertedFile bool
+	SectionCapacity   int    `mdson:"-"`
+	SectionSeparator  string `mdson:"-"`
+	SectionsPerTable  int    `mdson:"-"`
+	StyleSheetName    string
+	TrimCellContents  bool
 }
 
 //NewRosewoodSettings returns an empty Settings struct

@@ -14,8 +14,10 @@ import (
 )
 
 //Job holds info about the current run
-const configFileBaseName = "htmldocx.json"
+const configFileBaseName = "carpenter.mdson"
 const scriptFileBaseName = "script.htds"
+
+//TODO: create a runoptions struct to share between htmldocx and carpenter
 
 // Job holds all info related to current run
 //IMMUTABLE once initialized; TODO: hide internal details using getter functions
@@ -30,11 +32,12 @@ type Job struct {
 	SaveConvertedFile     bool
 	StyleSheetName        string
 	WorkDirName           string
-	RosewoodSettings      *RosewoodSettings
 	HTMLWorkDirName       string //dir where HTMLFileNames are stored
+	RosewoodSettings      *RosewoodSettings
 	ConfigFileName        string `mdson:"-"` //MDSon file that was used to load the config
 	UI                    ui.UI  `mdson:"-"` // provides access to the UI for lower-level routines
 	ExecutableVersion     string `mdson:"-"`
+	ExecutableName        string `mdson:"-"`
 	LibVersion            string `mdson:"-"`
 	DefaultConfigFileName string `mdson:"-"`
 	DefaultScriptFileName string `mdson:"-"`
@@ -147,9 +150,9 @@ func (job *Job) GetValidFormat() (string, error) {
 	return format, nil
 }
 
-// GetInputDir returns either job.WorkDirName, or the dir where job.ConfigFileName is held
+// GetWorkDir returns either job.WorkDirName, or the dir where job.ConfigFileName is held
 // or current dir in this order
-func (job *Job) GetInputDir() (string, error) {
+func (job *Job) GetWorkDir() (string, error) {
 	dir := filepath.Clean(job.WorkDirName)
 	if dir != "." {
 		return dir, nil
