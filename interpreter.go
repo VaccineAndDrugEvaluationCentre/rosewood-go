@@ -39,7 +39,7 @@ func (ri *Interpreter) Parse(r io.ReadSeeker, scriptIdentifer string) (*parser.F
 	if err := file.Parse(r); err != nil {
 		return nil, err
 	}
-	if ri.job.Debug == ui.DebugAll {
+	if ri.job.RunOptions.Debug == ui.DebugAll {
 		ri.job.UI.Logf("***Parsing finished: %d table(s) found\n", file.TableCount())
 		for i, t := range file.Tables() {
 			ri.job.UI.Logf("****Contents of table %d\n%v\n", i+1, t)

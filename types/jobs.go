@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/drgo/core/ui"
+	"github.com/drgo/htmldocx"
 	"github.com/drgo/mdson"
 )
 
@@ -22,35 +23,38 @@ const scriptFileBaseName = "script.htds"
 // Job holds all info related to current run
 //IMMUTABLE once initialized; TODO: hide internal details using getter functions
 type Job struct {
-	Command               string `mdson:"-"`
-	Debug                 int
-	RwFileNames           []string
-	OverWriteOutputFile   bool
-	OutputFileName        string
-	OutputFormat          string
-	PreserveWorkFiles     bool
-	SaveConvertedFile     bool
-	StyleSheetName        string
-	WorkDirName           string
-	HTMLWorkDirName       string //dir where HTMLFileNames are stored
-	RosewoodSettings      *RosewoodSettings
-	ConfigFileName        string `mdson:"-"` //MDSon file that was used to load the config
-	UI                    ui.UI  `mdson:"-"` // provides access to the UI for lower-level routines
-	ExecutableVersion     string `mdson:"-"`
-	ExecutableName        string `mdson:"-"`
-	LibVersion            string `mdson:"-"`
-	DefaultConfigFileName string `mdson:"-"`
-	DefaultScriptFileName string `mdson:"-"`
+	RunOptions *htmldocx.Options
+	// Command               string `mdson:"-"`
+	// Debug                 int
+	RwFileNames []string
+	// OverWriteOutputFile   bool
+	// OutputFileName        string
+	// OutputFormat          string
+	// PreserveWorkFiles     bool
+	SaveConvertedFile bool
+	// StyleSheetName        string
+	// WorkDirName           string
+	// TempDirName           string //dir where HTMLFileNames are stored
+	RosewoodSettings *RosewoodSettings
+	// ConfigFileName        string `mdson:"-"` //MDSon file that was used to load the config
+	UI ui.UI `mdson:"-"` // provides access to the UI for lower-level routines
+	// ExecutableVersion     string `mdson:"-"`
+	// ExecutableName        string `mdson:"-"`
+	// LibVersion            string `mdson:"-"`
+	// DefaultConfigFileName string `mdson:"-"`
+	// DefaultScriptFileName string `mdson:"-"`
 }
 
 //DefaultJob returns default job
 func DefaultJob(settings *RosewoodSettings) *Job {
 	return &Job{
-		Command:               "run",
-		RosewoodSettings:      settings,
-		DefaultConfigFileName: configFileBaseName,
-		DefaultScriptFileName: scriptFileBaseName,
-		UI:                    ui.NewUI(0), //default ui
+		RunOptions: &htmldocx.Options{
+			Command:               "run",
+			DefaultConfigFileName: configFileBaseName,
+			DefaultScriptFileName: scriptFileBaseName,
+		},
+		RosewoodSettings: settings,
+		UI:               ui.NewUI(0), //default ui
 	}
 }
 
@@ -101,7 +105,7 @@ func (job *Job) LoadFromMDSonFile(FileName string) error {
 
 //LoadFromMDSon loads job configuration from an io.Reader
 func (job *Job) LoadFromMDSon(r io.Reader) error {
-	mdson.SetDebug(job.Debug)
+	mdson.SetDebug(job.RunOptions.Debug)
 	err := mdson.Unmarshal(r, job)
 	if err != nil {
 		return err
@@ -133,12 +137,12 @@ func (job *Job) SaveToMDSonFile(FileName string, overwrite bool) error {
 
 // GetValidFormat validates and returns a file format extension (without the period)
 func (job *Job) GetValidFormat() (string, error) {
-	format := strings.Trim(strings.ToLower(filepath.Ext(job.OutputFileName)), ".")
+	format := strings.Trim(strings.ToLower(filepath.Ext(job.RunOptions.OutputFileName)), ".")
 	switch {
-	case job.OutputFileName == "": //no outputfile specified, assume one html per each inputfile
+	case job.RunOptions.OutputFileName == "": //no outputfile specified, assume one html per each inputfile
 		format = "html"
 	case format == "": //outputfile specified but without an extension, return an error for simplicity
-		return "", fmt.Errorf("must specify an extension for output file : %s", job.OutputFileName)
+		return "", fmt.Errorf("must specify an extension for output file : %s", job.RunOptions.OutputFileName)
 	case format == "html": //if an html outputfile is specified, currently >1 input file are not allowed
 		if len(job.RwFileNames) > 1 {
 			return "", fmt.Errorf("merging html files into one html file is not supported")
@@ -150,14 +154,14 @@ func (job *Job) GetValidFormat() (string, error) {
 	return format, nil
 }
 
-// GetWorkDir returns either job.WorkDirName, or the dir where job.ConfigFileName is held
+// GetWorkDir returns either job.RunOptions.WorkDirName, or the dir where job.RunOptions.ConfigFileName is held
 // or current dir in this order
 func (job *Job) GetWorkDir() (string, error) {
-	dir := filepath.Clean(job.WorkDirName)
+	dir := filepath.Clean(job.RunOptions.WorkDirName)
 	if dir != "." {
 		return dir, nil
 	}
-	dir = filepath.Dir(job.ConfigFileName)
+	dir = filepath.Dir(job.RunOptions.ConfigFileName)
 	if dir != "." {
 		return dir, nil
 	}
