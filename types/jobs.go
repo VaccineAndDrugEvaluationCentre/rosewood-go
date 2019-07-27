@@ -9,21 +9,17 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/drgo/core"
 	"github.com/drgo/core/ui"
-	"github.com/drgo/htmldocx"
 	"github.com/drgo/mdson"
 )
 
-//Job holds info about the current run
-const configFileBaseName = "carpenter.mdson"
-const scriptFileBaseName = "script.htds"
-
-//TODO: create a runoptions struct to share between htmldocx and carpenter
+//ConfigFileBaseName default config file name
+const ConfigFileBaseName = "carpenter.mdson"
 
 // Job holds all info related to current run
-//IMMUTABLE once initialized; TODO: hide internal details using getter functions
 type Job struct {
-	RunOptions *htmldocx.Options
+	RunOptions *core.RunOptions
 	// SaveConvertedFile bool
 	RosewoodSettings *RosewoodSettings
 	UI               ui.UI `mdson:"-"` // provides access to the UI for lower-level routines
@@ -32,14 +28,22 @@ type Job struct {
 //DefaultJob returns default job
 func DefaultJob(settings *RosewoodSettings) *Job {
 	return &Job{
-		RunOptions: &htmldocx.Options{
-			Command:               "run",
-			DefaultConfigFileName: configFileBaseName,
-			DefaultScriptFileName: scriptFileBaseName,
+		RunOptions: &core.RunOptions{
+			Command: "run",
 		},
 		RosewoodSettings: settings,
 		UI:               ui.NewUI(0), //default ui
 	}
+}
+
+func (job Job) String() string {
+	var buf bytes.Buffer
+	encoder := json.NewEncoder(&buf)
+	encoder.SetIndent("", "    ")
+	if err := encoder.Encode(job); err != nil {
+		panic(fmt.Sprintf("failed to print job configuration: %v", err))
+	}
+	return buf.String()
 }
 
 // SetUI pass a ui.UI pointer
@@ -63,25 +67,15 @@ func (job *Job) GetNameOfInputFile(index int) string {
 	return job.RunOptions.InputFileNames[index]
 }
 
-func (job Job) String() string {
-	var buf bytes.Buffer
-	encoder := json.NewEncoder(&buf)
-	encoder.SetIndent("", "    ")
-	if err := encoder.Encode(job); err != nil {
-		panic(fmt.Sprintf("failed to print job configuration: %v", err))
-	}
-	return buf.String()
-}
-
 //LoadFromMDSonFile loads job configuration from a file
 func (job *Job) LoadFromMDSonFile(FileName string) error {
-	configFile, err := os.Open(FileName)
+	file, err := os.Open(FileName)
 	if err != nil {
-		return fmt.Errorf("failed to load configuration file: %v", err)
+		return fmt.Errorf("failed to load configuration file %s: %v", FileName, err)
 	}
-	defer configFile.Close()
-	if err = job.LoadFromMDSon(configFile); err != nil {
-		return fmt.Errorf("failed to parse configuration file %s: %v", FileName, err)
+	defer file.Close()
+	if err = job.LoadFromMDSon(file); err != nil {
+		return fmt.Errorf("failed to load configuration file %s: %s", FileName, err)
 	}
 	job.UI.Log("configuration loaded from " + FileName)
 	return nil
@@ -115,7 +109,7 @@ func (job *Job) SaveToMDSon(w io.Writer) error {
 func (job *Job) SaveToMDSonFile(FileName string, overwrite bool) error {
 	err := mdson.MarshalToFile(job, FileName, overwrite)
 	if err != nil {
-		return fmt.Errorf("failed to save job configuration: %v", err)
+		return fmt.Errorf("failed to save job configuration: %s", err)
 	}
 	return nil
 }
@@ -126,11 +120,11 @@ func (job *Job) GetValidFormat() (string, error) {
 	switch {
 	case job.RunOptions.OutputFileName == "": //no outputfile specified, assume one html per each inputfile
 		format = "html"
-	case format == "": //outputfile specified but without an extension, return an error for simplicity
+	case format == "": //outputfile specified but without an extension, return an error
 		return "", fmt.Errorf("must specify an extension for output file : %s", job.RunOptions.OutputFileName)
 	case format == "html": //if an html outputfile is specified, currently >1 input file are not allowed
 		if len(job.RunOptions.InputFileNames) > 1 {
-			return "", fmt.Errorf("merging html files into one html file is not supported")
+			return "", fmt.Errorf("merging generated html files into one html file is not supported")
 		}
 	case format == "docx": //any number of inputfiles is acceptable
 	default:

@@ -203,15 +203,19 @@ func (hr *htmlRenderer) OutputCell(c *table.Cell) error {
 }
 
 func (hr *htmlRenderer) renderText(s string) string {
-	var err error
-	txt := s
-	if hr.settings.MarkdownRender == "strict" {
-		txt, err = md.InlinedMdToHTML(s, nil)
+	switch hr.settings.MarkdownRender {
+	case "standard", "":
+		txt, _ := md.InlinedMdToHTML(s, nil)
+		return string(txt)
+	case "strict":
+		txt, err := md.InlinedMdToHTML(s, nil)
 		if err != nil {
 			hr.htmlError = fmt.Errorf("error in parsing the following text: %s; error is %s ", strconv.Quote(s), err)
 		}
+		return string(txt)
+	default: //including "disabled"
+		return s
 	}
-	return string(txt)
 }
 
 // // escapeString escapes special characters like "<" to become "&lt;". It

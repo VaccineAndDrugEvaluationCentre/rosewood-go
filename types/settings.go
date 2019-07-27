@@ -10,7 +10,7 @@ type RosewoodSettings struct {
 	Debug                int
 	DoNotInlineCSS       bool
 	MandatoryCol         bool   `mdson:"-"`
-	MarkdownRender       string //"ignore", "strict"
+	MarkdownRender       string //"disabled", "strict", "standard"
 	MaxConcurrentWorkers int
 	// PreserveWorkFiles    bool
 	RangeOperator     int32 `mdson:"-"`
