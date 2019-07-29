@@ -124,6 +124,7 @@ func (hr *htmlRenderer) StartFile() error {
 	b.WriteString(`" scheme="YYYY-MM-DD HH:MM:SS">` + "\n")
 	// FIXME: add settings.HeaderText to support writing anything by the caller to the header
 	// ExecutableVersion := fmt.Sprintf("Exe Version %s, Lib Version %s", hr.settings.ExecutableVersion, hr.settings.LibVersion)
+	//FIXME: fix adding correct html for donotinlinecss == true
 	b.WriteString("<style>\n")
 	b.Write(hr.css)
 	b.WriteString("\n</style>\n")
@@ -191,10 +192,11 @@ func (hr *htmlRenderer) OutputCell(c *table.Cell) error {
 		b.WriteString(` class="` + strings.Join(c.Styles(), " ") + string('"')) // replace with \"
 	}
 	if c.RowSpan() > 1 {
-		b.WriteString(` rowspan="` + strconv.Itoa(c.RowSpan()) + string('"')) //eg rowspan="3"
+		// b.WriteString(` rowspan="` + strconv.Itoa(c.RowSpan()) + string('"')) //eg rowspan="3"
+		b.WriteString(fmt.Sprintf(" rowspan=\"%d\"", c.RowSpan())) //eg rowspan="3"
 	}
 	if c.ColSpan() > 1 {
-		b.WriteString(` colspan=` + strconv.Itoa(c.ColSpan()) + string('"')) // eg colspan="2"
+		b.WriteString(fmt.Sprintf(" colspan=\"%d\"", c.ColSpan())) // eg colspan="2"
 	}
 	// trim cell contents b/c html ignores white space anyway
 	b.WriteString(">" + hr.renderText(strings.TrimSpace(c.Text())) + "</" + tag + ">\n") //eg "> text </td>"

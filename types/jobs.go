@@ -83,7 +83,7 @@ func (job *Job) LoadFromMDSonFile(FileName string) error {
 
 //LoadFromMDSon loads job configuration from an io.Reader
 func (job *Job) LoadFromMDSon(r io.Reader) error {
-	fmt.Println("loading config. Debug is", job.RunOptions.Debug)
+	//fmt.Println("loading config. Debug is", job.RunOptions.Debug)
 	mdson.SetDebug(job.RunOptions.Debug)
 	err := mdson.Unmarshal(r, job)
 	if err != nil {

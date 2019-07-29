@@ -27,8 +27,6 @@ func NewInterpreter(job *Job) *Interpreter {
 	if job == nil || job.RosewoodSettings == nil {
 		panic("rosewood.NewInterpreter: job and job.RosewoodSettings must not be null")
 	}
-	// set debug flag of internal packages
-	//table.SetDebug(ui.DebugAll)
 	return &Interpreter{job, job.RosewoodSettings, ""}
 }
 
