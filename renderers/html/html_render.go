@@ -187,12 +187,11 @@ func (hr *htmlRenderer) OutputCell(c *table.Cell) error {
 	switch len(c.Styles()) {
 	case 0: //donothing
 	case 1: //optimization for the common scenario with only one style
-		b.WriteString(` class="` + c.Styles()[0] + string('"')) //eg class="style1"
+		b.WriteString(` class="` + c.Styles()[0] + `"`) //eg class="style1"
 	default:
-		b.WriteString(` class="` + strings.Join(c.Styles(), " ") + string('"')) // replace with \"
+		b.WriteString(` class="` + strings.Join(c.Styles(), " ") + `"`)
 	}
 	if c.RowSpan() > 1 {
-		// b.WriteString(` rowspan="` + strconv.Itoa(c.RowSpan()) + string('"')) //eg rowspan="3"
 		b.WriteString(fmt.Sprintf(" rowspan=\"%d\"", c.RowSpan())) //eg rowspan="3"
 	}
 	if c.ColSpan() > 1 {
