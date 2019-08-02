@@ -49,9 +49,7 @@ func init() {
 	// load default css once per exe run
 	exeDir, err := files.GetExeDir()
 	if err == nil {
-		if defaultCSS, err = ioutil.ReadFile(filepath.Join(exeDir, defaultCSSFileName)); err != nil {
-			panic(err) // FIXME: remove panic once debugging is over
-		}
+		defaultCSS, _ = ioutil.ReadFile(filepath.Join(exeDir, defaultCSSFileName))
 	}
 	rosewood.RegisterRenderer(&config)
 }
@@ -67,12 +65,12 @@ type htmlRenderer struct {
 
 //makeHTMLRenderer factory function according to the renderer registration requirements
 func makeHTMLRenderer() (table.Renderer, error) {
-	return NewHTMLRenderer(), nil
+	return NewHTMLRenderer()
 }
 
 //NewHTMLRenderer create a new htmlRenderer and return it as a Renderer
-func NewHTMLRenderer() table.Renderer {
-	return &htmlRenderer{}
+func NewHTMLRenderer() (table.Renderer, error) {
+	return &htmlRenderer{}, nil
 }
 
 func (hr *htmlRenderer) SetWriter(w io.Writer) error {
@@ -82,7 +80,7 @@ func (hr *htmlRenderer) SetWriter(w io.Writer) error {
 
 func (hr *htmlRenderer) SetSettings(settings *types.RosewoodSettings) error {
 	hr.settings = settings
-	cssFileName := hr.settings.StyleSheetName
+	cssFileName := strings.TrimSpace(hr.settings.StyleSheetName)
 	if cssFileName == "" { // use default css
 		hr.css = defaultCSS
 		return nil
@@ -91,7 +89,7 @@ func (hr *htmlRenderer) SetSettings(settings *types.RosewoodSettings) error {
 	var err error
 	if hr.settings.DoNotInlineCSS == false {
 		if hr.css, err = ioutil.ReadFile(cssFileName); err != nil {
-			return err
+			return fmt.Errorf("failed to load css file %s, %s", cssFileName, err)
 		}
 	}
 	return nil

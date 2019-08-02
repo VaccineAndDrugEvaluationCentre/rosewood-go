@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -146,3 +147,12 @@ func (job *Job) GetWorkDir() (string, error) {
 	}
 	return os.Getwd()
 }
+
+// GetTempWriter returns a pointer to os.File writing to a file created in the tempdir
+func (job *Job) GetTempWriter() (*os.File, error) {
+	return ioutil.TempFile(job.RunOptions.TempDirName, "")
+}
+
+// if !filepath.IsAbs(options.OutputFileName) { //no directory, use the work dir
+// 	options.OutputFileName = filepath.Join(options.WorkDirName, options.OutputFileName)
+// }

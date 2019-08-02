@@ -93,7 +93,7 @@ func (p *CommandParser) ParseCommandLines(s *types.Section) ([]*types.Command, e
 			p.addSyntaxError(err.Error())
 			p.job.UI.Logf("parsing error: %s\n", err.Error())
 		}
-		p.job.UI.Logf("parsed as: %v\n", cmd)
+		p.job.UI.Logf(" %v\n", cmd)
 		if p.errors.Len() > errOffset { //errors were detected during parsing; stop here
 			continue
 		}
@@ -102,6 +102,7 @@ func (p *CommandParser) ParseCommandLines(s *types.Section) ([]*types.Command, e
 		}
 		cmdList = append(cmdList, cmd)
 	}
+	p.job.UI.Log("")
 	switch {
 	case p.errors.Len() > 0:
 		return nil, p.errors.Err()

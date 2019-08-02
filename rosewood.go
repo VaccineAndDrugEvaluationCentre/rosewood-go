@@ -26,3 +26,17 @@ func ConvertToCurrentVersion(settings *types.RosewoodSettings, in io.Reader, out
 	}
 	return fmt.Errorf("invalid version number: %s", settings.ConvertFromVersion)
 }
+
+// ToHTML runs a task
+func ToHTML(inputFileName string, job *Job, in io.ReadSeeker, out io.Writer) error {
+	ri := NewInterpreter(job).SetScriptIdentifer(inputFileName)
+	file, err := ri.Parse(in, ri.ScriptIdentifer())
+	if err != nil || ri.Settings().CheckSyntaxOnly {
+		return ri.ReportError(err)
+	}
+	hr, err := GetRendererByName("html")
+	if err != nil {
+		return err
+	}
+	return ri.ReportError(ri.Render(out, file, hr))
+}
