@@ -71,18 +71,6 @@ func (f *File) Parse(r io.ReadSeeker) error {
 	switch GetFileVersion(strings.TrimSpace(scanner.Text())) {
 	case "unknown":
 		return NewError(ErrSyntaxError, unknownPos, "file does not start by a valid section separator")
-	// case "v0.1":
-	// 	f.job.UI.Log("found possible version 0.1 file")
-	// 	if !f.settings.ConvertOldVersions {
-	// 		return NewError(ErrSyntaxError, unknownPos, "possibly version 0.1 file")
-	// 	}
-	// 	buf, err := f.convertFromVersionZero1(r)
-	// 	if err != nil {
-	// 		return NewError(ErrSyntaxError, unknownPos, err.Error())
-	// 	}
-	// 	scanner = bufio.NewScanner(bufio.NewReader(buf))    //rest the scanner to using the modified buffer
-	// 	scanner.Scan()                                      //skip the first section separator
-	// 	s = types.NewSection(types.SectionUnknown, lineNum) //found the first section
 	case "v0.2":
 		s = types.NewSection(types.SectionUnknown, lineNum) //found the first section
 	}
@@ -109,29 +97,6 @@ func (f *File) Parse(r io.ReadSeeker) error {
 func (f *File) isSectionSeparatorLine(line string) bool {
 	return strings.HasPrefix(strings.TrimSpace(line), f.settings.SectionSeparator)
 }
-
-// func (f *File) convertFromVersionZero1(r io.ReadSeeker) (*bytes.Buffer, error) {
-// 	var buf bytes.Buffer //buffer to hold converted code
-// 	buf.Grow(100 * 1024)
-// 	r.Seek(0, 0) //rewind the stream
-// 	if err := ConvertToCurrentVersion(f.settings, RWSyntaxVdotzero1, r, &buf); err != nil {
-// 		return nil, NewError(ErrSyntaxError, unknownPos, err.Error())
-// 	}
-// 	if f.settings.SaveConvertedFile {
-// 		v2FileName := files.ConstructFileName(f.FileName, "rw", "", "-autogen")
-// 		out, err := files.CreateFile(v2FileName, false /* do not overwrite files*/)
-// 		if err != nil {
-// 			return nil, fmt.Errorf("unable to create converted v0.2 file [%s]: %s", v2FileName, err)
-// 		}
-// 		if _, err := out.Write(buf.Bytes()); err != nil {
-// 			return nil, err
-// 		}
-// 		if err := out.Close(); err != nil {
-// 			return nil, err
-// 		}
-// 	}
-// 	return &buf, nil
-// }
 
 //SectionCount returns the number of sections found in the file
 func (f *File) SectionCount() int {

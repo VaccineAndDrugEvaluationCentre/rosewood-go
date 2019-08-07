@@ -122,10 +122,13 @@ func (hr *htmlRenderer) StartFile() error {
 	b.WriteString(`" scheme="YYYY-MM-DD HH:MM:SS">` + "\n")
 	// FIXME: add settings.HeaderText to support writing anything by the caller to the header
 	// ExecutableVersion := fmt.Sprintf("Exe Version %s, Lib Version %s", hr.settings.ExecutableVersion, hr.settings.LibVersion)
-	//FIXME: fix adding correct html for donotinlinecss == true
-	b.WriteString("<style>\n")
-	b.Write(hr.css)
-	b.WriteString("\n</style>\n")
+	if hr.settings.DoNotInlineCSS {
+		b.WriteString(`<link rel="stylesheet" type="text/css" href="` + string(hr.css) + `">`)
+	} else {
+		b.WriteString("<style>\n")
+		b.Write(hr.css)
+		b.WriteString("\n</style>\n")
+	}
 	b.WriteString(htmlBody)
 	if hr.settings.Debug >= ui.DebugAll {
 		b.WriteString(time.Now().Format("2006-01-02 15:04:05"))
