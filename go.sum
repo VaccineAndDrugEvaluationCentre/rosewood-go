@@ -8,6 +8,8 @@ github.com/drgo/core v0.0.0-20190316195317-93f116e3903f h1:92lvJmM4hhoUDpktBPlFR
 github.com/drgo/core v0.0.0-20190316195317-93f116e3903f/go.mod h1:ZcL6w1MAFquH8Vw6JiTIVbRlNBYvmI8bJwTMQBSmDSA=
 github.com/drgo/mdson v0.0.0-20190303224357-7ea4d6d38425 h1:Z8LpQbu/tpx55+YQgHScXY1xKQ1EdP/zr3HS0m/Rw0Q=
 github.com/drgo/mdson v0.0.0-20190303224357-7ea4d6d38425/go.mod h1:yuCtWAn8il4BMiheu4ylzse2z9omSfqzfu5bnGbiqLw=
+github.com/gomarkdown/markdown v0.0.0-20190817180551-b0273bd33515 h1:mnBtqpjWzHChO5YFhgYKo78WvoecAZD4SatIJKOTuWE=
+github.com/gomarkdown/markdown v0.0.0-20190817180551-b0273bd33515/go.mod h1:JDGcbDT52eL4fju3sZ4TeHGsQwhG9nbDV21aMyhwPoA=
 github.com/gorilla/css v1.0.0 h1:BQqNyPTi50JCFMTw/b67hByjMVXZRwGha6wxVGkeihY=
 github.com/gorilla/css v1.0.0/go.mod h1:Dn721qIggHpt4+EFCcTLTU/vk5ySda2ReITrtgBl60c=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
