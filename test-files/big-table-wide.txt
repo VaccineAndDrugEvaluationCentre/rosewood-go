@@ -1,0 +1,61 @@
++++
+Average^1^ of some kind of value
++++
+HPV-RD                                                                |   -360 to -271 days  |   -270 to -181 days  |   -180 to -91 days   |    -90 to -1 days    |     0 to 90 days     |    91 to 180 days    |    181 to 270 days   |    271 to 360 days   |    361 to 450 days   |    451 to 540 days   |    541 to 630 days   |    631 to 720 days   |    721 to 810 days   |    811 to 900 days   |    901 to 990 days   |   991 to 1080 days   |
+Matching on residence                                                 |
+  Condition A                                                         |          $71         |          $87         |          $62         |          $93         |         $401         |         $123         |         $102         |         $110         |          $75         |          $71         |          $94         |          $77         |         $135         |          $52         |         $101         |          $37         |
+  Condition B                                                         |         $-315        |        $1,067        |          $69         |        $4,532        |        $1,817        |         $633         |         $785         |         $442         |         $862         |        $1,472        |         $-109        |        $1,715        |        $1,556        |         $100         |         $-832        |         $220         |
+  Condition C                                                         |         $291         |         $-340        |          $9          |        $1,266        |        $15,047       |        $3,341        |        $1,855        |        $2,146        |        $1,875        |        $1,679        |         $976         |         $424         |         $750         |         $698         |         $513         |         $351         |
+    Condition D                                                       |        $1,152        |        $1,130        |        $1,018        |        $2,920        |        $11,427       |        $5,698        |        $3,672        |        $7,614        |        $6,579        |        $3,418        |        $1,439        |        $1,449        |        $2,404        |        $1,189        |        $1,886        |        $1,283        |
+    Condition E                                                       |         $678         |         $310         |         $398         |         $648         |        $23,612       |        $3,180        |        $1,742        |        $2,532        |        $2,792        |         $949         |         $769         |         $303         |         $443         |        $1,877        |         $457         |         $-123        |
+    Condition F                                                       |         $-170        |        $-1,161       |         $-212        |        $1,551        |        $10,755       |        $3,462        |        $1,760        |         $858         |         $699         |        $1,539        |        $1,085        |         $502         |         $591         |         $-281        |         $-134        |         $633         |
+    Condition G                                                       |         $295         |         $-162        |        $-1,027       |        $1,228        |        $5,348        |        $1,991        |        $1,520        |        $2,661        |         $616         |        $3,654        |         $968         |         $-89         |        $1,425        |         $309         |        $2,434        |         $271         |
+Matching on residence and prior physician visits                      |
+  Condition A                                                         |         $-57         |         $-37         |          $42         |          $64         |         $362         |          $79         |          $51         |          $61         |          $47         |          $14         |          $75         |          $46         |          $71         |          $65         |          $54         |         $-17         |
+  Condition B                                                         |         $175         |         $946         |         $-317        |        $4,022        |        $1,271        |         $370         |         $605         |         $183         |         $210         |        $1,425        |          $97         |        $1,861        |        $1,996        |         $-145        |         $-587        |         $-229        |
+  Condition C                                                         |         $155         |         $251         |          $42         |        $1,336        |        $14,859       |        $2,868        |        $2,915        |        $2,524        |        $2,094        |        $1,819        |        $1,001        |         $320         |         $654         |        $1,158        |         $999         |         $324         |
+    Condition D                                                       |         $864         |        $1,053        |         $950         |        $4,386        |        $10,394       |        $4,061        |        $3,375        |        $8,014        |        $6,565        |        $3,656        |         $712         |        $1,319        |        $2,524        |        $1,362        |        $2,719        |        $1,043        |
+    Condition E                                                       |         $668         |         $310         |         $263         |         $578         |        $23,939       |        $2,979        |        $3,566        |        $3,201        |        $3,443        |        $1,146        |        $1,077        |         $119         |         $-269        |        $2,319        |         $505         |         $-278        |
+    Condition F                                                       |         $-285        |         $197         |         $-135        |        $1,392        |        $10,690       |        $2,777        |        $2,553        |         $930         |         $557         |        $1,527        |        $1,121        |         $423         |         $954         |         $313         |         $303         |         $730         |
+    Condition G                                                       |         $-242        |         $-257        |         $-581        |        $1,675        |        $4,048        |        $2,070        |        $1,884        |        $3,223        |         $911         |        $4,141        |         $429         |         $-90         |        $1,328        |         $570         |        $4,482        |         $204         |
++++
+^1^ = Excludes the top 1 percent
++++
+style col 1 rw-left
+style row 1 col 1 rw-header
+style row 1 col 2 rw-header
+style row 1 col 3 rw-header
+style row 1 col 4 rw-header
+style row 1 col 5 rw-header
+style row 1 col 6 rw-header
+style row 1 col 7 rw-header
+style row 1 col 8 rw-header
+style row 1 col 9 rw-header
+style row 1 col 10 rw-header
+style row 1 col 11 rw-header
+style row 1 col 12 rw-header
+style row 1 col 13 rw-header
+style row 1 col 14 rw-header
+style row 1 col 15 rw-header
+style row 1 col 16 rw-header
+style row 1 col 17 rw-header
+merge row 2 col 1:17
+style row 2 col 1 rw-cat-labels
+style row 3 col 1 rw-indent1
+style row 4 col 1 rw-indent1
+style row 5 col 1 rw-indent1
+style row 6 col 1 rw-indent2
+style row 7 col 1 rw-indent2
+style row 8 col 1 rw-indent2
+style row 9 col 1 rw-indent2
+merge row 10 col 1:17
+style row 10 col 1 rw-cat-labels
+style row 11 col 1 rw-indent1
+style row 12 col 1 rw-indent1
+style row 13 col 1 rw-indent1
+style row 14 col 1 rw-indent2
+style row 15 col 1 rw-indent2
+style row 16 col 1 rw-indent2
+style row 17 col 1 rw-indent2
+style row 17 rw-bottom-row
++++
