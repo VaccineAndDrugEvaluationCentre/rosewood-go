@@ -3,6 +3,7 @@
 package table
 
 import (
+	"fmt"
 	"io"
 	"strings"
 
@@ -127,4 +128,29 @@ func (t *Table) applyStyles(rlist []types.Range) error {
 		}
 	}
 	return nil
+}
+
+// Properties holds info about formatted table contents
+type Properties struct {
+	MaxColumnCount  int
+	RowCount        int
+	HeaderRowsCount int
+	Label           string
+	TableSpecs      string //follows latex tabular conventions
+}
+
+// Properties returns a pointer to TableProperites
+func (t *Table) Properties() *Properties {
+	tp := Properties{
+		MaxColumnCount: t.grid.MaxFieldCount(),
+		RowCount:       t.grid.RowCount(),
+		Label:          t.identifier,
+	}
+	tp.TableSpecs = fmt.Sprintf("l*{%d}{c}", tp.MaxColumnCount-1) //assumes first col is left-justified, rest centered
+	for _, row := range t.grid.rows {
+		if row.Header() {
+			tp.HeaderRowsCount++
+		}
+	}
+	return &tp
 }

@@ -139,7 +139,7 @@ func NewTableContents(text string) (*TableContents, error) {
 			cells = nil      //emtpy the cell slice
 		case '|':
 			fldCount++
-			cell := NewCell(text[offset:pos], line, fldCount) //text from last offset to just before the separator
+			cell := NewCell(text[offset:pos], line, fldCount, nil) //text from last offset to just before the separator
 			cells = append(cells, cell)
 			offset = pos + 1 //offset is now just after the separator
 		}

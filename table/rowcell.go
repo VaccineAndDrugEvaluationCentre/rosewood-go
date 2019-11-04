@@ -15,10 +15,11 @@ type Row struct {
 
 func newBlankRow(row int, colCount int) *Row {
 	cells := make([]*Cell, colCount)
+	thisRow := &Row{cells}
 	for i := 0; i < colCount; i++ {
-		cells[i] = NewCell("", row, i+1)
+		cells[i] = NewCell("", row, i+1, thisRow)
 	}
-	return &Row{cells}
+	return thisRow
 }
 
 //MakeRow for testing
@@ -37,6 +38,37 @@ func (r *Row) String() string {
 
 func (r *Row) cellCount() int {
 	return len(r.cells)
+}
+
+// Number returns row number
+func (r *Row) Number() int {
+	if len(r.cells) > 0 {
+		return r.cells[0].row
+	}
+	return -1
+}
+
+// LastCell returns pointer to last cell in the row
+func (r *Row) LastCell() *Cell {
+	if r.cellCount() > 0 {
+		return r.cells[r.cellCount()-1]
+	}
+	return nil
+}
+
+// LastVisibleCell returns pointer to last cell in the row that is not merged or spanned
+func (r *Row) LastVisibleCell() *Cell {
+	for i := len(r.cells) - 1; i >= 0; i-- {
+		if !r.cells[i].Merged() {
+			return r.cells[i]
+		}
+	}
+	return nil
+}
+
+// Header returns true if the first cell in a row has a header style
+func (r *Row) Header() bool {
+	return r.cellCount() > 1 && r.cells[0].Header()
 }
 
 //CellState describes whether a cell is merged, spanned or otherwise
@@ -66,14 +98,16 @@ type Cell struct {
 	rowSpan, colSpan int
 	styleList        []string
 	header           bool //optimization for header cells
+	parentRow        *Row
 }
 
 //NewCell returns a pointer to a new Cell
-func NewCell(text string, row, col int) *Cell {
+func NewCell(text string, row, col int, parentRow *Row) *Cell {
 	return &Cell{
-		text: text,
-		row:  row,
-		col:  col}
+		text:      text,
+		row:       row,
+		col:       col,
+		parentRow: parentRow}
 }
 
 //MakeCell creates a new cell for testing
@@ -110,6 +144,21 @@ func (c *Cell) Styles() []string {
 
 func (c *Cell) Merged() bool {
 	return c.state >= CsHMerged
+}
+
+// Row returns pointer to the row holding this cell
+func (c *Cell) Row() *Row {
+	return c.parentRow
+}
+
+// LastCell true if this cells is last cell in the row
+func (c *Cell) LastCell() bool {
+	return c.parentRow.LastCell() == c
+}
+
+// LastVisibleCell true if this cells is last cell in the row that is not merged or spanned
+func (c *Cell) LastVisibleCell() bool {
+	return c.parentRow.LastVisibleCell() == c
 }
 
 //AddStyle adds one or more style names if they do not already exist in the list

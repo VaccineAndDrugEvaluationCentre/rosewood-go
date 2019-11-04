@@ -1,6 +1,6 @@
 // Copyright 2017 Salah Mahmud and Colleagues. All rights reserved.
 
-package html
+package latex
 
 import (
 	"bytes"
@@ -15,7 +15,7 @@ import (
 	"github.com/drgo/rosewood/types"
 )
 
-func TestHTML_Renderer(t *testing.T) {
+func TestLatexRenderer(t *testing.T) {
 	const pathPrefix = "../../test-files/"
 	tests := []struct {
 		srcFileName string
@@ -39,7 +39,7 @@ func TestHTML_Renderer(t *testing.T) {
 				fmt.Printf("error parsing file [%s]: %s\n", tt.srcFileName, err)
 				return
 			}
-			hr, err := rosewood.GetRendererByName("html")
+			hr, err := rosewood.GetRendererByName("latex")
 			if err != nil {
 				t.Fatalf(" rosewood.GetRendererByName error = %v", err)
 			}

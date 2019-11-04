@@ -1,0 +1,33 @@
+
+\documentclass{article}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage[margin=1in]{geometry}
+\usepackage{array}
+\usepackage{crimson}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\begin{document}
+%date-generated2019-11-04 16:17:01
+2019-11-04 16:17:01
+
+\begin{table}[htbp]
+\centering
+\setlength{\tabcolsep}{0.5em}
+\def\arraystretch{1.5}  
+\caption{Definition of Autoimmune diseases}
+\begin{tabular}{l*{3}{c}}
+\toprule
+\multicolumn{4}{c}{>= 1 admission (ICD-10 codes as below) OR >= 2 physician claims (ICD-9 codes as below) }\\
+\multirow{2}{*}{Disease                     }&\multicolumn{2}{c}{             ICD9 codes             }&     ICD10 codes     \\
+                            & Physician claims &  Hospital data  &                     \\
+\midrule
+Pernicious anemia           &       281        &      281.0      &        D51.0        \\
+Autoimmune hemolytic anemia &       283        &      283.0      &        D59.1        \\
+Ankylosing spondylitis      &       720        &      720.0      &         M45         \\
+
+\bottomrule
+\end{tabular}
+\label{table:mr}
+\end{table}
+
+\end{document}

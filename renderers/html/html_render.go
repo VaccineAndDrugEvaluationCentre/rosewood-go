@@ -219,20 +219,3 @@ func (hr *htmlRenderer) renderText(s string) string {
 		return s
 	}
 }
-
-// // escapeString escapes special characters like "<" to become "&lt;". It
-// // modified from stdlib html.EscapeString() to escape <, <=, >, >=,  &, ' and ".
-// func escapeString(s string) string {
-// 	return htmlEscaper.Replace(s)
-// }
-
-// var htmlEscaper = strings.NewReplacer(
-// 	`&`, "&amp;",
-// 	`'`, "&#39;",
-// 	`<=`, "&le;",
-// 	`<`, "&lt;",
-// 	`>=`, "&ge;",
-// 	`=>`, "&ge;",
-// 	`>`, "&gt;",
-// 	`"`, "&#34;",
-// )
