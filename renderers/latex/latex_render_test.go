@@ -5,6 +5,7 @@ package latex
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"testing"
@@ -23,8 +24,8 @@ func TestLatexRenderer(t *testing.T) {
 		wantW       string
 		wantErr     bool
 	}{
-		{"singletab.gold", "singletab", "", false},
-		{"wrong1tab.gold", "", "", true},
+		{"big-table-long.txt", "bigtab", "", false},
+		{"bug-v1tov2-extra-style-converted-v1-2-v2rw", "bug-v1v2", "", false},
 	}
 	job := rosewood.DefaultJob(types.DebugRosewoodSettings(ui.DebugAll))
 	for _, tt := range tests {
@@ -48,7 +49,7 @@ func TestLatexRenderer(t *testing.T) {
 			if err != nil {
 				t.Fatalf(" rosewood.Interepeter.Render error = %v", err)
 			}
-			fmt.Fprintf(os.Stderr, out.String())
+			io.Copy(os.Stderr, out)
 		})
 	}
 }

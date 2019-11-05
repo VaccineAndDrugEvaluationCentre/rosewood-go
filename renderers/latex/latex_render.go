@@ -180,9 +180,6 @@ func (hr *latexRenderer) OutputCell(c *table.Cell) error {
 	// if c.RowSpan() > 1 {
 	// 	b.WriteString(fmt.Sprintf(" rowspan=\"%d\"", c.RowSpan())) //eg rowspan="3"
 	// }
-
-	// \multicolumn{3}{|l|}{\multirow{3}{*}{char literals}}
-
 	if c.ColSpan() > 1 {
 		b.WriteString(`\multicolumn{` + strconv.Itoa(c.ColSpan()) + `}{c}{`)
 	}
@@ -190,7 +187,7 @@ func (hr *latexRenderer) OutputCell(c *table.Cell) error {
 		b.WriteString(`\multirow{` + strconv.Itoa(c.RowSpan()) + `}{*}{`)
 	}
 	// trim cell contents b/c html ignores white space anyway
-	b.WriteString(c.Text())
+	b.WriteString(hr.renderText(c.Text()))
 	if c.RowSpan() > 1 {
 		b.WriteString("}")
 	}
@@ -205,6 +202,7 @@ func (hr *latexRenderer) OutputCell(c *table.Cell) error {
 }
 
 func (hr *latexRenderer) renderText(s string) string {
+	return md.EscapeAsTex(s)
 	switch hr.settings.MarkdownRender {
 	case "standard", "":
 		txt, _ := md.InlinedMdToHTML(s, nil)
