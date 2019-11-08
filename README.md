@@ -1,4 +1,5 @@
 # Package rosewood a set of packages for parsing and rendering Rosewood files.
+(https://goreportcard.com/badge/github.com/yangwenmai/gpt)](https://goreportcard.com/report/github.com/yangwenmai/gpt)  [![Documentation]
 
 ## Compile
 - for dependencies, see link/to/graph TODO
