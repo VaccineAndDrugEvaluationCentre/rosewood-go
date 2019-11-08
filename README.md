@@ -1,5 +1,5 @@
 # Package rosewood a set of packages for parsing and rendering Rosewood files.
-[![Documentation](https://github.com/VaccineAndDrugEvaluationCentre/rosewood-go?status.svg)](https://github.com/VaccineAndDrugEvaluationCentre/rosewood-go)
+[![Documentation](https://godoc.org/github.com/VaccineAndDrugEvaluationCentre/rosewood-go?status.svg)](https://godoc.org/github.com/VaccineAndDrugEvaluationCentre/rosewood-go)
 
 ## Compile
 - for dependencies, see link/to/graph TODO
