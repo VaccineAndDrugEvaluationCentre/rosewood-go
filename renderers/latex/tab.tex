@@ -1,21 +1,25 @@
 \documentclass{article}
 \usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{crimson}
+\usepackage[T1]{fontenc}
+\usepackage{pdflscape}
 \usepackage{multirow}
 \usepackage[margin=1in]{geometry}
 \usepackage{array}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \begin{document}
-%%date-generated2019-11-05 12:03:36
-2019-11-05 12:03:36
+%%date-generated2019-11-07 13:24:07
+2019-11-07 13:24:07
 
 \begin{table}[htbp]
 \centering
 \setlength{\tabcolsep}{0.5em}
 \def\arraystretch{1.5}  
 \caption{Some kind of numbers}
-\begin{tabular}{l*{6}{c}}
+\begin{longtable}{l*{6}{c}}
 \toprule
-\multirow{2}{*}{                                                        }&     Column A     &  Column B  &     Column C    &  Column D &      Column E     &   Column F  \\
+\multirow{2}{*}{}&     Column A     &  Column B  &     Column C    &  Column D &      Column E     &   Column F  \\
                                                         &           (N=13,880)           &           (N=40,702)           &             (N=81)             &             (N=219)            &            (N=1,055)           &            (N=2,481)           \\
 \multicolumn{7}{c}{Age                                                     }\\
   9 - 17 years                                          &           293 (2.1\%)           &           876 (2.2\%)           &            0 (0.0\%)            &            0 (0.0\%)            &            0 (0.0\%)            &            0 (0.0\%)            \\
@@ -212,8 +216,9 @@ Prescription for systemic steroids                      &           242 (1.7\%) 
   2014                                                  &           907 (6.5\%)           &          2,681 (6.6\%)          &            7 (8.6\%)            &            21 (9.6\%)           &            72 (6.8\%)           &           183 (7.4\%)           \\
 
 \bottomrule
-\end{tabular}
+\end{longtable}
 \label{table:mr}
+
 \end{table}
 
 \end{document}

@@ -20,6 +20,10 @@ const (
 	header = `
 \documentclass{article}
 \usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{crimson}
+\usepackage[T1]{fontenc}
+\usepackage{pdflscape}
 \usepackage{multirow}
 \usepackage[margin=1in]{geometry}
 \usepackage{array}
